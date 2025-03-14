@@ -1,23 +1,9 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyA1dszzFMxoJ_6h0-Opyc6QVv_hizhQZAA",
-    authDomain: "team-management-tool.firebaseapp.com",
-    projectId: "team-management-tool",
-    storageBucket: "team-management-tool.firebasestorage.app",
-    messagingSenderId: "560359473161",
-    appId: "1:560359473161:web:24702442422031c2a238d8"
-};
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+
 const Register = () => {
     const navigate = useNavigate();
 
