@@ -31,7 +31,7 @@ const Login = () => {
                         className="mt-4 px-6 py-2 border border-white rounded-full transform transition duration-300 hover:scale-95 active:scale-90"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        onClick={() => navigate("/signup")}
+                        onClick={() => navigate("/register")}
                     >
                         Register
                     </motion.button>
