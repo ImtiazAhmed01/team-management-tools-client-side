@@ -10,6 +10,7 @@ import Register from './Component/Register/Register'
 
 import { ToastContainer } from 'react-toastify'
 import AuthProvider from './Component/provider/authProvider'
+import Home from './Component/pages/Home/Home'
 
 
 
@@ -19,7 +20,10 @@ const router = createBrowserRouter([
     path: "/",
     element: <App></App>,
     children: [
-
+      {
+        index: true,
+        element: <Home/>
+      },
       {
         path: "/login",
         element: <Login></Login>,
