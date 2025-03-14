@@ -1,9 +1,51 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
 const Register = () => {
     const navigate = useNavigate();
+    const [passwordError,setPasswordError]=useState("");
+
+    const validatePassword = (password) => {
+        const hasUppercase = /[A-Z]/.test(password);
+        const hasLowercase = /[a-z]/.test(password);
+        const isLongEnough = password.length >= 6;
+
+        if (!hasUppercase) {
+            setPasswordError("Password must contain at least one uppercase letter.");
+            return false;
+        }
+
+        if (!hasLowercase) {
+            setPasswordError("Password must contain at least one lowercase letter.");
+            return false;
+        }
+
+        if (!isLongEnough) {
+            setPasswordError("Password must be at least 6 characters long.");
+            return false;
+        }
+
+        setPasswordError("");
+        return true;
+    };
+    const handleRegister = (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const uname = form.uname.value;
+        const email = form.email.value;
+        const password = form.password.value;
+        console.log(uname,email,password)
+        if (!validatePassword(password)) {
+            toast.error("Invalid password. Please check the requirements.", {
+                position: "top-center",
+                autoClose: 5000,
+                theme: "light",
+                transition: Bounce,
+            });
+            return;
+        }
+    };
 
     return (
         <motion.div
@@ -26,18 +68,22 @@ const Register = () => {
                     transition={{ duration: 0.5 }}
                 >
                     <h2 className="text-2xl md:text-3xl font-bold mb-4">Registration</h2>
-                    <div className="space-y-4">
-                        <input type="text" name="uname" placeholder="Username" className="input input-bordered w-full" />
-                        <input type="email" name="email" placeholder="Email" className="input input-bordered w-full" />
-                        <input type="password" name="password" placeholder="Password" className="input input-bordered w-full" />
+                    
+                    {/* ✅ Wrap inputs inside a form */}
+                    <form className="space-y-4" onSubmit={handleRegister}>
+                        <input type="text" name="uname" placeholder="Username" className="input input-bordered w-full" required />
+                        <input type="email" name="email" placeholder="Email" className="input input-bordered w-full" required />
+                        <input type="password" name="password" placeholder="Password" className="input input-bordered w-full" required />
+                        
                         <motion.button
+                            type="submit"
                             className="btn btn-primary w-full"
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                         >
                             Register
                         </motion.button>
-                    </div>
+                    </form>
                 </motion.div>
 
                 {/* Welcome Back Section */}
