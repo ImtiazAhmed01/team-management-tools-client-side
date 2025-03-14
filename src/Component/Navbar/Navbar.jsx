@@ -35,7 +35,7 @@ const Navbar = () => {
                   Login
                 </button>
               </NavLink>
-              <NavLink to="/signup">
+              <NavLink to="/register">
                 <button className="btn bg-[#006dc7] text-white px-6 font-semibold hover:bg-[#4343e5] hover:scale-105">
                   SignUp
                 </button>
