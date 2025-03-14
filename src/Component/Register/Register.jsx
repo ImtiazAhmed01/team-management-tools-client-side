@@ -1,16 +1,31 @@
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import AuthContext from "../context/AuthContext";
-import {Bounce, toast } from "react-toastify";
-
+import { Bounce, toast } from "react-toastify";
+import { AuthContext } from "../provider/authProvider";
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";  // Import Firebase functions
 
 const Register = () => {
+    const { signInWithGoogle } = useContext(AuthContext);
     const navigate = useNavigate();
-    const [passwordError,setPasswordError]=useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [passwordError, setPasswordError] = useState(""); // For password error validation
 
+    const handleGoogleSignIn = async () => {
+        try {
+            await signInWithGoogle();
+            navigate("/");
+            toast.success("User created successfully by Google sign in!", {
+                position: "top-center",
+                autoClose: 5000,
+                theme: "light",
+                transition: Bounce,
+            });
+        } catch (error) {
+            console.error("Google login failed:", error.message);
+        }
+    };
 
-    const {createUser}=useContext(AuthContext);
     const validatePassword = (password) => {
         const hasUppercase = /[A-Z]/.test(password);
         const hasLowercase = /[a-z]/.test(password);
@@ -31,16 +46,18 @@ const Register = () => {
             return false;
         }
 
-        setPasswordError("");
+        setPasswordError(""); // Reset password error if validation passes
         return true;
     };
-    const handleRegister = (e) => {
+
+    const handleRegister = async (e) => {
         e.preventDefault();
         const form = e.target;
         const uname = form.uname.value;
         const email = form.email.value;
         const password = form.password.value;
-        console.log(uname,email,password)
+
+        // Validate password
         if (!validatePassword(password)) {
             toast.error("Invalid password. Please check the requirements.", {
                 position: "top-center",
@@ -50,13 +67,47 @@ const Register = () => {
             });
             return;
         }
-        createUser(email, password)
-            .then(result => {
-                console.log(result.user)
-            })
-            .catch(error => {
-                console.log(error.message)
-            })
+
+        try {
+            const auth = getAuth();
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            // Update user profile
+            await updateProfile(user, {
+                displayName: uname,  // Using username
+            });
+
+            localStorage.setItem(
+                "userProfile",
+                JSON.stringify({
+                    displayName: uname,
+                    email: user.email,
+                    uname,
+                })
+            );
+
+            toast.success("User created successfully!", {
+                position: "top-center",
+                autoClose: 5000,
+                theme: "light",
+                transition: Bounce,
+            });
+
+            navigate("/"); // Redirect to home page
+        } catch (error) {
+            console.error("Error creating user:", error.message);
+            toast.error("Error creating user. Please try again.", {
+                position: "top-center",
+                autoClose: 5000,
+                theme: "light",
+                transition: Bounce,
+            });
+        }
+    };
+
+    const togglePasswordVisibility = () => {
+        setShowPassword((prevState) => !prevState);
     };
 
     return (
@@ -80,13 +131,22 @@ const Register = () => {
                     transition={{ duration: 0.5 }}
                 >
                     <h2 className="text-2xl md:text-3xl font-bold mb-4">Registration</h2>
-                    
+
                     {/* ✅ Wrap inputs inside a form */}
                     <form className="space-y-4" onSubmit={handleRegister}>
                         <input type="text" name="uname" placeholder="Username" className="input input-bordered w-full" required />
                         <input type="email" name="email" placeholder="Email" className="input input-bordered w-full" required />
-                        <input type="password" name="password" placeholder="Password" className="input input-bordered w-full" required />
-                        
+                        <input
+                            type={showPassword ? "text" : "password"}
+                            name="password"
+                            placeholder="Password"
+                            className="input input-bordered w-full"
+                            required
+                        />
+                        <button type="button" onClick={togglePasswordVisibility} className="text-sm text-blue-500">
+                            {showPassword ? "Hide Password" : "Show Password"}
+                        </button>
+
                         <motion.button
                             type="submit"
                             className="btn btn-primary w-full"
@@ -96,6 +156,18 @@ const Register = () => {
                             Register
                         </motion.button>
                     </form>
+
+                    {/* Google Sign-In Button */}
+                    <div className="mt-4">
+                        <motion.button
+                            className="btn btn-outline w-full"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={handleGoogleSignIn}
+                        >
+                            Sign Up with Google
+                        </motion.button>
+                    </div>
                 </motion.div>
 
                 {/* Welcome Back Section */}

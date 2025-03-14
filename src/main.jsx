@@ -7,8 +7,10 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Login from './Component/Login/Login'
 import App from './App'
 import Register from './Component/Register/Register'
-import AuthProvider from './Component/context/AuthProvider'
+
 import { ToastContainer } from 'react-toastify'
+import AuthProvider from './Component/provider/authProvider'
+
 
 
 
