@@ -132,7 +132,7 @@ const Register = () => {
                 >
                     <h2 className="text-2xl md:text-3xl font-bold mb-4">Registration</h2>
 
-                    {/* ✅ Wrap inputs inside a form */}
+                    {/* Wrap inputs inside a form */}
                     <form className="space-y-4" onSubmit={handleRegister}>
                         <input type="text" name="uname" placeholder="Username" className="input input-bordered w-full" required />
                         <input type="email" name="email" placeholder="Email" className="input input-bordered w-full" required />
@@ -160,7 +160,7 @@ const Register = () => {
                     {/* Google Sign-In Button */}
                     <div className="mt-4">
                         <motion.button
-                            className="btn btn-outline w-full"
+                            className="btn btn-outline w-full bg-red-500 animate-bounce"
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={handleGoogleSignIn}
@@ -183,7 +183,7 @@ const Register = () => {
                         className="btn btn-outline text-white border-white"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        onClick={() => navigate("/")}
+                        onClick={() => navigate("/login")}
                     >
                         Login
                     </motion.button>
