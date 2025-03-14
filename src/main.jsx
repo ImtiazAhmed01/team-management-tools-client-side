@@ -7,6 +7,9 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Login from './Component/Login/Login'
 import App from './App'
 import Register from './Component/Register/Register'
+import AuthProvider from './Component/context/AuthProvider'
+import { ToastContainer } from 'react-toastify'
+
 
 
 const router = createBrowserRouter([
@@ -14,7 +17,7 @@ const router = createBrowserRouter([
     path: "/",
     element: <App></App>,
     children: [
-      
+
       {
         path: "/login",
         element: <Login></Login>,
@@ -31,6 +34,21 @@ const router = createBrowserRouter([
 createRoot(document.getElementById('root')).render(
 
   <StrictMode>
-    <RouterProvider router={router}> </RouterProvider>
+    <AuthProvider>
+      <RouterProvider router={router}> </RouterProvider>
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        transition="bounce"
+      />
+    </AuthProvider>
   </StrictMode >,
 )

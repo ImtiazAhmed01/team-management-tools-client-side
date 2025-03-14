@@ -1,11 +1,16 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import AuthContext from "../context/AuthContext";
+import {Bounce, toast } from "react-toastify";
+
 
 const Register = () => {
     const navigate = useNavigate();
     const [passwordError,setPasswordError]=useState("");
 
+
+    const {createUser}=useContext(AuthContext);
     const validatePassword = (password) => {
         const hasUppercase = /[A-Z]/.test(password);
         const hasLowercase = /[a-z]/.test(password);
@@ -45,6 +50,13 @@ const Register = () => {
             });
             return;
         }
+        createUser(email, password)
+            .then(result => {
+                console.log(result.user)
+            })
+            .catch(error => {
+                console.log(error.message)
+            })
     };
 
     return (
