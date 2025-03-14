@@ -11,9 +11,9 @@ function App() {
 
   return (
     <>
-     <Navbar></Navbar>
-     <Outlet></Outlet>
-     <Footer></Footer>
+      <Navbar></Navbar>
+      <Outlet></Outlet>
+      <Footer></Footer>
     </>
   )
 }
