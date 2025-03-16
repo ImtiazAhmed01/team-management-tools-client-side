@@ -5,20 +5,20 @@ const Navbar = () => {
   const user = false;
 
   return (
-    <div className="w-full">
+    <div className="w-full ">
       {/* Navbar */}
       <div className="navbar flex justify-between items-center px-6 py-3 bg-white">
-        
+
         {/* Left Section - Logo */}
         <div className="flex items-center">
           <img src={img1} alt="Logo" className="w-24 h-20" />
           <div className="font-bold text-2xl lg:text-3xl hidden md:flex">
-              <span className="text-[#006dc7]">Collab</span>{" "}
-              <span >Nest</span>
-            </div>
+            <span className="text-[#006dc7]">Collab</span>{" "}
+            <span className="bg-[#006dc7] text-white" >Nest</span>
+          </div>
         </div>
 
-       
+
         <div className="hidden lg:flex items-center space-x-6 font-semibold">
           <NavLink className="hover:text-[#4978ff]" to="/">Home</NavLink>
           <NavLink className="hover:text-[#4978ff]" to="/about">About</NavLink>
@@ -27,7 +27,7 @@ const Navbar = () => {
           <NavLink className="hover:text-[#4978ff]" to="/contact">Contact</NavLink>
           {user && <NavLink className="hover:text-[#4978ff]" to="/dashboard">DashBoard</NavLink>}
 
-         
+
           {!user ? (
             <>
               <NavLink to="/login">
@@ -35,7 +35,7 @@ const Navbar = () => {
                   Login
                 </button>
               </NavLink>
-              <NavLink to="/signup">
+              <NavLink to="/register">
                 <button className="btn bg-[#006dc7] text-white px-6 font-semibold hover:bg-[#4343e5] hover:scale-105">
                   SignUp
                 </button>
@@ -54,7 +54,7 @@ const Navbar = () => {
           )}
         </div>
 
-        
+
         <div className="lg:hidden">
           <div className="dropdown">
             <label tabIndex={0} className="btn btn-ghost">
@@ -88,7 +88,7 @@ const Navbar = () => {
         </div>
       </div>
 
-   
+
     </div>
   );
 };
