@@ -163,11 +163,11 @@ const Login = () => {
                         <div className="mt-4 text-center">
                             <motion.button
                                 onClick={handleGoogleSignIn}
-                                className="w-full mt-4 bg-red-500 text-white py-2 rounded-md animate-bounce"
+                                className="w-full flex gap-5 mt-4 bg-red-500 text-white py-2 rounded-md animate-bounce"
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                             >
-                                Login with Google
+                                <img width="30" height="30" src="https://img.icons8.com/color/48/google-logo.png" alt="google-logo" /> Login with Google
                             </motion.button>
                         </div>
                     </div>

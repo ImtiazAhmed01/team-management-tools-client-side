@@ -14,7 +14,7 @@ const Navbar = () => {
           <img src={img1} alt="Logo" className="w-24 h-20" />
           <div className="font-bold text-2xl lg:text-3xl hidden md:flex">
             <span className="text-[#006dc7]">Collab</span>{" "}
-            <span className="bg-[#006dc7]" >Nest</span>
+            <span className="bg-[#006dc7] text-white" >Nest</span>
           </div>
         </div>
 

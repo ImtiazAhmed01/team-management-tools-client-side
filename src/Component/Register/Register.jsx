@@ -165,7 +165,7 @@ const Register = () => {
                             whileTap={{ scale: 0.95 }}
                             onClick={handleGoogleSignIn}
                         >
-                            Sign Up with Google
+                            <img width="30" height="30" src="https://img.icons8.com/color/48/google-logo.png" alt="google-logo" />Sign Up with Google
                         </motion.button>
                     </div>
                 </motion.div>
