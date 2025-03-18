@@ -143,13 +143,13 @@ const Register = () => {
                             className="input input-bordered w-full"
                             required
                         />
-                        <button type="button" onClick={togglePasswordVisibility} className="text-sm text-blue-500">
+                        <button type="button" onClick={togglePasswordVisibility} className="text-sm text-blue-500 ">
                             {showPassword ? "Hide Password" : "Show Password"}
                         </button>
 
                         <motion.button
                             type="submit"
-                            className="btn btn-primary w-full"
+                            className="btn btn-primary w-full  bg-blue-500"
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                         >
@@ -160,7 +160,7 @@ const Register = () => {
                     {/* Google Sign-In Button */}
                     <div className="mt-4">
                         <motion.button
-                            className="btn btn-outline w-full bg-red-500 animate-bounce"
+                            className="btn btn-outline w-full bg-purple-500 animate-bounce"
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={handleGoogleSignIn}
