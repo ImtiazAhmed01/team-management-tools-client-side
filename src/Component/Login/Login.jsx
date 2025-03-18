@@ -163,7 +163,7 @@ const Login = () => {
                         <div className="mt-4 text-center">
                             <motion.button
                                 onClick={handleGoogleSignIn}
-                                className="w-full flex gap-5 mt-4 bg-red-500 text-white py-2 rounded-md animate-bounce"
+                                className="w-full flex gap-5 mt-4 bg-purple-600 text-white py-2 rounded-md animate-bounce"
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                             >
