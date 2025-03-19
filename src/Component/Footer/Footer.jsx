@@ -10,7 +10,7 @@ const Footer = () => {
                             <div className='flex items-center justify-start'>
                                 <img src={img1} alt="Company Logo" className="w-20  mb-2" />
                                 <span className="text-[#006dc7]">Collab</span>
-                                <span className="bg-[#006dc7] text-white">Nest</span>
+                                <span className="bg-[#006dc7] text-white px-2 rounded-field">Nest</span>
                             </div>
                         </div>
                         <p className="text-gray-700 text-sm mt-2 ml-5 mb-4 text-center md:text-left">
