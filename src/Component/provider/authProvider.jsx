@@ -1,10 +1,14 @@
-import { createUserWithEmailAndPassword, GoogleAuthProvider, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, signOut, updateProfile } from "firebase/auth";
+import {
+    createUserWithEmailAndPassword,
+    GoogleAuthProvider,
+    onAuthStateChanged,
+    signInWithEmailAndPassword,
+    signInWithPopup,
+    signOut,
+    updateProfile,
+} from "firebase/auth";
 import { createContext, useEffect, useState } from "react";
-import auth from "../../../firebase.init";
-
-
-
-
+import { auth } from "../../../firebase.init"; // ✅ Fixed import
 
 export const AuthContext = createContext();
 
@@ -13,15 +17,13 @@ const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const googleProvider = new GoogleAuthProvider();
 
+    
     const createUser = async (email, password, userDetails) => {
         try {
-            const userCredential = await createUserWithEmailAndPassword(
-                auth,
-                email,
-                password
-            );
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const newUser = userCredential.user;
 
+            // ✅ Update profile
             await updateProfile(newUser, {
                 displayName: userDetails.displayName,
                 photoURL: userDetails.photoURL,
@@ -42,6 +44,7 @@ const AuthProvider = ({ children }) => {
         }
     };
 
+    
     const updateUserProfile = async (updatedUser) => {
         try {
             if (auth.currentUser) {
@@ -50,14 +53,9 @@ const AuthProvider = ({ children }) => {
                     photoURL: updatedUser.photoURL,
                 });
 
-                const updatedProfile = {
-                    ...auth.currentUser,
-                    displayName: updatedUser.displayName,
-                    photoURL: updatedUser.photoURL,
-                };
-
-                setUser(updatedProfile);
-                localStorage.setItem("userProfile", JSON.stringify(updatedProfile));
+                const refreshedUser = { ...auth.currentUser }; 
+                setUser(refreshedUser);
+                localStorage.setItem("userProfile", JSON.stringify(refreshedUser));
             }
         } catch (error) {
             console.error("Error updating profile:", error.message);
@@ -65,6 +63,7 @@ const AuthProvider = ({ children }) => {
         }
     };
 
+  
     const signOutUser = async () => {
         try {
             await signOut(auth);
@@ -88,10 +87,21 @@ const AuthProvider = ({ children }) => {
         }
     };
 
+   
     const signInUser = async (email, password) => {
-        return await signInWithEmailAndPassword(auth, email, password);
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+            setUser(user);
+            localStorage.setItem("userProfile", JSON.stringify(user));
+            return user;
+        } catch (error) {
+            console.error("Sign-in error:", error.message);
+            throw error;
+        }
     };
 
+    
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             if (currentUser) {
@@ -116,9 +126,10 @@ const AuthProvider = ({ children }) => {
                 signOutUser,
                 signInWithGoogle,
                 updateUserProfile,
+                loading, 
             }}
         >
-            {!loading && children}
+            {loading ? <p>Loading...</p> : children}
         </AuthContext.Provider>
     );
 };
