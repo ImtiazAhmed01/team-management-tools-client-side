@@ -46,7 +46,7 @@ const Navbar = () => {
               <div tabIndex={0} role="button" className="avatar cursor-pointer">
                 <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box w-52 shadow">
                   <li>
-                    <button className="btn bg-[#006dc7] text-white px-6 font-semibold">Logout</button>
+                    <button className="btn bg-[#006dc7] text-white px-7 font-semibold">Logout</button>
                   </li>
                 </ul>
               </div>
