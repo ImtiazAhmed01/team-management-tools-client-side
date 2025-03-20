@@ -3,16 +3,16 @@ import img1 from "../../assets/Screenshot_49-removebg-preview (1).png";
 import useAuth from "../provider/useAuth";
 
 const Navbar = () => {
-    const {user,signOutUser}=useAuth();
-    if(user){
-      console.log(user)
-    }
+  const { user, signOutUser } = useAuth();
+  if (user) {
+    console.log(user)
+  }
 
-    const handleLogout=()=>{
-      signOutUser()
-      .then(()=>{})
-      .catch(error=>{
-          console.log(error);
+  const handleLogout = () => {
+    signOutUser()
+      .then(() => { })
+      .catch(error => {
+        console.log(error);
       })
   }
 
@@ -37,6 +37,7 @@ const Navbar = () => {
           <NavLink className="hover:text-[#4978ff]" to="/Products">Features</NavLink>
           <NavLink className="hover:text-[#4978ff]" to="/Tasks">Tasks</NavLink>
           <NavLink className="hover:text-[#4978ff]" to="/contact">Contact</NavLink>
+          {user && <NavLink className="hover:text-[#4978ff]" to="/task">Task</NavLink>}
           {user && <NavLink className="hover:text-[#4978ff]" to="/dashboard">DashBoard</NavLink>}
 
 
@@ -55,26 +56,26 @@ const Navbar = () => {
             </>
           ) : (
             <div className="dropdown dropdown-end">
-            <div tabIndex={0} role="button" className="avatar cursor-pointer">
-              <div className="w-10 rounded-full">
-                <img src={user?.photoURL} alt="User Avatar" title={user.displayName || "User"} />
+              <div tabIndex={0} role="button" className="avatar cursor-pointer">
+                <div className="w-10 rounded-full">
+                  <img src={user?.photoURL} alt="User Avatar" title={user.displayName || "User"} />
+                </div>
               </div>
+              <ul className="dropdown-content menu bg-base-100 rounded-box w-52 shadow hover:text-blue-400">
+                <li>
+                  <NavLink to="/user">{user.displayName || user.email}</NavLink>
+                </li>
+                <li>
+                  <button
+                    onClick={handleLogout}
+                    className="btn bg-[#006dc7] text-white px-6 font-semibold"
+                  >
+                    Logout
+                  </button>
+                </li>
+              </ul>
             </div>
-            <ul className="dropdown-content menu bg-base-100 rounded-box w-52 shadow hover:text-blue-400">
-              <li>
-                <NavLink to="/user">{user.displayName || user.email}</NavLink>
-              </li>
-              <li>
-                <button
-                  onClick={handleLogout}
-                  className="btn bg-[#006dc7] text-white px-6 font-semibold"
-                >
-                  Logout
-                </button>
-              </li>
-            </ul>
-          </div>
-          
+
           )}
         </div>
 
@@ -121,20 +122,20 @@ const Navbar = () => {
                   <NavLink className="block hover:text-[#4978ff]" to="/dashboard">
                     DashBoard
                   </NavLink>
-                  
-                      <NavLink to="/user" className="text-orange-500">
-                        {user.displayName || user.email}
-                      </NavLink>
-                    
-                    
-                      <NavLink
-                        onClick={handleLogout}
-                        className=" block text-[#4978ff] font-semibold"
-                      >
-                        Logout
-                      </NavLink>
-                    
-                  
+
+                  <NavLink to="/user" className="text-orange-500">
+                    {user.displayName || user.email}
+                  </NavLink>
+
+
+                  <NavLink
+                    onClick={handleLogout}
+                    className=" block text-[#4978ff] font-semibold"
+                  >
+                    Logout
+                  </NavLink>
+
+
                 </>
               )}
             </ul>

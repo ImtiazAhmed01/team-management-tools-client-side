@@ -50,6 +50,62 @@ const Register = () => {
         return true;
     };
 
+    // const handleRegister = async (e) => {
+    //     e.preventDefault();
+    //     const form = e.target;
+    //     const uname = form.uname.value;
+    //     const email = form.email.value;
+    //     const password = form.password.value;
+
+    //     // Validate password
+    //     if (!validatePassword(password)) {
+    //         toast.error("Invalid password. Please check the requirements.", {
+    //             position: "top-center",
+    //             autoClose: 5000,
+    //             theme: "light",
+    //             transition: Bounce,
+    //         });
+    //         return;
+    //     }
+
+    //     try {
+    //         const auth = getAuth();
+    //         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    //         const user = userCredential.user;
+
+    //         // Update user profile
+    //         await updateProfile(user, {
+    //             displayName: uname,  // Using username
+    //         });
+
+    //         localStorage.setItem(
+    //             "userProfile",
+    //             JSON.stringify({
+    //                 displayName: uname,
+    //                 email: user.email,
+    //                 uname,
+    //             })
+    //         );
+
+    //         toast.success("User created successfully!", {
+    //             position: "top-center",
+    //             autoClose: 5000,
+    //             theme: "light",
+    //             transition: Bounce,
+    //         });
+
+    //         navigate("/"); // Redirect to home page
+    //     } catch (error) {
+    //         console.error("Error creating user:", error.message);
+    //         toast.error("Error creating user. Please try again.", {
+    //             position: "top-center",
+    //             autoClose: 5000,
+    //             theme: "light",
+    //             transition: Bounce,
+    //         });
+    //     }
+    // };
+
     const handleRegister = async (e) => {
         e.preventDefault();
         const form = e.target;
@@ -57,7 +113,6 @@ const Register = () => {
         const email = form.email.value;
         const password = form.password.value;
 
-        // Validate password
         if (!validatePassword(password)) {
             toast.error("Invalid password. Please check the requirements.", {
                 position: "top-center",
@@ -73,19 +128,28 @@ const Register = () => {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            // Update user profile
             await updateProfile(user, {
-                displayName: uname,  // Using username
+                displayName: uname,
             });
 
-            localStorage.setItem(
-                "userProfile",
-                JSON.stringify({
-                    displayName: uname,
-                    email: user.email,
-                    uname,
-                })
-            );
+            const userData = {
+                username: uname,
+                email: email,
+                from_register: true,
+                userrole: "member",
+                userimage: "n/a",
+                profession: "n/a",
+                year_of_experience: "n/a"
+            };
+
+            await fetch("http://localhost:5000/users", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(userData),
+            })
+                .then(response => response.json())
+                .then(data => console.log("Response from server:", data))
+                .catch(error => console.error("Error sending request:", error));
 
             toast.success("User created successfully!", {
                 position: "top-center",
@@ -94,7 +158,7 @@ const Register = () => {
                 transition: Bounce,
             });
 
-            navigate("/"); // Redirect to home page
+            navigate("/");
         } catch (error) {
             console.error("Error creating user:", error.message);
             toast.error("Error creating user. Please try again.", {
