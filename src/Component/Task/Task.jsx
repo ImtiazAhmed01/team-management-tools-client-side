@@ -3,7 +3,63 @@ import { FaPlus, FaTimes, FaEdit, FaTrash, FaUpload, FaLink } from "react-icons/
 import { motion } from "framer-motion";
 
 const TaskList = ({ loggedInUserId }) => {
+    const [showForm, setShowForm] = useState(false);
+    const [tasks, setTasks] = useState([]);
+    const [taskData, setTaskData] = useState({
+        title: "",
+        description: "",
+        dueDate: "",
+        file: null,
+        fileUrl: "",
+        status: "To-Do",
+    });
 
+    const toggleForm = () => setShowForm(!showForm);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setTaskData((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        setTaskData((prev) => ({ ...prev, file }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!taskData.title || !taskData.dueDate) {
+            alert("Please fill in the required fields.");
+            return;
+        }
+
+        const newTask = {
+            id: Date.now(),
+            userId: loggedInUserId,
+            ...taskData,
+        };
+
+        setTasks([newTask, ...tasks]);
+
+        await fetch("http://localhost:5000/tasks", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(newTask),
+        });
+
+        setShowForm(false);
+        setTaskData({ title: "", description: "", dueDate: "", file: null, fileUrl: "", status: "To-Do" });
+    };
+
+    const handleDelete = async (taskId) => {
+        await fetch(`http://localhost:5000/tasks/${taskId}`, { method: "DELETE" });
+        setTasks(tasks.filter(task => task.id !== taskId));
+    };
+
+    const handleEdit = (task) => {
+        setTaskData(task);
+        setShowForm(true);
+    };
 
     return (
         <div className="max-w-3xl mx-auto p-6 bg-white shadow-xl rounded-lg">
