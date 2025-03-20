@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { FaPlus, FaTimes, FaEdit, FaTrash, FaUpload, FaLink } from "react-icons/fa";
 import { motion } from "framer-motion";
 
-const TaskList = ({ loggedInUserId }) => {
+const Task = ({ loggedInUserId }) => {
     const [showForm, setShowForm] = useState(false);
     const [tasks, setTasks] = useState([]);
     const [taskData, setTaskData] = useState({
@@ -170,6 +170,48 @@ const TaskList = ({ loggedInUserId }) => {
     );
 };
 
+const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
+    const statusColors = {
+        "To-Do": "bg-gray-400",
+        "In Progress": "bg-yellow-400",
+        "Completed": "bg-green-500",
+    };
 
-export default TaskList;
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-5 bg-white rounded-lg shadow-md border-l-4 transition-all hover:shadow-xl"
+            style={{ borderColor: statusColors[task.status] || "gray" }}
+        >
+            <div className="flex justify-between items-center">
+                <h4 className="font-semibold text-lg">{task.title}</h4>
+                <span className={`text-sm font-bold px-3 py-1 rounded-full ${statusColors[task.status]} text-white`}>
+                    {task.status}
+                </span>
+            </div>
+            <p className="text-gray-600 mt-2">{task.description}</p>
+            <p className="text-sm text-gray-500 mt-1">Due: {new Date(task.dueDate).toLocaleString()}</p>
+
+            {task.fileUrl && (
+                <a href={task.fileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 flex items-center mt-2">
+                    <FaLink className="mr-1" /> View File
+                </a>
+            )}
+
+            {task.userId === loggedInUserId && (
+                <div className="mt-4 flex space-x-3">
+                    <button onClick={() => onEdit(task)} className="bg-yellow-500 text-white px-4 py-2 rounded shadow-md hover:bg-yellow-600 transition">
+                        <FaEdit />
+                    </button>
+                    <button onClick={() => onDelete(task.id)} className="bg-red-500 text-white px-4 py-2 rounded shadow-md hover:bg-red-600 transition">
+                        <FaTrash />
+                    </button>
+                </div>
+            )}
+        </motion.div>
+    );
+};
+
+export default Task;
 
