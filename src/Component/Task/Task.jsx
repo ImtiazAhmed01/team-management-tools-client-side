@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { FaPlus, FaTimes, FaEdit, FaTrash, FaUpload, FaLink } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { FaPlus, FaTimes, FaEdit, FaTrash, FaUpload, FaLink, FaFilter, FaSearch } from "react-icons/fa";
 import { motion } from "framer-motion";
 
 const Task = ({ loggedInUserId }) => {
@@ -13,6 +13,15 @@ const Task = ({ loggedInUserId }) => {
         fileUrl: "",
         status: "To-Do",
     });
+    const [filter, setFilter] = useState("All");
+    const [search, setSearch] = useState("");
+
+    useEffect(() => {
+        // Fetch tasks from API
+        fetch("http://localhost:5000/tasks")
+            .then(res => res.json())
+            .then(data => setTasks(data));
+    }, []);
 
     const toggleForm = () => setShowForm(!showForm);
 
@@ -61,8 +70,23 @@ const Task = ({ loggedInUserId }) => {
         setShowForm(true);
     };
 
+    const filterTasks = () => {
+        return tasks.filter(task => {
+            const matchesFilter =
+                filter === "All" ||
+                (filter === "My Tasks" && task.userId === loggedInUserId) ||
+                (filter === "Tasks with Attachments" && (task.file || task.fileUrl)) ||
+                (filter === "Due Today" && new Date(task.dueDate).toDateString() === new Date().toDateString()) ||
+                (filter === "Due This Week" && new Date(task.dueDate) <= new Date(new Date().setDate(new Date().getDate() + 7))) ||
+                (filter === "Completed Tasks" && task.status === "Completed");
+            
+            const matchesSearch = search === "" || task.title.toLowerCase().includes(search.toLowerCase());
+            return matchesFilter && matchesSearch;
+        });
+    };
+
     return (
-        <div className="max-w-3xl mx-auto p-6 bg-white shadow-xl rounded-lg">
+        <div className="max-w-3xl mx-auto p-6 bg-white shadow-xl rounded-lg my-20">
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-800">My Tasks</h2>
                 <button
@@ -72,6 +96,31 @@ const Task = ({ loggedInUserId }) => {
                     <FaPlus className="mr-2" /> Add Task
                 </button>
             </div>
+            <div className="flex gap-4 mb-6">
+                <select value={filter} onChange={(e) => setFilter(e.target.value)} className="p-3 shadow-md rounded-md focus:ring-2 focus:ring-blue-400 transition-all">
+                    <option value="All">All Tasks</option>
+                    <option value="My Tasks">My Tasks</option>
+                    <option value="Tasks with Attachments">Tasks with Attachments</option>
+                    <option value="Due Today">Due Today</option>
+                    <option value="Due This Week">Due This Week</option>
+                    <option value="Completed Tasks">Completed Tasks</option>
+                </select>
+                <div className="relative w-full">
+                    <input type="text" placeholder="Search tasks..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full shadow-md p-3 pl-10  rounded-md focus:ring-2 focus:ring-blue-400 transition-all" />
+                    <FaSearch className="absolute left-3 top-3 text-gray-400" />
+                </div>
+            </div>
+
+            <div className="space-y-4">
+                {filterTasks().length > 0 ? (
+                    filterTasks().map((task) => (
+                        <TaskCard key={task.id} task={task} loggedInUserId={loggedInUserId} onDelete={handleDelete} onEdit={handleEdit} />
+                    ))
+                ) : (
+                    <p className="text-center text-gray-500">No tasks found.</p>
+                )}
+            </div>
+  
 
             {showForm && (
                 <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
@@ -214,4 +263,3 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
 };
 
 export default Task;
-
