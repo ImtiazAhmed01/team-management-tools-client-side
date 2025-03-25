@@ -83,7 +83,7 @@ const Task = ({ loggedInUserId }) => {
 
     const handleDelete = async (taskId) => {
         await fetch(`http://localhost:5000/tasks/${taskId}`, { method: "DELETE" });
-        setTasks(tasks.filter((task) => task._id !== taskId)); // Filter by _id, not id
+        setTasks(tasks.filter((task) => task._id !== taskId)); 
     };
 
 
