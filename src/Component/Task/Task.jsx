@@ -251,6 +251,7 @@ const Task = ({ loggedInUserId }) => {
     const [showForm, setShowForm] = useState(false);
     const [tasks, setTasks] = useState([]);
     const [taskData, setTaskData] = useState({
+        id: null,
         title: "",
         description: "",
         dueDate: "",
@@ -283,7 +284,6 @@ const Task = ({ loggedInUserId }) => {
         }
 
         const newTask = {
-            id: Date.now(),
             userId: loggedInUserId,
             title: taskData.title,
             description: taskData.description,
@@ -292,21 +292,37 @@ const Task = ({ loggedInUserId }) => {
             status: taskData.status,
         };
 
-        setTasks([newTask, ...tasks]);
+        if (taskData.id) {
+            // If editing an existing task, update the task in the backend and frontend
+            await fetch(`http://localhost:5000/tasks/${taskData.id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(newTask),
+            });
 
-        await fetch("http://localhost:5000/tasks", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(newTask),
-        });
+            setTasks(tasks.map((task) => (task.id === taskData.id ? { ...task, ...newTask } : task)));
+        } else {
+            // If creating a new task, add it to the backend and frontend
+            const response = await fetch("http://localhost:5000/tasks", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(newTask),
+            });
+            const createdTask = await response.json();
+            setTasks([createdTask, ...tasks]);
+        }
 
         setShowForm(false);
-        setTaskData({ title: "", description: "", dueDate: "", fileUrl: "", status: "To-Do" });
+        setTaskData({ id: null, title: "", description: "", dueDate: "", fileUrl: "", status: "To-Do" });
     };
 
     const handleDelete = async (taskId) => {
         await fetch(`http://localhost:5000/tasks/${taskId}`, { method: "DELETE" });
-        setTasks(tasks.filter(task => task.id !== taskId));
+        setTasks(tasks.filter((task) => task.id !== taskId));
     };
 
     const handleEdit = (task) => {
@@ -337,7 +353,7 @@ const Task = ({ loggedInUserId }) => {
                         <button onClick={toggleForm} className="absolute top-3 right-3 text-gray-600 hover:text-red-500">
                             <FaTimes size={20} />
                         </button>
-                        <h3 className="text-xl font-bold text-gray-800 mb-5">Create Task</h3>
+                        <h3 className="text-xl font-bold text-gray-800 mb-5">{taskData.id ? "Edit Task" : "Create Task"}</h3>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <input
                                 type="text"
@@ -383,7 +399,7 @@ const Task = ({ loggedInUserId }) => {
                             </select>
 
                             <button type="submit" className="bg-green-500 text-white px-5 py-2 rounded-md w-full hover:bg-green-600 transition">
-                                Create Task
+                                {taskData.id ? "Update Task" : "Create Task"}
                             </button>
                         </form>
                     </motion.div>
