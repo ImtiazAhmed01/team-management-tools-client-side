@@ -13,10 +13,6 @@ import AuthProvider from './Component/provider/authProvider'
 import Home from './Component/pages/Home/Home'
 import Task from './Component/Task/Task'
 
-
-
-
-
 const router = createBrowserRouter([
   {
     path: "/",
