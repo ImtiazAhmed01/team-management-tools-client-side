@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaPlus, FaTimes, FaEdit, FaTrash, FaUpload, FaLink, FaFilter, FaSearch } from "react-icons/fa";
+import { FaPlus, FaTimes, FaEdit, FaTrash, FaUpload, FaLink, FaSearch } from "react-icons/fa";
 import { motion } from "framer-motion";
 
 const Task = ({ loggedInUserId }) => {
@@ -78,7 +78,9 @@ const Task = ({ loggedInUserId }) => {
                 (filter === "Tasks with Attachments" && (task.file || task.fileUrl)) ||
                 (filter === "Due Today" && new Date(task.dueDate).toDateString() === new Date().toDateString()) ||
                 (filter === "Due This Week" && new Date(task.dueDate) <= new Date(new Date().setDate(new Date().getDate() + 7))) ||
-                (filter === "Completed Tasks" && task.status === "Completed");
+                (filter === "Completed Tasks" && task.status === "Completed")||
+                (filter === "In Progress" && task.status === "In Progress")||
+                (filter === "To-Do" && task.status === "To-Do");
             
             const matchesSearch = search === "" || task.title.toLowerCase().includes(search.toLowerCase());
             return matchesFilter && matchesSearch;
@@ -96,6 +98,7 @@ const Task = ({ loggedInUserId }) => {
                     <FaPlus className="mr-2" /> Add Task
                 </button>
             </div>
+
             <div className="flex gap-4 mb-6">
                 <select value={filter} onChange={(e) => setFilter(e.target.value)} className="p-3 shadow-md rounded-md focus:ring-2 focus:ring-blue-400 transition-all">
                     <option value="All">All Tasks</option>
@@ -103,7 +106,10 @@ const Task = ({ loggedInUserId }) => {
                     <option value="Tasks with Attachments">Tasks with Attachments</option>
                     <option value="Due Today">Due Today</option>
                     <option value="Due This Week">Due This Week</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="To-Do">To-Do</option>
                     <option value="Completed Tasks">Completed Tasks</option>
+                    
                 </select>
                 <div className="relative w-full">
                     <input type="text" placeholder="Search tasks..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full shadow-md p-3 pl-10  rounded-md focus:ring-2 focus:ring-blue-400 transition-all" />
@@ -121,7 +127,6 @@ const Task = ({ loggedInUserId }) => {
                 )}
             </div>
   
-
             {showForm && (
                 <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
                     <motion.div
@@ -199,22 +204,6 @@ const Task = ({ loggedInUserId }) => {
                     </motion.div>
                 </div>
             )}
-
-            <div className="space-y-4">
-                {tasks.length > 0 ? (
-                    tasks.map((task) => (
-                        <TaskCard
-                            key={task.id}
-                            task={task}
-                            loggedInUserId={loggedInUserId}
-                            onDelete={handleDelete}
-                            onEdit={handleEdit}
-                        />
-                    ))
-                ) : (
-                    <p className="text-center text-gray-500">No tasks yet.</p>
-                )}
-            </div>
         </div>
     );
 };
