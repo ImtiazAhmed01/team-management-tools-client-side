@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+
 import { FaPlus, FaTimes, FaEdit, FaTrash, FaUpload, FaLink, FaSearch } from "react-icons/fa";
 import { motion } from "framer-motion";
 
@@ -23,6 +24,12 @@ const Task = ({ loggedInUserId }) => {
             .then(data => setTasks(data));
     }, []);
 
+    useEffect(() => {
+        axios.get("http://localhost:5000/tasks").then((response) => {
+            setTasks(response.data);
+        });
+    }, []);
+
     const toggleForm = () => setShowForm(!showForm);
 
     const handleChange = (e) => {
@@ -37,37 +44,49 @@ const Task = ({ loggedInUserId }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         if (!taskData.title || !taskData.dueDate) {
             alert("Please fill in the required fields.");
             return;
         }
 
-        const newTask = {
-            id: Date.now(),
-            userId: loggedInUserId,
-            ...taskData,
-        };
+        const fileUrl = taskData.fileUrl;
 
-        setTasks([newTask, ...tasks]);
+        try {
+            const response = await axios.post("http://localhost:5000/tasks", {
+                title: taskData.title,
+                description: taskData.description,
+                dueDate: taskData.dueDate,
+                status: taskData.status,
+                userId: loggedInUserId,
+                fileUrl: fileUrl, // Send the file URL
+            });
 
-        await fetch("http://localhost:5000/tasks", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(newTask),
-        });
+            setTasks([response.data.task, ...tasks]);
+        } catch (error) {
+            console.error("Error adding task:", error);
+        }
 
         setShowForm(false);
-        setTaskData({ title: "", description: "", dueDate: "", file: null, fileUrl: "", status: "To-Do" });
+        setTaskData({
+            title: "",
+            description: "",
+            dueDate: "",
+            file: null,
+            fileUrl: "",
+            status: "To-Do",
+        });
     };
+
+
 
     const handleDelete = async (taskId) => {
-        await fetch(`http://localhost:5000/tasks/${taskId}`, { method: "DELETE" });
-        setTasks(tasks.filter(task => task.id !== taskId));
-    };
-
-    const handleEdit = (task) => {
-        setTaskData(task);
-        setShowForm(true);
+        try {
+            await axios.delete(`http://localhost:5000/tasks/${taskId}`);
+            setTasks(tasks.filter(task => task.id !== taskId));
+        } catch (error) {
+            console.error("Error deleting task:", error);
+        }
     };
 
     const filterTasks = () => {
@@ -91,10 +110,7 @@ const Task = ({ loggedInUserId }) => {
         <div className="max-w-3xl mx-auto p-6 bg-white shadow-xl rounded-lg my-20">
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-800">My Tasks</h2>
-                <button
-                    onClick={toggleForm}
-                    className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-5 py-2 rounded-lg flex items-center shadow-lg hover:scale-105 transition"
-                >
+                <button onClick={toggleForm} className="bg-blue-500 text-white px-5 py-2 rounded-lg flex items-center shadow-lg">
                     <FaPlus className="mr-2" /> Add Task
                 </button>
             </div>
@@ -129,43 +145,15 @@ const Task = ({ loggedInUserId }) => {
   
             {showForm && (
                 <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
-                    <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        className="bg-white p-8 rounded-xl shadow-xl w-1/2 relative transition-all"
-                    >
+                    <motion.div className="bg-white p-8 rounded-xl shadow-xl w-1/2 relative">
                         <button onClick={toggleForm} className="absolute top-3 right-3 text-gray-600 hover:text-red-500">
                             <FaTimes size={20} />
                         </button>
                         <h3 className="text-xl font-bold text-gray-800 mb-5">Create Task</h3>
                         <form onSubmit={handleSubmit} className="space-y-4">
-                            <input
-                                type="text"
-                                name="title"
-                                placeholder="Task Title"
-                                value={taskData.title}
-                                onChange={handleChange}
-                                required
-                                className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-400 transition-all"
-                            />
-                            <textarea
-                                name="description"
-                                placeholder="Task Description"
-                                value={taskData.description}
-                                onChange={handleChange}
-                                className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-400 transition-all"
-                            />
-                            <input
-                                type="datetime-local"
-                                name="dueDate"
-                                value={taskData.dueDate}
-                                onChange={handleChange}
-                                required
-                                className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-400 transition-all"
-                            />
-
-                            {/* File Upload */}
+                            <input type="text" name="title" placeholder="Task Title" value={taskData.title} onChange={handleChange} required className="w-full p-3 border rounded-md" />
+                            <textarea name="description" placeholder="Task Description" value={taskData.description} onChange={handleChange} className="w-full p-3 border rounded-md" />
+                            <input type="datetime-local" name="dueDate" value={taskData.dueDate} onChange={handleChange} required className="w-full p-3 border rounded-md" />
                             <div className="flex items-center gap-3">
                                 <label className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md cursor-pointer">
                                     <FaUpload className="text-blue-500" />
@@ -174,32 +162,7 @@ const Task = ({ loggedInUserId }) => {
                                 </label>
                                 {taskData.file && <span className="text-sm text-gray-600">{taskData.file.name}</span>}
                             </div>
-
-                            {/* External Link */}
-                            <input
-                                type="url"
-                                name="fileUrl"
-                                placeholder="Or provide an external link"
-                                value={taskData.fileUrl}
-                                onChange={handleChange}
-                                className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-400 transition-all"
-                            />
-
-                            {/* Task Status Dropdown */}
-                            <select
-                                name="status"
-                                value={taskData.status}
-                                onChange={handleChange}
-                                className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-400 transition-all"
-                            >
-                                <option value="To-Do">To-Do</option>
-                                <option value="In Progress">In Progress</option>
-                                <option value="Completed">Completed</option>
-                            </select>
-
-                            <button type="submit" className="bg-green-500 text-white px-5 py-2 rounded-md w-full hover:bg-green-600 transition">
-                                Create Task
-                            </button>
+                            <button type="submit" className="bg-green-500 text-white px-5 py-2 rounded-md w-full">Create Task</button>
                         </form>
                     </motion.div>
                 </div>
@@ -208,47 +171,21 @@ const Task = ({ loggedInUserId }) => {
     );
 };
 
-const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
-    const statusColors = {
-        "To-Do": "bg-gray-400",
-        "In Progress": "bg-yellow-400",
-        "Completed": "bg-green-500",
-    };
-
-    return (
-        <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="p-5 bg-white rounded-lg shadow-md border-l-4 transition-all hover:shadow-xl"
-            style={{ borderColor: statusColors[task.status] || "gray" }}
-        >
-            <div className="flex justify-between items-center">
-                <h4 className="font-semibold text-lg">{task.title}</h4>
-                <span className={`text-sm font-bold px-3 py-1 rounded-full ${statusColors[task.status]} text-white`}>
-                    {task.status}
-                </span>
+const TaskCard = ({ task, loggedInUserId, onDelete }) => (
+    <motion.div className="p-5 bg-white rounded-lg shadow-md border-l-4">
+        <div className="flex justify-between items-center">
+            <h4 className="font-semibold text-lg">{task.title}</h4>
+            <span className="text-sm font-bold px-3 py-1 rounded-full bg-gray-400 text-white">{task.status}</span>
+        </div>
+        <p className="text-gray-600 mt-2">{task.description}</p>
+        <p className="text-sm text-gray-500 mt-1">Due: {new Date(task.dueDate).toLocaleString()}</p>
+        {task.fileUrl && <a href={task.fileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 flex items-center mt-2"><FaLink className="mr-1" /> View File</a>}
+        {task.userId === loggedInUserId && (
+            <div className="mt-4 flex space-x-3">
+                <button onClick={() => onDelete(task.id)} className="bg-red-500 text-white px-4 py-2 rounded shadow-md"><FaTrash /></button>
             </div>
-            <p className="text-gray-600 mt-2">{task.description}</p>
-            <p className="text-sm text-gray-500 mt-1">Due: {new Date(task.dueDate).toLocaleString()}</p>
-
-            {task.fileUrl && (
-                <a href={task.fileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 flex items-center mt-2">
-                    <FaLink className="mr-1" /> View File
-                </a>
-            )}
-
-            {task.userId === loggedInUserId && (
-                <div className="mt-4 flex space-x-3">
-                    <button onClick={() => onEdit(task)} className="bg-yellow-500 text-white px-4 py-2 rounded shadow-md hover:bg-yellow-600 transition">
-                        <FaEdit />
-                    </button>
-                    <button onClick={() => onDelete(task.id)} className="bg-red-500 text-white px-4 py-2 rounded shadow-md hover:bg-red-600 transition">
-                        <FaTrash />
-                    </button>
-                </div>
-            )}
-        </motion.div>
-    );
-};
+        )}
+    </motion.div>
+);
 
 export default Task;
