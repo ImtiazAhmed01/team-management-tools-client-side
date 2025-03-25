@@ -1,18 +1,17 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import "./index.css";
 
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Login from "./Component/Login/Login";
+import App from "./App";
+import Register from "./Component/Register/Register";
 
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import Login from './Component/Login/Login'
-import App from './App'
-import Register from './Component/Register/Register'
-
-import { ToastContainer } from 'react-toastify'
-import AuthProvider from './Component/provider/authProvider'
-import Home from './Component/pages/Home/Home'
-import Task from './Component/Task/Task'
-
+import { ToastContainer } from "react-toastify";
+import AuthProvider from "./Component/provider/authProvider";
+import Home from "./Component/pages/Home/Home";
+import Task from "./Component/Task/Task";
+import Profile from "./Component/profile/Profile";
 
 
 
@@ -22,8 +21,8 @@ const router = createBrowserRouter([
     element: <App></App>,
     children: [
       {
-        path: "/",
-        element: <Home />
+        index: true,
+        element: <Home />,
       },
       {
         path: "/login",
@@ -34,16 +33,17 @@ const router = createBrowserRouter([
         element: <Register></Register>,
       },
       {
-        path: "/task",
-        element: <Task></Task>
-      }
-
-    ]
-  }
-])
-
-createRoot(document.getElementById('root')).render(
-
+        path: "/Tasks",
+        element: <Task></Task>,
+      },
+      {
+        path: "/user",
+        element: <Profile />,
+      },
+    ],
+  },
+]);
+createRoot(document.getElementById("root")).render(
   <StrictMode>
     <AuthProvider>
       <RouterProvider router={router}> </RouterProvider>
@@ -51,15 +51,15 @@ createRoot(document.getElementById('root')).render(
         position="top-center"
         autoClose={5000}
         hideProgressBar={false}
-        newestOnTop={false}
+        // newestOnTop={false}
         closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
+        // rtl={false}
+        // pauseOnFocusLoss
+        // draggable
+        // pauseOnHover
         theme="light"
-        transition="bounce"
+        // transition="bounce"
       />
     </AuthProvider>
-  </StrictMode >,
-)
+  </StrictMode>
+);
