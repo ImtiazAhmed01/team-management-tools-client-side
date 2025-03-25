@@ -1,14 +1,6 @@
-import {
-    createUserWithEmailAndPassword,
-    GoogleAuthProvider,
-    onAuthStateChanged,
-    signInWithEmailAndPassword,
-    signInWithPopup,
-    signOut,
-    updateProfile,
-} from "firebase/auth";
+import { createUserWithEmailAndPassword, GoogleAuthProvider, GithubAuthProvider, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, signOut, updateProfile } from "firebase/auth";
 import { createContext, useEffect, useState } from "react";
-import { auth } from "../../../firebase.init"; // ✅ Fixed import
+import { auth } from "../../../firebase.init"; //
 
 export const AuthContext = createContext();
 
@@ -16,14 +8,13 @@ const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const googleProvider = new GoogleAuthProvider();
+    const githubProvider = new GithubAuthProvider(); // Add GitHub provider
 
-    
     const createUser = async (email, password, userDetails) => {
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const newUser = userCredential.user;
 
-            // ✅ Update profile
             await updateProfile(newUser, {
                 displayName: userDetails.displayName,
                 photoURL: userDetails.photoURL,
@@ -44,7 +35,6 @@ const AuthProvider = ({ children }) => {
         }
     };
 
-    
     const updateUserProfile = async (updatedUser) => {
         try {
             if (auth.currentUser) {
@@ -53,9 +43,14 @@ const AuthProvider = ({ children }) => {
                     photoURL: updatedUser.photoURL,
                 });
 
-                const refreshedUser = { ...auth.currentUser }; 
-                setUser(refreshedUser);
-                localStorage.setItem("userProfile", JSON.stringify(refreshedUser));
+                const updatedProfile = {
+                    ...auth.currentUser,
+                    displayName: updatedUser.displayName,
+                    photoURL: updatedUser.photoURL,
+                };
+
+                setUser(updatedProfile);
+                localStorage.setItem("userProfile", JSON.stringify(updatedProfile));
             }
         } catch (error) {
             console.error("Error updating profile:", error.message);
@@ -63,7 +58,6 @@ const AuthProvider = ({ children }) => {
         }
     };
 
-  
     const signOutUser = async () => {
         try {
             await signOut(auth);
@@ -87,21 +81,23 @@ const AuthProvider = ({ children }) => {
         }
     };
 
-   
-    const signInUser = async (email, password) => {
+    const signInWithGithub = async () => {
         try {
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
+            const result = await signInWithPopup(auth, githubProvider);
+            const user = result.user;
             setUser(user);
             localStorage.setItem("userProfile", JSON.stringify(user));
             return user;
         } catch (error) {
-            console.error("Sign-in error:", error.message);
+            console.error("GitHub Sign-In error:", error.message);
             throw error;
         }
     };
 
-    
+    const signInUser = async (email, password) => {
+        return await signInWithEmailAndPassword(auth, email, password);
+    };
+
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             if (currentUser) {
@@ -125,11 +121,11 @@ const AuthProvider = ({ children }) => {
                 signInUser,
                 signOutUser,
                 signInWithGoogle,
+                signInWithGithub, // Add GitHub sign-in to context
                 updateUserProfile,
-                loading, 
             }}
         >
-            {loading ? <p>Loading...</p> : children}
+            {!loading && children}
         </AuthContext.Provider>
     );
 };
