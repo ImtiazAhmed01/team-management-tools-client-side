@@ -1,6 +1,6 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import "./index.css";
 
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
@@ -19,8 +19,8 @@ const router = createBrowserRouter([
     element: <App></App>,
     children: [
       {
-        path: "/",
-        element: <Home />
+        index: true,
+        element: <Home />,
       },
       {
         path: "/login",
@@ -58,5 +58,5 @@ createRoot(document.getElementById('root')).render(
         transition="bounce"
       />
     </AuthProvider>
-  </StrictMode >,
-)
+  </StrictMode>
+);

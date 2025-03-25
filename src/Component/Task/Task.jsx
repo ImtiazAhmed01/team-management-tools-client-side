@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { FaPlus, FaTimes, FaEdit, FaTrash, FaLink } from "react-icons/fa";
+import { FaPlus, FaTimes, FaEdit, FaTrash, FaUpload, FaLink, FaSearch } from "react-icons/fa";
 import { motion } from "framer-motion";
+import axios from "axios";
 
 const Task = ({ loggedInUserId }) => {
     const [showForm, setShowForm] = useState(false);
@@ -13,15 +14,13 @@ const Task = ({ loggedInUserId }) => {
         fileUrl: "",
         status: "To-Do",
     });
+    const [filter, setFilter] = useState("All");
+    const [search, setSearch] = useState("");
 
-    // Fetch tasks from backend when component mounts
     useEffect(() => {
-        const fetchTasks = async () => {
-            const response = await fetch("http://localhost:5000/tasks");
-            const data = await response.json();
-            setTasks(data);
-        };
-        fetchTasks();
+        axios.get("http://localhost:5000/tasks").then((response) => {
+            setTasks(response.data);
+        });
     }, []);
 
     const toggleForm = () => setShowForm(!showForm);
@@ -33,6 +32,7 @@ const Task = ({ loggedInUserId }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         if (!taskData.title || !taskData.dueDate) {
             alert("Please fill in the required fields.");
             return;
@@ -47,119 +47,100 @@ const Task = ({ loggedInUserId }) => {
             status: taskData.status,
         };
 
-        if (taskData._id) {
-            // If editing an existing task, update it in the backend
-            await fetch(`http://localhost:5000/tasks/${taskData._id}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(newTask),
-            });
-
-            // Update task in frontend state
+        if (taskData.id) {
+            // Update existing task
+            await axios.put(`http://localhost:5000/tasks/${taskData.id}`, newTask);
             setTasks((prevTasks) =>
-                prevTasks.map((task) =>
-                    task._id === taskData._id ? { ...task, ...newTask, _id: task._id } : task
-                )
+                prevTasks.map((task) => (task.id === taskData.id ? { ...task, ...newTask } : task))
             );
         } else {
-            // If creating a new task, add it to the backend
-            const response = await fetch("http://localhost:5000/tasks", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(newTask),
-            });
-            const createdTask = await response.json();
-            setTasks((prevTasks) => [createdTask, ...prevTasks]);
+            // Create a new task
+            const response = await axios.post("http://localhost:5000/tasks", newTask);
+            setTasks((prevTasks) => [response.data, ...prevTasks]);
         }
 
         setShowForm(false);
-        setTaskData({ _id: null, title: "", description: "", dueDate: "", fileUrl: "", status: "To-Do" });
+        setTaskData({ id: null, title: "", description: "", dueDate: "", fileUrl: "", status: "To-Do" });
     };
-
 
     const handleDelete = async (taskId) => {
-        await fetch(`http://localhost:5000/tasks/${taskId}`, { method: "DELETE" });
-        setTasks(tasks.filter((task) => task._id !== taskId)); 
+        await axios.delete(`http://localhost:5000/tasks/${taskId}`);
+        setTasks(tasks.filter((task) => task.id !== taskId));
     };
-
 
     const handleEdit = (task) => {
         setTaskData(task);
         setShowForm(true);
     };
 
+    const filterTasks = () => {
+        return tasks.filter((task) => {
+            const matchesFilter =
+                filter === "All" ||
+                (filter === "My Tasks" && task.userId === loggedInUserId) ||
+                (filter === "Tasks with Attachments" && task.fileUrl) ||
+                (filter === "Due Today" && new Date(task.dueDate).toDateString() === new Date().toDateString()) ||
+                (filter === "Due This Week" && new Date(task.dueDate) <= new Date(new Date().setDate(new Date().getDate() + 7))) ||
+                (filter === "Completed Tasks" && task.status === "Completed") ||
+                (filter === "In Progress" && task.status === "In Progress") ||
+                (filter === "To-Do" && task.status === "To-Do");
+
+            const matchesSearch = search === "" || task.title.toLowerCase().includes(search.toLowerCase());
+            return matchesFilter && matchesSearch;
+        });
+    };
+
     return (
-        <div className="max-w-3xl mx-auto p-6 bg-white shadow-xl rounded-lg">
+        <div className="max-w-3xl mx-auto p-6 bg-white shadow-xl rounded-lg my-20">
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-800">My Tasks</h2>
-                <button
-                    onClick={toggleForm}
-                    className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-5 py-2 rounded-lg flex items-center shadow-lg hover:scale-105 transition"
-                >
+                <button onClick={toggleForm} className="bg-blue-500 text-white px-5 py-2 rounded-lg flex items-center shadow-lg">
                     <FaPlus className="mr-2" /> Add Task
                 </button>
             </div>
 
+            <div className="flex gap-4 mb-6">
+                <select value={filter} onChange={(e) => setFilter(e.target.value)} className="p-3 shadow-md rounded-md focus:ring-2 focus:ring-blue-400 transition-all">
+                    <option value="All">All Tasks</option>
+                    <option value="My Tasks">My Tasks</option>
+                    <option value="Tasks with Attachments">Tasks with Attachments</option>
+                    <option value="Due Today">Due Today</option>
+                    <option value="Due This Week">Due This Week</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="To-Do">To-Do</option>
+                    <option value="Completed Tasks">Completed Tasks</option>
+                </select>
+                <div className="relative w-full">
+                    <input type="text" placeholder="Search tasks..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full shadow-md p-3 pl-10 rounded-md focus:ring-2 focus:ring-blue-400 transition-all" />
+                    <FaSearch className="absolute left-3 top-3 text-gray-400" />
+                </div>
+            </div>
+            <div className="space-y-4">
+                {filterTasks().length > 0 ? (
+                    filterTasks().map((task) => (
+                        <TaskCard key={task.id} task={task} loggedInUserId={loggedInUserId} onDelete={handleDelete} onEdit={handleEdit} />
+                    ))
+                ) : (
+                    <p className="text-center text-gray-500">No tasks found.</p>
+                )}
+            </div>
             {showForm && (
                 <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
-                    <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        className="bg-white p-8 rounded-xl shadow-xl w-1/2 relative transition-all"
-                    >
+                    <motion.div className="bg-white p-8 rounded-xl shadow-xl w-1/2 relative">
                         <button onClick={toggleForm} className="absolute top-3 right-3 text-gray-600 hover:text-red-500">
                             <FaTimes size={20} />
                         </button>
                         <h3 className="text-xl font-bold text-gray-800 mb-5">{taskData.id ? "Edit Task" : "Create Task"}</h3>
                         <form onSubmit={handleSubmit} className="space-y-4">
-                            <input
-                                type="text"
-                                name="title"
-                                placeholder="Task Title"
-                                value={taskData.title}
-                                onChange={handleChange}
-                                required
-                                className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-400 transition-all"
-                            />
-                            <textarea
-                                name="description"
-                                placeholder="Task Description"
-                                value={taskData.description}
-                                onChange={handleChange}
-                                className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-400 transition-all"
-                            />
-                            <input
-                                type="datetime-local"
-                                name="dueDate"
-                                value={taskData.dueDate}
-                                onChange={handleChange}
-                                required
-                                className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-400 transition-all"
-                            />
-                            <input
-                                type="url"
-                                name="fileUrl"
-                                placeholder="Or provide an external link"
-                                value={taskData.fileUrl}
-                                onChange={handleChange}
-                                className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-400 transition-all"
-                            />
-                            <select
-                                name="status"
-                                value={taskData.status}
-                                onChange={handleChange}
-                                className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-400 transition-all"
-                            >
+                            <input type="text" name="title" placeholder="Task Title" value={taskData.title} onChange={handleChange} required className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-400 transition-all" />
+                            <textarea name="description" placeholder="Task Description" value={taskData.description} onChange={handleChange} className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-400 transition-all" />
+                            <input type="datetime-local" name="dueDate" value={taskData.dueDate} onChange={handleChange} required className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-400 transition-all" />
+                            <input type="url" name="fileUrl" placeholder="Or provide an external link" value={taskData.fileUrl} onChange={handleChange} className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-400 transition-all" />
+                            <select name="status" value={taskData.status} onChange={handleChange} className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-400 transition-all">
                                 <option value="To-Do">To-Do</option>
                                 <option value="In Progress">In Progress</option>
                                 <option value="Completed">Completed</option>
                             </select>
-
                             <button type="submit" className="bg-green-500 text-white px-5 py-2 rounded-md w-full hover:bg-green-600 transition">
                                 {taskData.id ? "Update Task" : "Create Task"}
                             </button>
@@ -167,26 +148,9 @@ const Task = ({ loggedInUserId }) => {
                     </motion.div>
                 </div>
             )}
-
-            <div className="space-y-4">
-                {tasks.length > 0 ? (
-                    tasks.map((task) => (
-                        <TaskCard
-                            key={task.id}
-                            task={task}
-                            loggedInUserId={loggedInUserId}
-                            onDelete={handleDelete}
-                            onEdit={handleEdit}
-                        />
-                    ))
-                ) : (
-                    <p className="text-center text-gray-500">No tasks yet.</p>
-                )}
-            </div>
         </div>
     );
 };
-
 const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
     const statusColors = {
         "To-Do": "bg-gray-400",

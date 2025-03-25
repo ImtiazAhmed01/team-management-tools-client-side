@@ -4,9 +4,9 @@ import useAuth from "../provider/useAuth";
 
 const Navbar = () => {
   const { user, signOutUser } = useAuth();
-  if (user) {
-    console.log(user)
-  }
+  // if (user) {
+  //   console.log(user)
+  // }
 
   const handleLogout = () => {
     signOutUser()
@@ -38,7 +38,7 @@ const Navbar = () => {
           <NavLink className="hover:text-[#4978ff]" to="/tasks">Tasks</NavLink>
           <NavLink className="hover:text-[#4978ff]" to="/contact">Contact</NavLink>
           {user && <NavLink className="hover:text-[#4978ff]" to="/task">Task</NavLink>}
-          {user && <NavLink className="hover:text-[#4978ff]" to="/dashboard">DashBoard</NavLink>}
+          {user && <NavLink className="hover:text-[#4978ff]" to="/profile">DashBoard</NavLink>}
 
 
           {!user ? (
