@@ -282,7 +282,7 @@ const Task = ({ loggedInUserId }) => {
             alert("Please fill in the required fields.");
             return;
         }
-
+    
         const newTask = {
             userId: loggedInUserId,
             title: taskData.title,
@@ -291,20 +291,25 @@ const Task = ({ loggedInUserId }) => {
             fileUrl: taskData.fileUrl || "",
             status: taskData.status,
         };
-
-        if (taskData.id) {
-            // If editing an existing task, update the task in the backend and frontend
-            await fetch(`http://localhost:5000/tasks/${taskData.id}`, {
+    
+        if (taskData._id) {
+            // If editing an existing task, update it in the backend
+            await fetch(`http://localhost:5000/tasks/${taskData._id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify(newTask),
             });
-
-            setTasks(tasks.map((task) => (task.id === taskData.id ? { ...task, ...newTask } : task)));
+    
+            // Update task in frontend state
+            setTasks((prevTasks) =>
+                prevTasks.map((task) =>
+                    task._id === taskData._id ? { ...task, ...newTask, _id: task._id } : task
+                )
+            );
         } else {
-            // If creating a new task, add it to the backend and frontend
+            // If creating a new task, add it to the backend
             const response = await fetch("http://localhost:5000/tasks", {
                 method: "POST",
                 headers: {
@@ -313,12 +318,13 @@ const Task = ({ loggedInUserId }) => {
                 body: JSON.stringify(newTask),
             });
             const createdTask = await response.json();
-            setTasks([createdTask, ...tasks]);
+            setTasks((prevTasks) => [createdTask, ...prevTasks]);
         }
-
+    
         setShowForm(false);
-        setTaskData({ id: null, title: "", description: "", dueDate: "", fileUrl: "", status: "To-Do" });
+        setTaskData({ _id: null, title: "", description: "", dueDate: "", fileUrl: "", status: "To-Do" });
     };
+    
 
     const handleDelete = async (taskId) => {
         await fetch(`http://localhost:5000/tasks/${taskId}`, { method: "DELETE" });
