@@ -1,6 +1,7 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import "./index.css";
+
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Login from './Component/Login/Login'
@@ -16,14 +17,16 @@ import Task from './Component/Task/Task'
 
 
 
+
+
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App></App>,
     children: [
       {
-        path: "/",
-        element: <Home />
+        index: true,
+        element: <Home />,
       },
       {
         path: "/login",
@@ -34,16 +37,17 @@ const router = createBrowserRouter([
         element: <Register></Register>,
       },
       {
-        path: "/task",
-        element: <Task></Task>
-      }
-
-    ]
-  }
-])
-
-createRoot(document.getElementById('root')).render(
-
+        path: "/Tasks",
+        element: <Task></Task>,
+      },
+      {
+        path: "/user",
+        element: <Profile />,
+      },
+    ],
+  },
+]);
+createRoot(document.getElementById("root")).render(
   <StrictMode>
     <AuthProvider>
       <RouterProvider router={router}> </RouterProvider>
@@ -61,5 +65,5 @@ createRoot(document.getElementById('root')).render(
         transition="bounce"
       />
     </AuthProvider>
-  </StrictMode >,
-)
+  </StrictMode>
+);

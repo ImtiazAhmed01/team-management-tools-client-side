@@ -4,9 +4,9 @@ import useAuth from "../provider/useAuth";
 
 const Navbar = () => {
   const { user, signOutUser } = useAuth();
-  if (user) {
-    console.log(user)
-  }
+  // if (user) {
+  //   console.log(user)
+  // }
 
   const handleLogout = () => {
     signOutUser()
