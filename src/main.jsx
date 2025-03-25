@@ -16,6 +16,7 @@ import Task from './Component/Task/Task'
 
 
 
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -34,7 +35,7 @@ const router = createBrowserRouter([
         element: <Register></Register>,
       },
       {
-        path: "/task",
+        path: "/tasks",
         element: <Task></Task>
       }
 
