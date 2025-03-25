@@ -51,14 +51,14 @@ createRoot(document.getElementById("root")).render(
         position="top-center"
         autoClose={5000}
         hideProgressBar={false}
-        // newestOnTop={false}
+        newestOnTop={false}
         closeOnClick
-        // rtl={false}
-        // pauseOnFocusLoss
-        // draggable
-        // pauseOnHover
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
         theme="light"
-        // transition="bounce"
+        transition="bounce"
       />
     </AuthProvider>
   </StrictMode>
