@@ -2,7 +2,6 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 
-
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Login from './Component/Login/Login'
 import App from './App'
@@ -12,7 +11,7 @@ import { ToastContainer } from 'react-toastify'
 import AuthProvider from './Component/provider/authProvider'
 import Home from './Component/pages/Home/Home'
 import Task from './Component/Task/Task'
-import Profile from './Component/Profile/Profile'
+
 
 
 
@@ -37,9 +36,6 @@ const router = createBrowserRouter([
       {
         path: "/task",
         element: <Task></Task>
-      }, {
-        path: "/profile",
-        element: <Profile></Profile>
       }
 
     ]
