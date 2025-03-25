@@ -282,7 +282,7 @@ const Task = ({ loggedInUserId }) => {
             alert("Please fill in the required fields.");
             return;
         }
-    
+
         const newTask = {
             userId: loggedInUserId,
             title: taskData.title,
@@ -291,7 +291,7 @@ const Task = ({ loggedInUserId }) => {
             fileUrl: taskData.fileUrl || "",
             status: taskData.status,
         };
-    
+
         if (taskData._id) {
             // If editing an existing task, update it in the backend
             await fetch(`http://localhost:5000/tasks/${taskData._id}`, {
@@ -301,7 +301,7 @@ const Task = ({ loggedInUserId }) => {
                 },
                 body: JSON.stringify(newTask),
             });
-    
+
             // Update task in frontend state
             setTasks((prevTasks) =>
                 prevTasks.map((task) =>
@@ -320,16 +320,17 @@ const Task = ({ loggedInUserId }) => {
             const createdTask = await response.json();
             setTasks((prevTasks) => [createdTask, ...prevTasks]);
         }
-    
+
         setShowForm(false);
         setTaskData({ _id: null, title: "", description: "", dueDate: "", fileUrl: "", status: "To-Do" });
     };
-    
+
 
     const handleDelete = async (taskId) => {
         await fetch(`http://localhost:5000/tasks/${taskId}`, { method: "DELETE" });
-        setTasks(tasks.filter((task) => task.id !== taskId));
+        setTasks(tasks.filter((task) => task._id !== taskId)); // Filter by _id, not id
     };
+
 
     const handleEdit = (task) => {
         setTaskData(task);
@@ -465,9 +466,10 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
                     <button onClick={() => onEdit(task)} className="bg-yellow-500 text-white px-4 py-2 rounded shadow-md hover:bg-yellow-600 transition">
                         <FaEdit />
                     </button>
-                    <button onClick={() => onDelete(task.id)} className="bg-red-500 text-white px-4 py-2 rounded shadow-md hover:bg-red-600 transition">
+                    <button onClick={() => onDelete(task._id)} className="bg-red-500 text-white px-4 py-2 rounded shadow-md hover:bg-red-600 transition">
                         <FaTrash />
                     </button>
+
                 </div>
             )}
         </motion.div>
