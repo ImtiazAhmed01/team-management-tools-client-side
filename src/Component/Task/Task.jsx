@@ -108,7 +108,7 @@ const Task = ({ loggedInUserId }) => {
                     <option value="Due This Week">Due This Week</option>
                     <option value="In Progress">In Progress</option>
                     <option value="To-Do">To-Do</option>
-                    <option value="Completed Tasks">Completed Tasks</option>
+                    <option value="Completed Tasks">Completed Task</option>
                     
                 </select>
                 <div className="relative w-full">
