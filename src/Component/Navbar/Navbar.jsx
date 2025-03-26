@@ -36,6 +36,7 @@ const Navbar = () => {
           <NavLink className="hover:text-[#4978ff]" to="/about">About</NavLink>
           <NavLink className="hover:text-[#4978ff]" to="/Products">Features</NavLink>
           <NavLink className="hover:text-[#4978ff]" to="/tasks">Tasks</NavLink>
+          <NavLink className="hover:text-[#4978ff]" to="/Chats">Chats</NavLink>
           <NavLink className="hover:text-[#4978ff]" to="/contact">Contact</NavLink>
           {user && <NavLink className="hover:text-[#4978ff]" to="/Tasks">Task</NavLink>}
           {user && <NavLink className="hover:text-[#4978ff]" to="/user">DashBoard</NavLink>}

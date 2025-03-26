@@ -13,6 +13,7 @@ import AuthProvider from './Component/provider/authProvider'
 import Home from './Component/pages/Home/Home'
 import Task from './Component/Task/Task'
 import Profile from "./Component/Profile/Profile";
+import ChatPage from "./Component/Chat/ChatPage";
 
 const router = createBrowserRouter([
   {
@@ -35,6 +36,11 @@ const router = createBrowserRouter([
 
         path: "/Tasks",
         element: <Task></Task>,
+      },
+      {
+
+        path: "/Chats",
+        element: <ChatPage></ChatPage>
       },
       {
         path: "/user",
