@@ -1,10 +1,6 @@
-import { createUserWithEmailAndPassword, GoogleAuthProvider, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, signOut, updateProfile } from "firebase/auth";
+import { createUserWithEmailAndPassword, GoogleAuthProvider, GithubAuthProvider, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, signOut, updateProfile } from "firebase/auth";
 import { createContext, useEffect, useState } from "react";
-import auth from "../../../firebase.init";
-
-
-
-
+import { auth } from "../../../firebase.init"; //
 
 export const AuthContext = createContext();
 
@@ -12,14 +8,11 @@ const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const googleProvider = new GoogleAuthProvider();
+    const githubProvider = new GithubAuthProvider(); // Add GitHub provider
 
     const createUser = async (email, password, userDetails) => {
         try {
-            const userCredential = await createUserWithEmailAndPassword(
-                auth,
-                email,
-                password
-            );
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const newUser = userCredential.user;
 
             await updateProfile(newUser, {
@@ -88,6 +81,19 @@ const AuthProvider = ({ children }) => {
         }
     };
 
+    const signInWithGithub = async () => {
+        try {
+            const result = await signInWithPopup(auth, githubProvider);
+            const user = result.user;
+            setUser(user);
+            localStorage.setItem("userProfile", JSON.stringify(user));
+            return user;
+        } catch (error) {
+            console.error("GitHub Sign-In error:", error.message);
+            throw error;
+        }
+    };
+
     const signInUser = async (email, password) => {
         return await signInWithEmailAndPassword(auth, email, password);
     };
@@ -115,6 +121,7 @@ const AuthProvider = ({ children }) => {
                 signInUser,
                 signOutUser,
                 signInWithGoogle,
+                signInWithGithub, // Add GitHub sign-in to context
                 updateUserProfile,
             }}
         >
