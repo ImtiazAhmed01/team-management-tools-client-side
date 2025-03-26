@@ -142,7 +142,7 @@ const Register = () => {
                 year_of_experience: "n/a"
             };
 
-            await fetch("http://localhost:5000/users", {
+            await fetch("https://teammanagementtools.vercel.app/users", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(userData),
