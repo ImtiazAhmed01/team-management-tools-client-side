@@ -14,19 +14,13 @@ import Home from './Component/pages/Home/Home'
 import Task from './Component/Task/Task'
 import Profile from "./Component/Profile/Profile";
 
-
-
-
-
-
-
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App></App>,
     children: [
       {
-        index: true,
+        path: "/",
         element: <Home />,
       },
       {
@@ -38,6 +32,7 @@ const router = createBrowserRouter([
         element: <Register></Register>,
       },
       {
+
         path: "/Tasks",
         element: <Task></Task>,
       },
@@ -49,6 +44,8 @@ const router = createBrowserRouter([
   },
 ]);
 createRoot(document.getElementById("root")).render(
+
+
   <StrictMode>
     <AuthProvider>
       <RouterProvider router={router}> </RouterProvider>

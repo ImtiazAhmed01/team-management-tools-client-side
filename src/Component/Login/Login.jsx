@@ -2,28 +2,51 @@ import React, { useState, useRef, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { AuthContext } from "../provider/authProvider";
-import { toast } from "react-toastify"; // Assuming you are using toast notifications
-import { Bounce } from "react-toastify"; // Import toast transitions if needed
+import { toast } from "react-toastify";
+import { Bounce } from "react-toastify";
+import { sendPasswordResetEmail } from "firebase/auth"; // Import sendPasswordResetEmail
+import { auth } from "../../../firebase.init"; //
 
 const Login = () => {
-    const { signInUser, signInWithGoogle } = useContext(AuthContext); // Get Auth functions from context
+    const { signInUser, signInWithGoogle, signInWithGithub } = useContext(AuthContext); // Add signInWithGithub
     const [showPassword, setShowPassword] = useState(false);
-    const emailref = useRef();
+    const emailRef = useRef();
     const navigate = useNavigate();
 
-    // Handle Google Sign In
+    // Handle Google Sign-In
     const handleGoogleSignIn = async () => {
         try {
             await signInWithGoogle();
             navigate("/");
-            toast.success('Login successful!', {
+            toast.success("Login successful with Google!", {
                 position: "top-center",
                 autoClose: 5000,
                 theme: "light",
                 transition: Bounce,
             });
         } catch (error) {
-            toast.error('Google login failed. Please try again.', {
+            toast.error("Google login failed. Please try again.", {
+                position: "top-center",
+                autoClose: 5000,
+                theme: "light",
+                transition: Bounce,
+            });
+        }
+    };
+
+    // Handle GitHub Sign-In
+    const handleGithubSignIn = async () => {
+        try {
+            await signInWithGithub();
+            navigate("/");
+            toast.success("Login successful with GitHub!", {
+                position: "top-center",
+                autoClose: 5000,
+                theme: "light",
+                transition: Bounce,
+            });
+        } catch (error) {
+            toast.error("GitHub login failed. Please try again.", {
                 position: "top-center",
                 autoClose: 5000,
                 theme: "light",
@@ -39,7 +62,7 @@ const Login = () => {
         const password = e.target.password.value;
 
         if (!email || !password) {
-            toast.error('Please enter both email and password.', {
+            toast.error("Please enter both email and password.", {
                 position: "top-center",
                 autoClose: 5000,
                 theme: "light",
@@ -50,15 +73,15 @@ const Login = () => {
 
         try {
             await signInUser(email, password);
-            navigate('/');
-            toast.success('Login successful!', {
+            navigate("/");
+            toast.success("Login successful!", {
                 position: "top-center",
                 autoClose: 5000,
                 theme: "light",
                 transition: Bounce,
             });
         } catch (error) {
-            toast.error('Invalid email or password. Please try again.', {
+            toast.error("Invalid email or password. Please try again.", {
                 position: "top-center",
                 autoClose: 5000,
                 theme: "light",
@@ -69,18 +92,38 @@ const Login = () => {
 
     // Handle Forget Password
     const handleForgetPassword = () => {
-        const email = emailref.current.value;
+        const email = emailRef.current.value;
         if (!email) {
-            alert('Please provide a valid email address');
+            toast.error("Please provide a valid email address.", {
+                position: "top-center",
+                autoClose: 5000,
+                theme: "light",
+                transition: Bounce,
+            });
         } else {
             sendPasswordResetEmail(auth, email)
                 .then(() => {
-                    alert("Password reset email sent. Please check your email.");
+                    toast.success("Password reset email sent. Please check your email.", {
+                        position: "top-center",
+                        autoClose: 5000,
+                        theme: "light",
+                        transition: Bounce,
+                    });
                 })
                 .catch((error) => {
-                    alert("Error sending password reset email.");
+                    toast.error("Error sending password reset email.", {
+                        position: "top-center",
+                        autoClose: 5000,
+                        theme: "light",
+                        transition: Bounce,
+                    });
                 });
         }
+    };
+
+    // Toggle Password Visibility
+    const togglePasswordVisibility = () => {
+        setShowPassword((prevState) => !prevState);
     };
 
     return (
@@ -129,7 +172,7 @@ const Login = () => {
                                 <input
                                     type="email"
                                     name="email"
-                                    ref={emailref}
+                                    ref={emailRef}
                                     placeholder="Email"
                                     className="w-full px-4 py-2 border rounded-md focus:outline-none"
                                     required
@@ -143,6 +186,13 @@ const Login = () => {
                                     className="w-full px-4 py-2 border rounded-md focus:outline-none"
                                     required
                                 />
+                                <button
+                                    type="button"
+                                    onClick={togglePasswordVisibility}
+                                    className="text-sm text-blue-500 absolute right-2 top-2"
+                                >
+                                    {showPassword ? "Hide" : "Show"}
+                                </button>
                             </div>
                             <p
                                 className="text-right text-blue-500 text-sm cursor-pointer"
@@ -160,14 +210,37 @@ const Login = () => {
                             </motion.button>
                         </form>
 
-                        <div className="mt-4 text-center">
+                        <div className="mt-4 text-center space-y-4">
+                            {/* Google Sign-In Button */}
                             <motion.button
                                 onClick={handleGoogleSignIn}
-                                className="w-full flex gap-5 mt-4 bg-purple-600 text-white py-2 rounded-md animate-bounce"
+                                className="w-full flex items-center justify-center gap-5 mt-4 bg-purple-600 text-white py-2 rounded-md animate-bounce"
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                             >
-                                <img width="30" height="30" src="https://img.icons8.com/color/48/google-logo.png" alt="google-logo" /> Login with Google
+                                <img
+                                    width="30"
+                                    height="30"
+                                    src="https://img.icons8.com/color/48/google-logo.png"
+                                    alt="google-logo"
+                                />
+                                Login with Google
+                            </motion.button>
+
+                            {/* GitHub Sign-In Button */}
+                            <motion.button
+                                onClick={handleGithubSignIn}
+                                className="w-full flex items-center justify-center gap-5 bg-gray-800 text-white py-2 rounded-md animate-pulse"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                <img
+                                    width="30"
+                                    height="30"
+                                    src="https://img.icons8.com/ios-filled/50/ffffff/github.png"
+                                    alt="github-logo"
+                                />
+                                Login with GitHub
                             </motion.button>
                         </div>
                     </div>
@@ -178,3 +251,4 @@ const Login = () => {
 };
 
 export default Login;
+
