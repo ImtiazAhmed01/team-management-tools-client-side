@@ -18,7 +18,7 @@ const Profile = () => {
 
   useEffect(() => {
     if (user?.email) {
-      fetch(`http://localhost:5000/profileInfo/${user.email}`)
+      fetch(`https://teammanagementtools.vercel.app/profileInfo/${user.email}`)
         .then((res) => res.json())
         .then((data) => {
           const userData = data?.[0] || {};
@@ -58,7 +58,7 @@ const Profile = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/profile/${user?.email}`,
+        `https://teammanagementtools.vercel.app/profile/${user?.email}`,
         {
           method: "POST",
           headers: { "content-type": "application/json" },
@@ -75,7 +75,7 @@ const Profile = () => {
           location,
           socialLinks,
         }));
-        
+
         setBio(bio);
         setRole(role);
         setLocation(location);
@@ -92,7 +92,7 @@ const Profile = () => {
         }));
 
         toast.success("Info added successfully!");
-      } else if(data.status === 400) {
+      } else if (data.status === 400) {
         toast.error(data.message || "Failed to update info");
       }
     } catch (error) {
@@ -203,7 +203,7 @@ const Profile = () => {
                 </h1>
                 <div className="flex flex-col gap-3">
                   {/* Social Media Links */}
-                  {[ 
+                  {[
                     {
                       platform: "linkedin",
                       label: "LinkedIn",

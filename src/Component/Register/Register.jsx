@@ -188,7 +188,10 @@ const Register = () => {
                 userRole: "Student",  
                 registrationDate: registrationDate,
             };
-            const response = await fetch("http://localhost:5000/user", {
+
+
+            await fetch("https://teammanagementtools.vercel.app/users", {
+
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

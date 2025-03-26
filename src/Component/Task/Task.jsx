@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { FaPlus, FaTimes, FaEdit, FaTrash, FaUpload, FaLink, FaSearch } from "react-icons/fa";
 import { motion } from "framer-motion";
@@ -18,7 +19,9 @@ const Task = ({ loggedInUserId }) => {
     const [search, setSearch] = useState("");
 
     useEffect(() => {
-        axios.get("http://localhost:5000/tasks").then((response) => {
+
+        axios.get("https://teammanagementtools.vercel.app/tasks").then((response) => {
+
             setTasks(response.data);
         });
     }, []);
@@ -49,13 +52,17 @@ const Task = ({ loggedInUserId }) => {
 
         if (taskData.id) {
             // Update existing task
-            await axios.put(`http://localhost:5000/tasks/${taskData.id}`, newTask);
+
+            await axios.put(`https://teammanagementtools.vercel.app/tasks/${taskData.id}`, newTask);
+
             setTasks((prevTasks) =>
                 prevTasks.map((task) => (task.id === taskData.id ? { ...task, ...newTask } : task))
             );
         } else {
             // Create a new task
-            const response = await axios.post("http://localhost:5000/tasks", newTask);
+
+            const response = await axios.post("https://teammanagementtools.vercel.app/tasks", newTask);
+
             setTasks((prevTasks) => [response.data, ...prevTasks]);
         }
 
@@ -64,7 +71,9 @@ const Task = ({ loggedInUserId }) => {
     };
 
     const handleDelete = async (taskId) => {
-        await axios.delete(`http://localhost:5000/tasks/${taskId}`);
+
+        await axios.delete(`https://teammanagementtools.vercel.app/tasks/${taskId}`);
+
         setTasks(tasks.filter((task) => task.id !== taskId));
     };
 

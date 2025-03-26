@@ -12,6 +12,7 @@ import { ToastContainer } from 'react-toastify'
 import AuthProvider from './Component/provider/authProvider'
 import Home from './Component/pages/Home/Home'
 import Task from './Component/Task/Task'
+import Profile from "./Component/Profile/Profile";
 
 const router = createBrowserRouter([
   {
@@ -19,7 +20,7 @@ const router = createBrowserRouter([
     element: <App></App>,
     children: [
       {
-        index: true,
+        path: "/",
         element: <Home />,
       },
       {
@@ -31,15 +32,19 @@ const router = createBrowserRouter([
         element: <Register></Register>,
       },
       {
-        path: "/tasks",
-        element: <Task></Task>
-      }
 
-    ]
-  }
-])
+        path: "/Tasks",
+        element: <Task></Task>,
+      },
+      {
+        path: "/user",
+        element: <Profile></Profile>
+      },
+    ],
+  },
+]);
+createRoot(document.getElementById("root")).render(
 
-createRoot(document.getElementById('root')).render(
 
   <StrictMode>
     <AuthProvider>
