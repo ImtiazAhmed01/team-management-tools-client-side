@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from "react";
 import { FaPlus, FaTimes, FaEdit, FaTrash, FaUpload, FaLink, FaSearch } from "react-icons/fa";
 import { motion } from "framer-motion";
@@ -32,43 +30,6 @@ const Task = ({ loggedInUserId }) => {
         setTaskData((prev) => ({ ...prev, [name]: value }));
     };
 
-    // const handleSubmit = async (e) => {
-    //     e.preventDefault();
-
-    //     if (!taskData.title || !taskData.dueDate) {
-    //         alert("Please fill in the required fields.");
-    //         return;
-    //     }
-
-    //     const newTask = {
-    //         userId: loggedInUserId,
-    //         title: taskData.title,
-    //         description: taskData.description,
-    //         dueDate: taskData.dueDate,
-    //         fileUrl: taskData.fileUrl || "",
-    //         status: taskData.status,
-    //     };
-
-    //     if (taskData.id) {
-    //         // Update existing task
-    //         await axios.put(`http://localhost:5000/tasks/${taskData.id}`, newTask);
-    //         setTasks((prevTasks) =>
-    //             prevTasks.map((task) => (task.id === taskData.id ? { ...task, ...newTask } : task))
-    //         );
-    //     } else {
-    //         // Create a new task
-    //         const response = await axios.post("http://localhost:5000/tasks", newTask);
-    //         setTasks((prevTasks) => [response.data, ...prevTasks]);
-    //     }
-
-    //     setShowForm(false);
-    //     setTaskData({ id: null, title: "", description: "", dueDate: "", fileUrl: "", status: "To-Do" });
-    // };
-
-    // const handleDelete = async (taskId) => {
-    //     await axios.delete(`http://localhost:5000/tasks/${taskId}`);
-    //     setTasks(tasks.filter((task) => task.id !== taskId));
-    // };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -94,11 +55,9 @@ const Task = ({ loggedInUserId }) => {
                 await axios.post("http://localhost:5000/tasks", newTask);
             }
 
-            // Refetch updated task list
             const response = await axios.get("http://localhost:5000/tasks");
             setTasks(response.data);
 
-            // Close form only after successful operation
             setShowForm(false);
             setTaskData({ id: null, title: "", description: "", dueDate: "", fileUrl: "", status: "To-Do" });
         } catch (error) {
@@ -111,7 +70,7 @@ const Task = ({ loggedInUserId }) => {
         try {
             await axios.delete(`http://localhost:5000/tasks/${taskId}`);
 
-            // Refetch updated task list
+
             const response = await axios.get("http://localhost:5000/tasks");
             setTasks(response.data);
         } catch (error) {
