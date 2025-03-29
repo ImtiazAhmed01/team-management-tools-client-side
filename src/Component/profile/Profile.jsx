@@ -18,7 +18,7 @@ const Profile = () => {
 
   useEffect(() => {
     if (user?.email) {
-      fetch(`https://teammanagementtools.vercel.app/profileInfo/${user.email}`)
+      fetch(`http://localhost:5000/profileInfo/${user.email}`)
         .then((res) => res.json())
         .then((data) => {
           const userData = data?.[0] || {};
@@ -58,7 +58,7 @@ const Profile = () => {
 
     try {
       const response = await fetch(
-        `https://teammanagementtools.vercel.app/profile/${user?.email}`,
+        `http://localhost:5000/profile/${user?.email}`,
         {
           method: "POST",
           headers: { "content-type": "application/json" },
