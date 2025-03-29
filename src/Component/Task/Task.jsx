@@ -18,7 +18,9 @@ const Task = ({ loggedInUserId }) => {
     const [search, setSearch] = useState("");
 
     useEffect(() => {
+
         axios.get("http://localhost:5000/tasks").then((response) => {
+
             setTasks(response.data);
         });
     }, []);
