@@ -53,6 +53,7 @@ const Task = ({ loggedInUserId }) => {
         try {
             if (taskData.id) {
                 await axios.put(`http://localhost:5000/tasks/${taskData.id}`, newTask);
+
             } else {
                 await axios.post("http://localhost:5000/tasks", newTask);
             }
@@ -82,9 +83,10 @@ const Task = ({ loggedInUserId }) => {
     };
 
     const handleEdit = (task) => {
-        setTaskData(task);
+        setTaskData({ ...task, id: task._id }); // Ensures `id` is captured correctly
         setShowForm(true);
     };
+
 
     const filterTasks = () => {
         return tasks.filter((task) => {
