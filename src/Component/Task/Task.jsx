@@ -258,7 +258,7 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
   };
 
   // reaction related codes start
-  const [reaction, setReaction] = useState({ likeCount: 0, disLkeCount: 0 });
+  const [reaction, setReaction] = useState({ likeCount: 0, disLikeCount: 0 });
   const [loading, setLoading] = useState(false);
   const [activeReaction, setActiveReaction] = useState(null);
   useEffect(() => {
