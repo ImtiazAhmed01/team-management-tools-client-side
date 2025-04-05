@@ -6,7 +6,7 @@ import { AuthContext } from "../provider/authProvider";
 import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 
 const Register = () => {
-    const { signInWithGoogle, signInWithGithub } = useContext(AuthContext); // Add signInWithGithub
+    // const { signInWithGoogle, signInWithGithub } = useContext(AuthContext); // Add signInWithGithub
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
     const [passwordError, setPasswordError] = useState("");
@@ -182,7 +182,7 @@ const Register = () => {
                             className="btn btn-outline w-full bg-gray-800 text-white animate-pulse"
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            onClick={handleGithubSignIn}
+                        // onClick={handleGithubSignIn}
                         >
                             <img width="30" height="30" src="https://img.icons8.com/ios-filled/50/ffffff/github.png" alt="github-logo" />
                             Sign Up with GitHub

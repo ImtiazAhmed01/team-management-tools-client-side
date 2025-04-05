@@ -69,6 +69,35 @@ const Task = ({ loggedInUserId }) => {
         }
     };
 
+    const handleStatusChange = async (taskId, newStatus) => {
+        try {
+            console.log("Updating Task ID:", taskId, "New Status:", newStatus); // Debug log
+
+            const taskToUpdate = tasks.find((task) => task._id === taskId);
+
+            if (!taskToUpdate) {
+                alert("Task not found!");
+                return;
+            }
+
+            const updatedTask = { ...taskToUpdate, status: newStatus };
+
+            console.log("Payload Sent to Backend:", updatedTask); // Debug log
+
+            const response = await axios.put(`http://localhost:5000/tasks/${taskId}`, updatedTask);
+
+            console.log("Backend Response:", response.data); // Debug log
+
+            const updatedTasks = await axios.get("http://localhost:5000/tasks");
+            setTasks(updatedTasks.data);
+        } catch (error) {
+            console.error("Error updating task status:", error);
+            alert("Failed to update task status. Please try again.");
+        }
+    };
+
+
+
     const handleDelete = async (taskId) => {
         try {
             await axios.delete(`http://localhost:5000/tasks/${taskId}`);
@@ -83,7 +112,7 @@ const Task = ({ loggedInUserId }) => {
     };
 
     const handleEdit = (task) => {
-        setTaskData({ ...task, id: task._id }); // Ensures `id` is captured correctly
+        setTaskData({ ...task, id: task._id });
         setShowForm(true);
     };
 
@@ -133,7 +162,7 @@ const Task = ({ loggedInUserId }) => {
             <div className="space-y-4">
                 {filterTasks().length > 0 ? (
                     filterTasks().map((task) => (
-                        <TaskCard key={task.id} task={task} loggedInUserId={loggedInUserId} onDelete={handleDelete} onEdit={handleEdit} />
+                        <TaskCard key={task.id} task={task} loggedInUserId={loggedInUserId} onDelete={handleDelete} onEdit={handleEdit} onStatusChange={handleStatusChange} />
                     ))
                 ) : (
                     <p className="text-center text-gray-500">No tasks found.</p>
@@ -151,11 +180,11 @@ const Task = ({ loggedInUserId }) => {
                             <textarea name="description" placeholder="Task Description" value={taskData.description} onChange={handleChange} className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-400 transition-all" />
                             <input type="datetime-local" name="dueDate" value={taskData.dueDate} onChange={handleChange} required className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-400 transition-all" />
                             <input type="url" name="fileUrl" placeholder="Or provide an external link" value={taskData.fileUrl} onChange={handleChange} className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-400 transition-all" />
-                            <select name="status" value={taskData.status} onChange={handleChange} className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-400 transition-all">
+                            {/* <select name="status" value={taskData.status} onChange={handleChange} className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-400 transition-all">
                                 <option value="To-Do">To-Do</option>
                                 <option value="In Progress">In Progress</option>
                                 <option value="Completed">Completed</option>
-                            </select>
+                            </select> */}
                             <button type="submit" className="bg-green-500 text-white px-5 py-2 rounded-md w-full hover:bg-green-600 transition">
                                 {taskData.id ? "Update Task" : "Create Task"}
                             </button>
@@ -166,7 +195,55 @@ const Task = ({ loggedInUserId }) => {
         </div>
     );
 };
-const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
+// const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
+//     const statusColors = {
+//         "To-Do": "bg-gray-400",
+//         "In Progress": "bg-yellow-400",
+//         "Completed": "bg-green-500",
+//     };
+
+//     return (
+//         <motion.div
+//             initial={{ opacity: 0, y: 10 }}
+//             animate={{ opacity: 1, y: 0 }}
+//             className="p-5 bg-white rounded-lg shadow-md border-l-4 transition-all hover:shadow-xl"
+//             style={{ borderColor: statusColors[task.status] || "gray" }}
+//         >
+//             <div className="flex justify-between items-center">
+//                 <h4 className="font-semibold text-lg">{task.title}</h4>
+//                 <span className={`text-sm font-bold px-3 py-1 rounded-full ${statusColors[task.status]} text-white`}>
+//                     {task.status}
+//                 </span>
+//             </div>
+//             <p className="text-gray-600 mt-2">{task.description}</p>
+//             <p className="text-sm text-gray-500 mt-1">Due: {new Date(task.dueDate).toLocaleString()}</p>
+
+//             {task.fileUrl && (
+//                 <a href={task.fileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 flex items-center mt-2">
+//                     <FaLink className="mr-1" /> View File
+//                 </a>
+//             )}
+
+//             {task.userId === loggedInUserId && (
+//                 <div className="mt-4 flex space-x-3">
+//                     <button onClick={() => onEdit(task)} className="bg-yellow-500 text-white px-4 py-2 rounded shadow-md hover:bg-yellow-600 transition">
+//                         <FaEdit />
+//                     </button>
+//                     <button onClick={() => onDelete(task._id)} className="bg-red-500 text-white px-4 py-2 rounded shadow-md hover:bg-red-600 transition">
+//                         <FaTrash />
+//                     </button>
+//                     <select name="status" className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-400 transition-all">
+
+//                         <option value="In Progress">In Progress</option>
+//                         <option value="Completed">Completed</option>
+//                     </select>
+
+//                 </div>
+//             )}
+//         </motion.div>
+//     );
+// };
+const TaskCard = ({ task, loggedInUserId, onDelete, onEdit, onStatusChange }) => {
     const statusColors = {
         "To-Do": "bg-gray-400",
         "In Progress": "bg-yellow-400",
@@ -194,6 +271,12 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
                     <FaLink className="mr-1" /> View File
                 </a>
             )}
+            <div>
+                Done Count:{task.doneCount}
+            </div>
+            <div>
+                In Progress Count:{task.inProgressCount}
+            </div>
 
             {task.userId === loggedInUserId && (
                 <div className="mt-4 flex space-x-3">
@@ -203,11 +286,21 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
                     <button onClick={() => onDelete(task._id)} className="bg-red-500 text-white px-4 py-2 rounded shadow-md hover:bg-red-600 transition">
                         <FaTrash />
                     </button>
-
+                    <select
+                        name="status"
+                        value={task.status}
+                        onChange={(e) => onStatusChange(task._id, e.target.value)}
+                        className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-400 transition-all"
+                    >
+                        <option value="To-Do">To-Do</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                    </select>
                 </div>
             )}
         </motion.div>
     );
 };
+
 
 export default Task;
