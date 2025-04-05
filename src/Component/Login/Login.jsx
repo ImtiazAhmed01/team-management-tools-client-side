@@ -1,19 +1,79 @@
-
-
 import React, { useState, useRef, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { AuthContext } from "../provider/authProvider";
 import { toast } from "react-toastify";
 import { Bounce } from "react-toastify";
-import { sendPasswordResetEmail } from "firebase/auth"; // Import sendPasswordResetEmail
-import { auth } from "../../../firebase.init"; //
+import { sendPasswordResetEmail } from "firebase/auth";
+import { auth } from "../../../firebase.init";
 
 const Login = () => {
-    const { signInUser, signInWithGoogle, signInWithGithub } = useContext(AuthContext); // Add signInWithGithub
+    const MAX_ATTEMPTS = 3;
+    const LOCKOUT_DURATION = 5 * 60 * 1000; // 5 minutes
+    const { signInUser, signInWithGoogle, signInWithGithub } = useContext(AuthContext);
     const [showPassword, setShowPassword] = useState(false);
     const emailRef = useRef();
     const navigate = useNavigate();
+
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        const email = e.target.email.value;
+        const password = e.target.password.value;
+
+        if (!email || !password) {
+            toast.error("Please enter both email and password.");
+            return;
+        }
+
+        const storedData = JSON.parse(localStorage.getItem(email)) || { failedAttempts: 0, lockoutTime: 0 }; //keeping failed attempt count and lockout time in localstorage
+        const now = Date.now();
+
+        if (storedData.lockoutTime && now < storedData.lockoutTime) {
+            toast.error("Too many unsuccessful attempts. Your account is now lock. Try again later. Time left to try again - ", {
+                position: "top-center",
+                autoClose: 5000,
+                theme: "light",
+                transition: Bounce,
+            });
+            return;
+        }
+
+        try {
+            await signInUser(email, password);
+            localStorage.setItem(email, JSON.stringify({ failedAttempts: 0, lockoutTime: 0 }));
+            navigate("/");
+            toast.success("Login successful!", {
+                position: "top-center",
+                autoClose: 5000,
+                theme: "light",
+                transition: Bounce,
+            });
+        } catch (error) {
+            let failedAttempts = storedData.failedAttempts + 1;
+
+            if (failedAttempts >= MAX_ATTEMPTS) {
+                localStorage.setItem(
+                    email,
+                    JSON.stringify({
+                        failedAttempts,
+                        lockoutTime: now + LOCKOUT_DURATION,
+                    })
+                );
+                toast.error("Account locked for 5 minutes.", {
+                    position: "top-center",
+                    autoClose: 5000,
+                    theme: "light",
+                    transition: Bounce,
+                });
+            } else {
+                localStorage.setItem(
+                    email,
+                    JSON.stringify({ failedAttempts, lockoutTime: 0 })
+                );
+                toast.error(`Login failed. Attempt ${failedAttempts} of ${MAX_ATTEMPTS}.`);
+            }
+        }
+    };
 
     // Handle Google Sign-In
     const handleGoogleSignIn = async () => {
@@ -49,41 +109,6 @@ const Login = () => {
             });
         } catch (error) {
             toast.error("GitHub login failed. Please try again.", {
-                position: "top-center",
-                autoClose: 5000,
-                theme: "light",
-                transition: Bounce,
-            });
-        }
-    };
-
-    // Handle Email/Password Login
-    const handleLogin = async (e) => {
-        e.preventDefault();
-        const email = e.target.email.value;
-        const password = e.target.password.value;
-
-        if (!email || !password) {
-            toast.error("Please enter both email and password.", {
-                position: "top-center",
-                autoClose: 5000,
-                theme: "light",
-                transition: Bounce,
-            });
-            return;
-        }
-
-        try {
-            await signInUser(email, password);
-            navigate("/");
-            toast.success("Login successful!", {
-                position: "top-center",
-                autoClose: 5000,
-                theme: "light",
-                transition: Bounce,
-            });
-        } catch (error) {
-            toast.error("Invalid email or password. Please try again.", {
                 position: "top-center",
                 autoClose: 5000,
                 theme: "light",
@@ -253,4 +278,3 @@ const Login = () => {
 };
 
 export default Login;
-
