@@ -7,10 +7,16 @@ import {
   FaUpload,
   FaLink,
   FaSearch,
+  FaComment,
 } from "react-icons/fa";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { FiThumbsUp, FiThumbsDown } from "react-icons/fi";
+import useAuth from "../provider/useAuth";
+import { MdSend } from "react-icons/md";
+import { toast } from "react-toastify";
+import { IoIosCloseCircle } from "react-icons/io";
+// import Comment from "../comment/Comment";
 
 const Task = ({ loggedInUserId }) => {
   const [showForm, setShowForm] = useState(false);
@@ -261,6 +267,9 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
   const [reaction, setReaction] = useState({ likeCount: 0, disLikeCount: 0 });
   const [loading, setLoading] = useState(false);
   const [activeReaction, setActiveReaction] = useState(null);
+  const { user } = useAuth();
+  const [comment, setComment] = useState([]);
+
   useEffect(() => {
     const fetchReaction = async () => {
       const { data } = await axios.get(
@@ -296,10 +305,13 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
     setActiveReaction((prev) => (prev === reactType ? null : reactType)); // Toggle the active reaction
 
     try {
-      const { data } = await axios.post("https://teammanagementtools.vercel.app/reactions", {
-        cardId: task._id,
-        reactions: reactType,
-      });
+      const { data } = await axios.post(
+        "https://teammanagementtools.vercel.app/reactions",
+        {
+          cardId: task._id,
+          reactions: reactType,
+        }
+      );
 
       setReaction({
         likeCount: data.likeCount || 0,
@@ -312,6 +324,53 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
     }
   };
   // reaction related codes end
+
+  // comment related codes start
+  const handleModal = (id) => {
+    document.getElementById(`modal_${id}`).showModal();
+  };
+
+  const handleCommentSubmit = async (event) => {
+    event.preventDefault();
+    const comment = event.target.comment.value;
+    const userName = user?.displayName;
+    const time = new Date().toISOString();
+    const commentInfo = { userName, comment, time };
+
+    try {
+      const { data } = await axios.post(
+        `https://teammanagementtools.vercel.app/comments/${task._id}`,
+        { commentInfo }
+      );
+      if (data.insertedId) {
+        event.target.reset();
+        toast.success("comment added");
+        setComment((prevComments) => [...prevComments, commentInfo]);
+      } else {
+        toast.error("something went wrong!");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      if (task._id) {
+        try {
+          const { data } = await axios.get(
+            `https://teammanagementtools.vercel.app/comment/${task._id}`
+          );
+          setComment(data);
+        } catch (error) {
+          console.error("Error fetching comments:", error);
+        }
+      }
+    };
+    fetchComments();
+  }, [task._id]);
+
+  if (loading) return <span className="loading loading-ring loading-xl"></span>;
 
   return (
     <motion.div
@@ -361,6 +420,12 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
             >
               <FaTrash />
             </button>
+            <button
+              onClick={() => handleModal(`${task._id}`)}
+              className="bg-green-500 text-white px-4 py-2 rounded shadow-md hover:bg-green-600 transition cursor-pointer"
+            >
+              <FaComment />
+            </button>
           </div>
           {/* reaction */} {/* srity */}
           <div className="mt-2">
@@ -386,6 +451,71 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
           </div>
         </div>
       )}
+
+      {/* comment modal */}
+      <div>
+        <dialog id={`modal_${task._id}`} className="modal modal-middle">
+          <div className="modal-box relative h-[80vh]">
+            <h3 className="font-bold text-lg">
+              Add a Comment to{" "}
+              <span className="text-red-500">{task.title}</span>
+            </h3>
+            {/* Comment input form */}
+            <form onSubmit={handleCommentSubmit} className="space-y-4 mt-2">
+              <div className="relative">
+                <textarea
+                  type="text"
+                  id="comment"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                  placeholder="Write a comment..."
+                />
+                <button type="submit">
+                  <MdSend className="absolute top-3 right-3 cursor-pointer" />
+                </button>
+              </div>
+            </form>
+
+            {/* Displaying the comments */}
+            <div className="">
+              <h4 className="text-lg font-semibold text-gray-900"></h4>
+              <ul className="space-y-2 mt-2">
+                {comment.length === 0 ? (
+                  <p className="font-normal text-center text-xs capitalize">no comments yet</p>
+                ) : (
+                  comment.map((commentData, index) => (
+                    <div key={index} className="text-sm text-gray-900">
+                      <div>
+                        <h2 className="font-bold text-lg flex items-center gap-1">
+                          {commentData.userName}
+                          <div className="text-xs font-normal">
+                            (
+                            <span>
+                              {new Date(commentData.time).toLocaleDateString()}
+                            </span>
+                            <span>
+                              {new Date(commentData.time).toLocaleTimeString()}
+                            </span>
+                            )
+                          </div>
+                        </h2>
+                        <p>{commentData.comment}</p>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </ul>
+            </div>
+
+            <div className="modal-action">
+              <form method="dialog">
+                <button className="absolute top-7 right-8 font-bold text-xl text-black">
+                  <IoIosCloseCircle />
+                </button>
+              </form>
+            </div>
+          </div>
+        </dialog>
+      </div>
     </motion.div>
   );
 };
