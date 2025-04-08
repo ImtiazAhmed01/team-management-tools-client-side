@@ -20,7 +20,7 @@ const Profile = () => {
 
   useEffect(() => {
     if (user?.email) {
-      fetch(`https://teammanagementtools.vercel.app/profileInfo/${user.email}`)
+      fetch(`http://localhost:5000/ profileInfo/${user.email}`)
         .then((res) => res.json())
         .then((data) => {
           const userData = data?.[0] || {};
@@ -67,11 +67,13 @@ const Profile = () => {
     const profileInfo = { bio, role, location, socialLinks, status };
 
     try {
+
       const response = await fetch(`https://teammanagementtools.vercel.app/profile/${user?.email}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(profileInfo),
       });
+
       const data = await response.json();
 
       if (response.ok && data.message === "profile updated successfully!") {
