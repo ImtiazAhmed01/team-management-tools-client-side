@@ -1,9 +1,13 @@
-
 import React, { useState, useEffect } from "react";
-import { FaPlus, FaTimes, FaEdit, FaTrash, FaUpload, FaLink, FaSearch } from "react-icons/fa";
+import { FaPlus, FaTimes, FaEdit, FaTrash, FaUpload, FaLink, FaSearch, FaComment } from "react-icons/fa";
 import { motion } from "framer-motion";
 import axios from "axios";
 import Image from "../Imagesfile/Image";
+import { FiThumbsUp, FiThumbsDown } from "react-icons/fi";
+import useAuth from "../provider/useAuth";
+import { MdSend } from "react-icons/md";
+import { toast } from "react-toastify";
+import { IoIosCloseCircle } from "react-icons/io";
 
 const Task = ({ loggedInUserId }) => {
     const [showForm, setShowForm] = useState(false);
@@ -21,7 +25,7 @@ const Task = ({ loggedInUserId }) => {
 
     useEffect(() => {
 
-        axios.get("https://teammanagementtools.vercel.app/tasks").then((response) => {
+        axios.get("http://localhost:5000/tasks").then((response) => {
 
             setTasks(response.data);
         });
@@ -33,6 +37,7 @@ const Task = ({ loggedInUserId }) => {
         const { name, value } = e.target;
         setTaskData((prev) => ({ ...prev, [name]: value }));
     };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -51,37 +56,72 @@ const Task = ({ loggedInUserId }) => {
             status: taskData.status,
         };
 
-        if (taskData.id) {
-            // Update existing task
+        try {
+            if (taskData.id) {
+                await axios.put(`http://localhost:5000/tasks/${taskData.id}`, newTask);
 
-            await axios.put(`https://teammanagementtools.vercel.app/tasks/${taskData.id}`, newTask);
+            } else {
+                await axios.post("http://localhost:5000/tasks", newTask);
+            }
 
-            setTasks((prevTasks) =>
-                prevTasks.map((task) => (task.id === taskData.id ? { ...task, ...newTask } : task))
-            );
-        } else {
-            // Create a new task
+            const response = await axios.get("http://localhost:5000/tasks");
+            setTasks(response.data);
 
-            const response = await axios.post("https://teammanagementtools.vercel.app/tasks", newTask);
-
-            setTasks((prevTasks) => [response.data, ...prevTasks]);
+            setShowForm(false);
+            setTaskData({ id: null, title: "", description: "", dueDate: "", fileUrl: "", status: "To-Do" });
+        } catch (error) {
+            console.error("Error saving task:", error);
+            alert("Failed to save task. Please try again.");
         }
-
-        setShowForm(false);
-        setTaskData({ id: null, title: "", description: "", dueDate: "", fileUrl: "", status: "To-Do" });
     };
 
+    const handleStatusChange = async (taskId, newStatus) => {
+        try {
+            console.log("Updating Task ID:", taskId, "New Status:", newStatus); // Debug log
+
+            const taskToUpdate = tasks.find((task) => task._id === taskId);
+
+            if (!taskToUpdate) {
+                alert("Task not found!");
+                return;
+            }
+
+            const updatedTask = { ...taskToUpdate, status: newStatus };
+
+            console.log("Payload Sent to Backend:", updatedTask); // Debug log
+
+            const response = await axios.put(`http://localhost:5000/tasks/${taskId}`, updatedTask);
+
+            console.log("Backend Response:", response.data); // Debug log
+
+            const updatedTasks = await axios.get("http://localhost:5000/tasks");
+            setTasks(updatedTasks.data);
+        } catch (error) {
+            console.error("Error updating task status:", error);
+            alert("Failed to update task status. Please try again.");
+        }
+    };
+
+
+
     const handleDelete = async (taskId) => {
+        try {
+            await axios.delete(`http://localhost:5000/tasks/${taskId}`);
 
-        await axios.delete(`https://teammanagementtools.vercel.app/tasks/${taskId}`);
 
-        setTasks(tasks.filter((task) => task.id !== taskId));
+            const response = await axios.get("http://localhost:5000/tasks");
+            setTasks(response.data);
+        } catch (error) {
+            console.error("Error deleting task:", error);
+            alert("Failed to delete task. Please try again.");
+        }
     };
 
     const handleEdit = (task) => {
-        setTaskData(task);
+        setTaskData({ ...task, id: task._id });
         setShowForm(true);
     };
+
 
     const filterTasks = () => {
         return tasks.filter((task) => {
@@ -129,7 +169,7 @@ const Task = ({ loggedInUserId }) => {
             <div className="space-y-4">
                 {filterTasks().length > 0 ? (
                     filterTasks().map((task) => (
-                        <TaskCard key={task.id} task={task} loggedInUserId={loggedInUserId} onDelete={handleDelete} onEdit={handleEdit} />
+                        <TaskCard key={task.id} task={task} loggedInUserId={loggedInUserId} onDelete={handleDelete} onEdit={handleEdit} onStatusChange={handleStatusChange} />
                     ))
                 ) : (
                     <p className="text-center text-gray-500">No tasks found.</p>
@@ -147,11 +187,7 @@ const Task = ({ loggedInUserId }) => {
                             <textarea name="description" placeholder="Task Description" value={taskData.description} onChange={handleChange} className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-400 transition-all" />
                             <input type="datetime-local" name="dueDate" value={taskData.dueDate} onChange={handleChange} required className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-400 transition-all" />
                             <input type="url" name="fileUrl" placeholder="Or provide an external link" value={taskData.fileUrl} onChange={handleChange} className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-400 transition-all" />
-                            <select name="status" value={taskData.status} onChange={handleChange} className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-400 transition-all">
-                                <option value="To-Do">To-Do</option>
-                                <option value="In Progress">In Progress</option>
-                                <option value="Completed">Completed</option>
-                            </select>
+
                             <button type="submit" className="bg-green-500 text-white px-5 py-2 rounded-md w-full hover:bg-green-600 transition">
                                 {taskData.id ? "Update Task" : "Create Task"}
                             </button>
@@ -162,12 +198,121 @@ const Task = ({ loggedInUserId }) => {
         </div>
     );
 };
-const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
+
+const TaskCard = ({ task, loggedInUserId, onDelete, onEdit, onStatusChange }) => {
     const statusColors = {
         "To-Do": "bg-gray-400",
         "In Progress": "bg-yellow-400",
         "Completed": "bg-green-500",
     };
+    // reaction related codes start
+    const [reaction, setReaction] = useState({ likeCount: 0, disLikeCount: 0 });
+    const [loading, setLoading] = useState(false);
+    const [activeReaction, setActiveReaction] = useState(null);
+    const { user } = useAuth();
+    const [comment, setComment] = useState([]);
+
+    useEffect(() => {
+        const fetchReaction = async () => {
+            const { data } = await axios.get(
+                `https://teammanagementtools.vercel.app/reaction/${task._id}`
+            );
+            setReaction({
+                likeCount: data.likeCount || 0,
+                disLikeCount: data.disLikeCount || 0,
+            });
+        };
+        if (task._id) {
+            fetchReaction();
+        }
+    }, [task._id]);
+
+    const handleReaction = async (reactType) => {
+        setLoading(true);
+        setReaction((prev) => {
+            if (reactType === "like") {
+                return {
+                    ...prev,
+                    likeCount: prev.likeCount + (activeReaction === "like" ? -1 : 1),
+                };
+            } else {
+                return {
+                    ...prev,
+                    disLikeCount:
+                        prev.disLikeCount + (activeReaction === "dislike" ? -1 : 1),
+                };
+            }
+        });
+
+        setActiveReaction((prev) => (prev === reactType ? null : reactType)); // Toggle the active reaction
+
+        try {
+            const { data } = await axios.post(
+                "https://teammanagementtools.vercel.app/reactions",
+                {
+                    cardId: task._id,
+                    reactions: reactType,
+                }
+            );
+
+            setReaction({
+                likeCount: data.likeCount || 0,
+                disLikeCount: data.disLikeCount || 0,
+            });
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    // reaction related codes end
+
+    // comment related codes start
+    const handleModal = (id) => {
+        document.getElementById(`modal_${id}`).showModal();
+    };
+
+    const handleCommentSubmit = async (event) => {
+        event.preventDefault();
+        const comment = event.target.comment.value;
+        const userName = user?.displayName;
+        const time = new Date().toISOString();
+        const commentInfo = { userName, comment, time };
+
+        try {
+            const { data } = await axios.post(
+                `https://teammanagementtools.vercel.app/comments/${task._id}`,
+                { commentInfo }
+            );
+            if (data.insertedId) {
+                event.target.reset();
+                toast.success("comment added");
+                setComment((prevComments) => [...prevComments, commentInfo]);
+            } else {
+                toast.error("something went wrong!");
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
+    useEffect(() => {
+        const fetchComments = async () => {
+            if (task._id) {
+                try {
+                    const { data } = await axios.get(
+                        `https://teammanagementtools.vercel.app/comment/${task._id}`
+                    );
+                    setComment(data);
+                } catch (error) {
+                    console.error("Error fetching comments:", error);
+                }
+            }
+        };
+        fetchComments();
+    }, [task._id]);
+
+    if (loading) return <span className="loading loading-ring loading-xl"></span>;
 
     return (
         <motion.div
@@ -181,6 +326,8 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
                 <span className={`text-sm font-bold px-3 py-1 rounded-full ${statusColors[task.status]} text-white`}>
                     {task.status}
                 </span>
+
+
             </div>
             <p className="text-gray-600 mt-2">{task.description}</p>
             <p className="text-sm text-gray-500 mt-1">Due: {new Date(task.dueDate).toLocaleString()}</p>
@@ -190,6 +337,12 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
                     <FaLink className="mr-1" /> View File
                 </a>
             )}
+            <div>
+                Done Count:{task.doneCount}
+            </div>
+            <div>
+                In Progress Count:{task.inProgressCount}
+            </div>
 
             {task.userId === loggedInUserId && (
                 <div className="mt-4 flex space-x-3">
@@ -199,11 +352,110 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
                     <button onClick={() => onDelete(task._id)} className="bg-red-500 text-white px-4 py-2 rounded shadow-md hover:bg-red-600 transition">
                         <FaTrash />
                     </button>
+                    <button
+                        onClick={() => handleModal(`${task._id}`)}
+                        className="bg-green-500 text-white px-4 py-2 rounded shadow-md hover:bg-green-600 transition cursor-pointer"
+                    >
+                        <FaComment />
+                    </button>
+                    <select
+                        name="status"
+                        value={task.status}
+                        onChange={(e) => onStatusChange(task._id, e.target.value)}
+                        className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-400 transition-all"
+                    >
+                        <option value="To-Do">To-Do</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                    <div className="mt-2">
+                        <div className="flex justify-center space-x-2 text-2xl">
+                            <FiThumbsUp
+                                onClick={() => handleReaction("like")}
+                                className={`hover:text-gray-500 duration-200 ${activeReaction === "like" ? "text-blue-500" : ""
+                                    }`}
+                            />
+                            <FiThumbsDown
+                                onClick={() => handleReaction("dislike")}
+                                className={`mt-1 hover:text-gray-500 duration-200 ${activeReaction === "dislike" ? "text-blue-500" : ""
+                                    }`}
+                            />
+                        </div>
+                        <div>
+                            <p className="text-[8px] -ml-1">
+                                {reaction.likeCount} Likes & {reaction.disLikeCount} Dislikes
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <dialog id={`modal_${task._id}`} className="modal modal-middle">
+                            <div className="modal-box relative h-[80vh]">
+                                <h3 className="font-bold text-lg">
+                                    Add a Comment to{" "}
+                                    <span className="text-red-500">{task.title}</span>
+                                </h3>
+                                {/* Comment input form */}
+                                <form onSubmit={handleCommentSubmit} className="space-y-4 mt-2">
+                                    <div className="relative">
+                                        <textarea
+                                            type="text"
+                                            id="comment"
+                                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                            placeholder="Write a comment..."
+                                        />
+                                        <button type="submit">
+                                            <MdSend className="absolute top-3 right-3 cursor-pointer" />
+                                        </button>
+                                    </div>
+                                </form>
+
+                                {/* Displaying the comments */}
+                                <div className="">
+                                    <h4 className="text-lg font-semibold text-gray-900"></h4>
+                                    <ul className="space-y-2 mt-2">
+                                        {comment.length === 0 ? (
+                                            <p className="font-normal text-center text-xs capitalize">no comments yet</p>
+                                        ) : (
+                                            comment.map((commentData, index) => (
+                                                <div key={index} className="text-sm text-gray-900">
+                                                    <div>
+                                                        <h2 className="font-bold text-lg flex items-center gap-1">
+                                                            {commentData.userName}
+                                                            <div className="text-xs font-normal">
+                                                                (
+                                                                <span>
+                                                                    {new Date(commentData.time).toLocaleDateString()}
+                                                                </span>
+                                                                <span>
+                                                                    {new Date(commentData.time).toLocaleTimeString()}
+                                                                </span>
+                                                                )
+                                                            </div>
+                                                        </h2>
+                                                        <p>{commentData.comment}</p>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
+                                    </ul>
+                                </div>
+
+                                <div className="modal-action">
+                                    <form method="dialog">
+                                        <button className="absolute top-7 right-8 font-bold text-xl text-black">
+                                            <IoIosCloseCircle />
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </dialog>
+                    </div>
 
                 </div>
             )}
         </motion.div>
     );
 };
+
 
 export default Task;
