@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { FaPlus, FaTimes, FaEdit, FaTrash, FaUpload, FaLink, FaSearch } from "react-icons/fa";
 import { motion } from "framer-motion";
 import axios from "axios";
+import Image from "../Imagesfile/Image";
 
 const Task = ({ loggedInUserId }) => {
     const [showForm, setShowForm] = useState(false);
@@ -106,6 +107,7 @@ const Task = ({ loggedInUserId }) => {
                 <button onClick={toggleForm} className="bg-blue-500 text-white px-5 py-2 rounded-lg flex items-center shadow-lg">
                     <FaPlus className="mr-2" /> Add Task
                 </button>
+                {/* <Image></Image> */}
             </div>
 
             <div className="flex gap-4 mb-6">
