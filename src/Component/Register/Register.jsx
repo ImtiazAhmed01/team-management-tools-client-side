@@ -92,7 +92,6 @@ const Register = () => {
             };
 
             const response = await fetch("http://localhost:5000/user", {
-
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -154,7 +153,7 @@ const Register = () => {
                 registryType: "google",
             };
 
-            const response = await fetch("https://teammanagementtools.vercel.app/user", {
+            const response = await fetch("http://localhost:5000/user", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
