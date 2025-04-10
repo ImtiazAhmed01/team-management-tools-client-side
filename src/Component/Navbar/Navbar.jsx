@@ -35,9 +35,9 @@ const Navbar = () => {
           <NavLink className="hover:text-[#4978ff]" to="/">Home</NavLink>
           <NavLink className="hover:text-[#4978ff]" to="/about">About</NavLink>
           <NavLink className="hover:text-[#4978ff]" to="/Products">Features</NavLink>
-          <NavLink className="hover:text-[#4978ff]" to="/tasks">Tasks</NavLink>
+          {user && <NavLink className="hover:text-[#4978ff]" to="/tasks">Tasks</NavLink>}
           <NavLink className="hover:text-[#4978ff]" to="/contact">Contact</NavLink>
-          {user && <NavLink className="hover:text-[#4978ff]" to="/Tasks">Task</NavLink>}
+          {user && <NavLink className="hover:text-[#4978ff]" to="/mytask">My Tasks</NavLink>}
           {user && <NavLink className="hover:text-[#4978ff]" to="/user">DashBoard</NavLink>}
 
 

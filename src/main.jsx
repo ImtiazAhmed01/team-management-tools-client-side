@@ -13,6 +13,7 @@ import AuthProvider from './Component/provider/authProvider'
 import Home from './Component/pages/Home/Home'
 import Task from './Component/Task/Task'
 import Profile from "./Component/Profile/Profile";
+import MyTask from "./Component/Task/MyTask";
 
 const router = createBrowserRouter([
   {
@@ -40,6 +41,10 @@ const router = createBrowserRouter([
         path: "/user",
         element: <Profile></Profile>
       },
+      {
+        path: "/mytask",
+        element: <MyTask></MyTask>
+      }
     ],
   },
 ]);
