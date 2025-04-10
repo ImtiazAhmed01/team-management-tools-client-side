@@ -1,7 +1,6 @@
-import { StrictMode } from "react";
+import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Login from './Component/Login/Login'
@@ -12,14 +11,18 @@ import { ToastContainer } from 'react-toastify'
 import AuthProvider from './Component/provider/authProvider'
 import Home from './Component/pages/Home/Home'
 import Task from './Component/Task/Task'
+import Profile from "./Component/Profile/Profile";
+// import Eid from "./Component/Eid-Greetings/Eid";
+
 
 const router = createBrowserRouter([
+
   {
     path: "/",
     element: <App></App>,
     children: [
       {
-        index: true,
+        path: "/",
         element: <Home />,
       },
       {
@@ -31,15 +34,20 @@ const router = createBrowserRouter([
         element: <Register></Register>,
       },
       {
-        path: "/tasks",
-        element: <Task></Task>
-      }
 
-    ]
-  }
-])
+        path: "/Tasks",
+        element: <Task></Task>,
+      },
+      {
+        path: "/user",
+        element: <Profile></Profile>
+      },
+    ],
+  
+  },
+]);
+createRoot(document.getElementById("root")).render(
 
-createRoot(document.getElementById('root')).render(
 
   <StrictMode>
     <AuthProvider>

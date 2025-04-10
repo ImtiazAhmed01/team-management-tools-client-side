@@ -10,19 +10,23 @@ const Profile = () => {
   const [bio, setBio] = useState("Add Your Bio..");
   const [role, setRole] = useState("");
   const [location, setLocation] = useState("");
+  const [status, setStatus] = useState("");
   const [socialLinks, setSocialLinks] = useState({
     linkedin: "",
     portfolio: "",
     github: "",
   });
+  // console.log(status)
 
   useEffect(() => {
     if (user?.email) {
-      fetch(`http://localhost:5000/profileInfo/${user.email}`)
+      fetch(`http://localhost:5000/ profileInfo/${user.email}`)
         .then((res) => res.json())
         .then((data) => {
           const userData = data?.[0] || {};
+
           setUserData(userData);
+          setStatus(userData?.status);
 
           setSocialLinks({
             linkedin: userData.socialLinks?.linkedin || "",
@@ -33,6 +37,9 @@ const Profile = () => {
           setBio(userData?.bio || "Add Your Bio..");
           setRole(userData?.role || "");
           setLocation(userData?.location || "");
+        })
+        .catch((error) => {
+          console.error("Error fetching user data:", error);
         });
     }
   }, [user?.email]);
@@ -45,6 +52,8 @@ const Profile = () => {
       setRole(value);
     } else if (name === "location") {
       setLocation(value);
+    } else if (name === "status") {
+      setStatus(value);
     } else {
       setSocialLinks({ ...socialLinks, [name]: value });
     }
@@ -52,47 +61,43 @@ const Profile = () => {
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
+
     setIsEditable(!isEditable);
 
-    const profileInfo = { bio, role, location, socialLinks };
+    const profileInfo = { bio, role, location, socialLinks, status };
 
     try {
-      const response = await fetch(
-        `http://localhost:5000/profile/${user?.email}`,
-        {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify(profileInfo),
-        }
-      );
+
+      const response = await fetch(`https://teammanagementtools.vercel.app/profile/${user?.email}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(profileInfo),
+      });
+
       const data = await response.json();
 
       if (response.ok && data.message === "profile updated successfully!") {
-        setUserData((prevData) => ({
-          ...prevData,
-          bio,
-          role,
-          location,
-          socialLinks,
-        }));
-        
-        setBio(bio);
-        setRole(role);
-        setLocation(location);
-        setSocialLinks(socialLinks);
+        // Refetch the updated profile data
+        const updatedProfileResponse = await fetch(`https://teammanagementtools.vercel.app/profileInfo/${user.email}`);
+        const updatedProfile = await updatedProfileResponse.json();
+        const updatedUserData = updatedProfile?.[0] || {};
+
+        // Set the updated user data
+        setUserData(updatedUserData);
+        setBio(updatedUserData?.bio || "Add Your Bio..");
+        setRole(updatedUserData?.role || "Add Your Role..");
+        setLocation(updatedUserData?.location || "Add Your Location..");
+        setSocialLinks({
+          linkedin: updatedUserData.socialLinks?.linkedin || "Add Your linkedin..",
+          portfolio: updatedUserData.socialLinks?.portfolio || "Add Your portfolio..",
+          github: updatedUserData.socialLinks?.github || "Add Your github..",
+        });
+
+        // Ensure status is updated correctly
+        setStatus(updatedUserData?.status || "Available");
+
         toast.success("Info updated successfully!");
-
-      } else if (response.ok && data.message === "Info added successfully!") {
-        setUserData((prevData) => ({
-          ...prevData,
-          bio,
-          role,
-          location,
-          socialLinks,
-        }));
-
-        toast.success("Info added successfully!");
-      } else if(data.status === 400) {
+      } else if (data.status === 400){
         toast.error(data.message || "Failed to update info");
       }
     } catch (error) {
@@ -114,26 +119,53 @@ const Profile = () => {
             />
           </div>
           {/* Profile Picture */}
-          <div className="lg:w-[150px] md:w-[110px] md:h-[110px] lg:h-[150px] w-[80px] h-[80px] left-3 min-[320px]:top-[34%] min-[360px]:top-[22%] absolute lg:left-52 md:left-28 lg:top-[60%] md:top-[24%] 2xl:top-[40%] 2xl:left-[20%]">
+          <div className="lg:w-[150px] md:w-[110px] md:h-[110px] lg:h-[150px] w-[80px] h-[80px] -translate-y-[150%] translate-x-[40%] absolute">
             <img
               src={
                 user
                   ? user.photoUrl
                   : "https://media.istockphoto.com/id/1409329028/vector/no-picture-available-placeholder-thumbnail-icon-illustration-design.jpg?s=612x612&w=0&k=20&c=_zOuJu755g2eEUioiOUdz_mHKJQJn-tDgIAhQzyeKUQ="
               }
-              className="w-full h-full rounded-full ring-4 ring-white shadow-2xl drop-shadow-2xl"
+              className={`w-full h-full rounded-full ring-2 shadow-2xl drop-shadow-2xl ${
+                userData?.status === "Available"
+                  ? "ring-green-500"
+                  : userData?.status === "Busy"
+                  ? "ring-yellow-500"
+                  : userData?.status === "Unavailable"
+                  ? "ring-red-500"
+                  : "ring-white"
+              }`}
               alt="Profile"
             />
           </div>
         </div>
 
         {/* Profile Information */}
-        <div className="lg:w-7/12 md:w-9/12 mx-auto md:pl-3 px-5 md:px-0">
-          <div>
-            <p className="text-black capitalize font-bold text-3xl">
-              {user ? user.displayName : "N/A"}
-            </p>
-
+        <div className="lg:w-7/12 md:w-9/12 w-full mx-auto md:pl-3 px-5 md:px-0">
+          <div className="">
+            <div className="flex md:flex-row justify-between items-center">
+              <p className="text-black capitalize font-bold text-3xl">
+                {user ? user.displayName : "N/A"}
+              </p>
+              {!isEditable && (
+                <p className="text-black font-semibold text-xs md:text-lg">
+                  {status || "Available"}
+                </p>
+              )}
+              {isEditable && (
+                <select
+                  className="p-1 outline-none border border-gray-300 rounded-md font-semibold text-xs md:text-sm"
+                  name="status"
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                >
+                  <option value="">Your Status</option>
+                  <option value="Available">Available</option>
+                  <option value="Busy">Busy</option>
+                  <option value="Unavailable">Unavailable</option>
+                </select>
+              )}
+            </div>
             {/* Bio Section */}
             {!isEditable && (
               <p className="text-black font-semibold text-sm mt-1">
@@ -142,7 +174,7 @@ const Profile = () => {
             )}
 
             {isEditable && (
-              <div className="flex flex-col gap-3 mt-6">
+              <div className="flex flex-col gap-3 mt-6 w-full">
                 <div className="flex flex-col gap-1">
                   <p className="font-bold text-black text-sm">BIO:</p>
                   <textarea
@@ -203,7 +235,7 @@ const Profile = () => {
                 </h1>
                 <div className="flex flex-col gap-3">
                   {/* Social Media Links */}
-                  {[ 
+                  {[
                     {
                       platform: "linkedin",
                       label: "LinkedIn",
