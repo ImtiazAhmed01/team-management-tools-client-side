@@ -1,7 +1,6 @@
-import { StrictMode } from "react";
+import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Login from './Component/Login/Login'
@@ -13,9 +12,12 @@ import AuthProvider from './Component/provider/authProvider'
 import Home from './Component/pages/Home/Home'
 import Task from './Component/Task/Task'
 import Profile from "./Component/Profile/Profile";
+import Eid from "./Component/Eid-Greetings/Eid";
 import MyTask from "./Component/Task/MyTask";
 
+
 const router = createBrowserRouter([
+
   {
     path: "/",
     element: <App></App>,
@@ -46,6 +48,7 @@ const router = createBrowserRouter([
         element: <MyTask></MyTask>
       }
     ],
+
   },
 ]);
 createRoot(document.getElementById("root")).render(
