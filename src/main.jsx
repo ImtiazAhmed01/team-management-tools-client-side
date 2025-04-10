@@ -12,7 +12,7 @@ import AuthProvider from './Component/provider/authProvider'
 import Home from './Component/pages/Home/Home'
 import Task from './Component/Task/Task'
 import Profile from "./Component/Profile/Profile";
-import Eid from "./Component/Eid-Greetings/Eid";
+// import Eid from "./Component/Eid-Greetings/Eid";
 
 
 const router = createBrowserRouter([
