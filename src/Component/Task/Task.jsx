@@ -1,14 +1,20 @@
-import React, { useState, useEffect } from "react";
-import { FaPlus, FaTimes, FaEdit, FaTrash, FaLink, FaSearch, FaComment } from "react-icons/fa";
+
+
+import React, { useState, useEffect, useContext } from "react";
+import { FaPlus, FaTimes, FaEdit, FaTrash, FaUpload, FaLink, FaSearch, FaComment } from "react-icons/fa";
+
 import { motion } from "framer-motion";
 import axios from "axios";
 import { FiThumbsUp, FiThumbsDown } from "react-icons/fi";
-import useAuth from "../provider/useAuth";
 import { MdSend } from "react-icons/md";
-import { toast } from "react-toastify";
+import { toast, Bounce } from "react-toastify";
 import { IoIosCloseCircle } from "react-icons/io";
+
+import { AuthContext } from "../provider/authProvider";
+
 import MentionTextarea from "../Mention/MentionTextarea";
 import sendMentionNotifications from "../Notification/Notification";
+
 
 const Task = ({ loggedInUserId }) => {
     const [showForm, setShowForm] = useState(false);
@@ -37,52 +43,79 @@ const Task = ({ loggedInUserId }) => {
         setTaskData((prev) => ({ ...prev, [name]: value }));
     };
 
+
+
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!taskData.title || !taskData.dueDate) {
-            alert("Please fill in the required fields.");
-            return;
-        }
-        const newTask = {
-            userId: loggedInUserId,
-            title: taskData.title,
-            description: taskData.description,
-            dueDate: taskData.dueDate,
-            fileUrl: taskData.fileUrl || "",
-            status: taskData.status,
-        };
+
         try {
             if (taskData.id) {
-                await axios.put(`http://localhost:5000/tasks/${taskData.id}`, newTask);
+                // UPDATE TASK
+                await axios.put(`http://localhost:5000/tasks/${taskData.id}`, taskData);
+                toast.success("Task updated successfully!", {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    transition: Bounce,
+                });
+                setShowForm(false);
+
             } else {
-                await axios.post("http://localhost:5000/tasks", newTask);
+                // CREATE TASK
+                await axios.post("http://localhost:5000/tasks", taskData);
+                toast.success("Task created successfully!", {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    transition: Bounce,
+                });
+                setShowForm(false);
             }
+
+            // Refresh task list
             const response = await axios.get("http://localhost:5000/tasks");
             setTasks(response.data);
-            setShowForm(false);
-            setTaskData({ id: null, title: "", description: "", dueDate: "", fileUrl: "", status: "To-Do" });
+
+            // Reset form
+            setTaskData({
+                id: null,
+                title: "",
+                description: "",
+                dueDate: "",
+                fileUrl: "",
+            });
+
+
+
         } catch (error) {
-            console.error("Error saving task:", error);
-            alert("Failed to save task. Please try again.");
+            console.error("Error submitting task:", error);
+            toast.error("Something went wrong!", {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+                transition: Bounce,
+            });
+            setShowForm(false);
         }
     };
 
-    const handleStatusChange = async (taskId, newStatus) => {
-        try {
-            const taskToUpdate = tasks.find((task) => task._id === taskId);
-            if (!taskToUpdate) {
-                alert("Task not found!");
-                return;
-            }
-            const updatedTask = { ...taskToUpdate, status: newStatus };
-            await axios.put(`http://localhost:5000/tasks/${taskId}`, updatedTask);
-            const updatedTasks = await axios.get("http://localhost:5000/tasks");
-            setTasks(updatedTasks.data);
-        } catch (error) {
-            console.error("Error updating task status:", error);
-            alert("Failed to update task status. Please try again.");
-        }
-    };
+
 
     const handleDelete = async (taskId) => {
         try {
@@ -144,7 +177,7 @@ const Task = ({ loggedInUserId }) => {
             <div className="space-y-4">
                 {filterTasks().length > 0 ? (
                     filterTasks().map((task) => (
-                        <TaskCard key={task.id} task={task} loggedInUserId={loggedInUserId} onDelete={handleDelete} onEdit={handleEdit} onStatusChange={handleStatusChange} />
+                        <TaskCard key={task.id} task={task} loggedInUserId={loggedInUserId} onDelete={handleDelete} onEdit={handleEdit} />
                     ))
                 ) : (
                     <p className="text-center text-gray-500">No tasks found.</p>
@@ -174,7 +207,8 @@ const Task = ({ loggedInUserId }) => {
     );
 };
 
-const TaskCard = ({ task, loggedInUserId, onDelete, onEdit, onStatusChange }) => {
+const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
+
     const statusColors = {
         "To-Do": "bg-gray-400",
         "In Progress": "bg-yellow-400",
@@ -183,9 +217,77 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit, onStatusChange }) =>
     const [reaction, setReaction] = useState({ likeCount: 0, disLikeCount: 0 });
     const [loading, setLoading] = useState(false);
     const [activeReaction, setActiveReaction] = useState(null);
-    const { user } = useAuth();
+    const { user } = useContext(AuthContext);
     const [comment, setComment] = useState([]);
+
+    const loggedInUserIds = user?.uid
+    // checking if a particular task is assigned or not. If not then assign {Imtiaz} starts here
+    const [assigned, setAssigned] = useState(false);
+
+
+    useEffect(() => {
+        const checkIfAssigned = async () => {
+            try {
+                const { data } = await axios.get(`http://localhost:5000/is-assigned/${task._id}/${user?.email}`);
+                setAssigned(data.assigned);
+            } catch (error) {
+                console.error("Error checking task assignment", error);
+            }
+        };
+
+        if (user?.email) {
+            checkIfAssigned();
+        }
+    }, [task._id, user?.email]);
+
+    const handleAssignTask = async () => {
+        if (!assigned) {
+            // Log the data being sent to the backend
+            console.log("Sending data to backend:", {
+                task,    // Log taskId
+                userId: loggedInUserIds,
+                email: user?.email    // Log email
+            });
+
+            try {
+                const { data } = await axios.post('http://localhost:5000/assign-task', {
+                    task,
+                    userId: loggedInUserIds,
+                    email: user?.email,
+                });
+
+                toast.success(data.message, {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    transition: Bounce,
+                });
+                setAssigned(true);
+            } catch (error) {
+                console.error("Error assigning task:", error);
+                toast.error("Error assigning task", {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    transition: Bounce,
+                });
+            }
+        }
+    };
+    // Checking and assigning code ends here
+
     const [commentInput, setCommentInput] = useState("");
+
 
     useEffect(() => {
         const fetchReaction = async () => {
@@ -237,6 +339,7 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit, onStatusChange }) =>
         document.getElementById(`modal_${id}`).showModal();
     };
 
+
     const handleCommentSubmit = async (event) => {
         event.preventDefault();
         const userName = user?.displayName;
@@ -278,7 +381,7 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit, onStatusChange }) =>
         <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-5 bg-white rounded-lg shadow-md border-l-4 transition-all hover:shadow-xl"
+            className="p-5 bg-white rounded-lg shadow-md border-l-4 border-blue-600 transition-all hover:shadow-xl"
             style={{ borderColor: statusColors[task.status] || "gray" }}
         >
             <div className="flex justify-between items-center">
@@ -310,16 +413,16 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit, onStatusChange }) =>
                     >
                         <FaComment />
                     </button>
-                    <select
-                        name="status"
-                        value={task.status}
-                        onChange={(e) => onStatusChange(task._id, e.target.value)}
-                        className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-400 transition-all"
-                    >
-                        <option value="To-Do">To-Do</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Completed">Completed</option>
-                    </select>
+                    {task.userId === loggedInUserId && (
+                        <button button
+                            onClick={handleAssignTask}
+                            disabled={assigned}
+                            className={`bg-green-500 text-white px-4 py-2 rounded shadow-md ${assigned ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-600'} transition`}
+                        >
+                            {assigned ? "Assigned" : "Assign Me"}
+                        </button>
+                    )}
+
                     <div className="mt-2">
                         <div className="flex justify-center space-x-2 text-2xl">
                             <FiThumbsUp
@@ -393,9 +496,14 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit, onStatusChange }) =>
                         </dialog>
                     </div>
                 </div>
-            )}
-        </motion.div>
+            )
+            }
+        </motion.div >
     );
 };
 
+
+
 export default Task;
+
+
