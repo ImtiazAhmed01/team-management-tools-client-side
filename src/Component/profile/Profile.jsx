@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { FaFacebook, FaLinkedin, FaGithub } from "react-icons/fa";
 import useAuth from "../provider/useAuth";
 import { toast } from "react-toastify";
+import { IoCameraReverseOutline } from "react-icons/io5";
+import axios from "axios";
 
 const Profile = () => {
   const { user } = useAuth();
@@ -20,7 +22,7 @@ const Profile = () => {
 
   useEffect(() => {
     if (user?.email) {
-      fetch(`https://teammanagementtools.vercel.app/profileInfo/${user.email}`)
+      fetch(`http://localhost:5000/profileInfo/${user.email}`)
         .then((res) => res.json())
         .then((data) => {
           const userData = data?.[0] || {};
@@ -67,16 +69,21 @@ const Profile = () => {
     const profileInfo = { bio, role, location, socialLinks, status };
 
     try {
-      const response = await fetch(`https://teammanagementtools.vercel.app/profile/${user?.email}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(profileInfo),
-      });
+      const response = await fetch(
+        `http://localhost:5000/profile/${user?.email}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(profileInfo),
+        }
+      );
       const data = await response.json();
 
       if (response.ok && data.message === "profile updated successfully!") {
         // Refetch the updated profile data
-        const updatedProfileResponse = await fetch(`https://teammanagementtools.vercel.app/profileInfo/${user.email}`);
+        const updatedProfileResponse = await fetch(
+          `http://localhost:5000/profileInfo/${user.email}`
+        );
         const updatedProfile = await updatedProfileResponse.json();
         const updatedUserData = updatedProfile?.[0] || {};
 
@@ -86,8 +93,10 @@ const Profile = () => {
         setRole(updatedUserData?.role || "Add Your Role..");
         setLocation(updatedUserData?.location || "Add Your Location..");
         setSocialLinks({
-          linkedin: updatedUserData.socialLinks?.linkedin || "Add Your linkedin..",
-          portfolio: updatedUserData.socialLinks?.portfolio || "Add Your portfolio..",
+          linkedin:
+            updatedUserData.socialLinks?.linkedin || "Add Your linkedin..",
+          portfolio:
+            updatedUserData.socialLinks?.portfolio || "Add Your portfolio..",
           github: updatedUserData.socialLinks?.github || "Add Your github..",
         });
 
@@ -95,12 +104,31 @@ const Profile = () => {
         setStatus(updatedUserData?.status || "Available");
 
         toast.success("Info updated successfully!");
-      } else if (data.status === 400){
+      } else if (data.status === 400) {
         toast.error(data.message || "Failed to update info");
       }
     } catch (error) {
       console.log("Error during fetch:", error);
     }
+  };
+
+  const [image, setImage] = useState(user?.photoURL);
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    const formData = new FormData();
+    formData.append("image", file);
+    const { data } = await axios.post(
+      `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_ImgBB_Key}`,
+      formData
+    );
+    const image_url = data.display_url;
+    if (data.success) {
+      toast.success("image uploaded successfully");
+      const response = await axios.post(`http://localhost:5000/user/${user?.email}`, image_url)
+      console.log('data2', response)
+      // setImage(image_url);
+    }
+    // console.log("working", data);
   };
 
   return (
@@ -120,11 +148,10 @@ const Profile = () => {
           <div className="lg:w-[150px] md:w-[110px] md:h-[110px] lg:h-[150px] w-[80px] h-[80px] -translate-y-[150%] translate-x-[40%] absolute">
             <img
               src={
-                user
-                  ? user.photoUrl
-                  : "https://media.istockphoto.com/id/1409329028/vector/no-picture-available-placeholder-thumbnail-icon-illustration-design.jpg?s=612x612&w=0&k=20&c=_zOuJu755g2eEUioiOUdz_mHKJQJn-tDgIAhQzyeKUQ="
+                image ||
+                "https://media.istockphoto.com/id/1409329028/vector/no-picture-available-placeholder-thumbnail-icon-illustration-design.jpg?s=612x612&w=0&k=20&c=_zOuJu755g2eEUioiOUdz_mHKJQJn-tDgIAhQzyeKUQ="
               }
-              className={`w-full h-full rounded-full ring-2 shadow-2xl drop-shadow-2xl ${
+              className={`w-full h-full rounded-full ring-2 shadow-2xl drop-shadow-2xl relative ${
                 userData?.status === "Available"
                   ? "ring-green-500"
                   : userData?.status === "Busy"
@@ -135,6 +162,19 @@ const Profile = () => {
               }`}
               alt="Profile"
             />
+            <input
+              type="file"
+              id="image"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageChange}
+            />
+            <div className="absolute lg:top-4 top-1 md:right-1 -right-2 lg:right-1 bg-gray-300 rounded-full p-1 cursor-pointer">
+              <IoCameraReverseOutline
+                onClick={() => document.getElementById("image").click()}
+                className="text-gray-900 text-xl"
+              />
+            </div>
           </div>
         </div>
 

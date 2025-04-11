@@ -34,7 +34,7 @@ const Task = ({ loggedInUserId }) => {
 
   useEffect(() => {
     axios
-      .get("https://teammanagementtools.vercel.app/tasks")
+      .get("http://localhost:5000/tasks")
       .then((response) => {
         setTasks(response.data);
       });
@@ -68,7 +68,7 @@ const Task = ({ loggedInUserId }) => {
       // Update existing task
 
       await axios.put(
-        `https://teammanagementtools.vercel.app/tasks/${taskData.id}`,
+        `http://localhost:5000/tasks/${taskData.id}`,
         newTask
       );
 
@@ -81,7 +81,7 @@ const Task = ({ loggedInUserId }) => {
       // Create a new task
 
       const response = await axios.post(
-        "https://teammanagementtools.vercel.app/tasks",
+        "http://localhost:5000/tasks",
         newTask
       );
 
@@ -101,7 +101,7 @@ const Task = ({ loggedInUserId }) => {
 
   const handleDelete = async (taskId) => {
     await axios.delete(
-      `https://teammanagementtools.vercel.app/tasks/${taskId}`
+      `http://localhost:5000/tasks/${taskId}`
     );
 
     setTasks(tasks.filter((task) => task.id !== taskId));
@@ -273,7 +273,7 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
   useEffect(() => {
     const fetchReaction = async () => {
       const { data } = await axios.get(
-        `https://teammanagementtools.vercel.app/reaction/${task._id}`
+        `http://localhost:5000/reaction/${task._id}`
       );
       setReaction({
         likeCount: data.likeCount || 0,
@@ -306,7 +306,7 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
 
     try {
       const { data } = await axios.post(
-        "https://teammanagementtools.vercel.app/reactions",
+        "http://localhost:5000/reactions",
         {
           cardId: task._id,
           reactions: reactType,
@@ -339,7 +339,7 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
 
     try {
       const { data } = await axios.post(
-        `https://teammanagementtools.vercel.app/comments/${task._id}`,
+        `http://localhost:5000/comments/${task._id}`,
         { commentInfo }
       );
       if (data.insertedId) {
@@ -359,7 +359,7 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
       if (task._id) {
         try {
           const { data } = await axios.get(
-            `https://teammanagementtools.vercel.app/comment/${task._id}`
+            `http://localhost:5000/comment/${task._id}`
           );
           setComment(data);
         } catch (error) {

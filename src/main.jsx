@@ -11,7 +11,7 @@ import { ToastContainer } from 'react-toastify'
 import AuthProvider from './Component/provider/authProvider'
 import Home from './Component/pages/Home/Home'
 import Task from './Component/Task/Task'
-import Profile from "./Component/Profile/Profile";
+import Profile from "./Component/profile/Profile";
 
 const router = createBrowserRouter([
   {
@@ -54,12 +54,12 @@ createRoot(document.getElementById("root")).render(
         hideProgressBar={false}
         newestOnTop={false}
         closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-        transition="bounce"
+        // rtl={false}
+        // pauseOnFocusLoss
+        // draggable
+        // pauseOnHover
+        // theme="light"
+        // transition="bounce"
       />
     </AuthProvider>
   </StrictMode>
