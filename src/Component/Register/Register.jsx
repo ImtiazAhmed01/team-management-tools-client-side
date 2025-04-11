@@ -14,136 +14,9 @@ const Register = () => {
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
     const [passwordError, setPasswordError] = useState("");
-<<<<<<< HEAD
-    const handleGoogleSignIn = async () => {
-        try {
-            await signInWithGoogle();
-            navigate("/");
-            const registrationDate = new Date().toISOString();
-    
-            const user = getAuth().currentUser;
-            const userInfo = {
-                fullName: user.displayName,
-                email: user.email,
-                photoURL: user.photoURL || "",  
-                userRole: "Student",  
-                registrationDate: registrationDate,
-                registryType: "google",  
-            };
-    
-            const response = await fetch("http://localhost:5000/user", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(userInfo),
-            });
-    
-            const data = await response.json();
-            if (response.ok) {
-                toast.success("User created and information saved successfully!", {
-                    position: "top-center",
-                    autoClose: 5000,
-                    theme: "light",
-                    transition: Bounce,
-                });
-            } else {
-                toast.error("Error saving user information. Please try again.", {
-                    position: "top-center",
-                    autoClose: 5000,
-                    theme: "light",
-                    transition: Bounce,
-                });
-            }
-    
-            localStorage.setItem(
-                "userProfile",
-                JSON.stringify({
-                    displayName: user.displayName,
-                    email: user.email,
-                    uname: user.displayName,
-                })
-            );
-    
-            navigate("/");
-    
-        } catch (error) {
-            console.error("Google login failed:", error.message);
-            toast.error("Google sign-in failed. Please try again.", {
-                position: "top-center",
-                autoClose: 5000,
-                theme: "light",
-                transition: Bounce,
-            });
-        }
-    };
-    
-    const handleGithubSignIn = async () => {
-        try {
-            await signInWithGithub();
-            navigate("/");
-            const registrationDate = new Date().toISOString();
-            const user = getAuth().currentUser;
-
-            const userInfo = {
-                fullName: user.displayName,
-                email: user.email,
-                photoURL: user.photoURL || "",  
-                userRole: "Student",  
-                registrationDate: registrationDate,
-                registryType: "github", 
-            };
-
-            const response = await fetch("http://localhost:5000/user", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(userInfo),
-            });
-    
-            const data = await response.json();
-            if (response.ok) {
-                toast.success("User created and information saved successfully!", {
-                    position: "top-center",
-                    autoClose: 5000,
-                    theme: "light",
-                    transition: Bounce,
-                });
-            } else {
-                toast.error("Error saving user information. Please try again.", {
-                    position: "top-center",
-                    autoClose: 5000,
-                    theme: "light",
-                    transition: Bounce,
-                });
-            }
-    
-            localStorage.setItem(
-                "userProfile",
-                JSON.stringify({
-                    displayName: user.displayName,
-                    email: user.email,
-                    uname: user.displayName,
-                })
-            );
-    
-            navigate("/");
-    
-        } catch (error) {
-            console.error("GitHub login failed:", error.message);
-            toast.error("GitHub sign-in failed. Please try again.", {
-                position: "top-center",
-                autoClose: 5000,
-                theme: "light",
-                transition: Bounce,
-            });
-        }
-=======
 
     const togglePasswordVisibility = () => {
         setShowPassword((prevState) => !prevState);
->>>>>>> 0eb62a2a6785c88e980664f30a69c1052e7a0fa6
     };
 
     const validatePassword = (password) => {
@@ -218,13 +91,7 @@ const Register = () => {
                 yearOfExperience: additionalInfo.yearOfExperience,
             };
 
-<<<<<<< HEAD
-
-            await fetch("http://localhost:5000/users", {
-
-=======
             const response = await fetch("http://localhost:5000/user", {
->>>>>>> 0eb62a2a6785c88e980664f30a69c1052e7a0fa6
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
