@@ -1,4 +1,4 @@
-import { StrictMode } from "react";
+import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 
@@ -11,9 +11,14 @@ import { ToastContainer } from 'react-toastify'
 import AuthProvider from './Component/provider/authProvider'
 import Home from './Component/pages/Home/Home'
 import Task from './Component/Task/Task'
+//import Eid from "./Component/Eid-Greetings/Eid";
+import MyTask from "./Component/Task/MyTask";
 import Profile from "./Component/profile/Profile";
 
+
+
 const router = createBrowserRouter([
+
   {
     path: "/",
     element: <App></App>,
@@ -39,7 +44,12 @@ const router = createBrowserRouter([
         path: "/user",
         element: <Profile></Profile>
       },
+      {
+        path: "/mytask",
+        element: <MyTask></MyTask>
+      }
     ],
+
   },
 ]);
 createRoot(document.getElementById("root")).render(
