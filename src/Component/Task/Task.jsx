@@ -1,14 +1,20 @@
 
+
 import React, { useState, useEffect, useContext } from "react";
 import { FaPlus, FaTimes, FaEdit, FaTrash, FaUpload, FaLink, FaSearch, FaComment } from "react-icons/fa";
+
 import { motion } from "framer-motion";
 import axios from "axios";
-import Image from "../Imagesfile/Image";
 import { FiThumbsUp, FiThumbsDown } from "react-icons/fi";
 import { MdSend } from "react-icons/md";
 import { toast, Bounce } from "react-toastify";
 import { IoIosCloseCircle } from "react-icons/io";
+
 import { AuthContext } from "../provider/authProvider";
+
+import MentionTextarea from "../Mention/MentionTextarea";
+import sendMentionNotifications from "../Notification/Notification";
+
 
 const Task = ({ loggedInUserId }) => {
     const [showForm, setShowForm] = useState(false);
@@ -25,9 +31,7 @@ const Task = ({ loggedInUserId }) => {
     const [search, setSearch] = useState("");
 
     useEffect(() => {
-
         axios.get("http://localhost:5000/tasks").then((response) => {
-
             setTasks(response.data);
         });
     }, []);
@@ -38,6 +42,7 @@ const Task = ({ loggedInUserId }) => {
         const { name, value } = e.target;
         setTaskData((prev) => ({ ...prev, [name]: value }));
     };
+
 
 
 
@@ -60,6 +65,7 @@ const Task = ({ loggedInUserId }) => {
                     transition: Bounce,
                 });
                 setShowForm(false);
+
             } else {
                 // CREATE TASK
                 await axios.post("http://localhost:5000/tasks", taskData);
@@ -91,6 +97,7 @@ const Task = ({ loggedInUserId }) => {
             });
 
 
+
         } catch (error) {
             console.error("Error submitting task:", error);
             toast.error("Something went wrong!", {
@@ -110,12 +117,9 @@ const Task = ({ loggedInUserId }) => {
 
 
 
-
     const handleDelete = async (taskId) => {
         try {
             await axios.delete(`http://localhost:5000/tasks/${taskId}`);
-
-
             const response = await axios.get("http://localhost:5000/tasks");
             setTasks(response.data);
         } catch (error) {
@@ -123,12 +127,10 @@ const Task = ({ loggedInUserId }) => {
             alert("Failed to delete task. Please try again.");
         }
     };
-
     const handleEdit = (task) => {
         setTaskData({ ...task, id: task._id });
         setShowForm(true);
     };
-
 
     const filterTasks = () => {
         return tasks.filter((task) => {
@@ -154,7 +156,6 @@ const Task = ({ loggedInUserId }) => {
                 <button onClick={toggleForm} className="bg-blue-500 text-white px-5 py-2 rounded-lg flex items-center shadow-lg">
                     <FaPlus className="mr-2" /> Add Task
                 </button>
-                {/* <Image></Image> */}
             </div>
 
             <div className="flex gap-4 mb-6">
@@ -213,12 +214,12 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
         "In Progress": "bg-yellow-400",
         "Completed": "bg-green-500",
     };
-    // reaction related codes start
     const [reaction, setReaction] = useState({ likeCount: 0, disLikeCount: 0 });
     const [loading, setLoading] = useState(false);
     const [activeReaction, setActiveReaction] = useState(null);
     const { user } = useContext(AuthContext);
     const [comment, setComment] = useState([]);
+
     const loggedInUserIds = user?.uid
     // checking if a particular task is assigned or not. If not then assign {Imtiaz} starts here
     const [assigned, setAssigned] = useState(false);
@@ -285,11 +286,12 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
     };
     // Checking and assigning code ends here
 
+    const [commentInput, setCommentInput] = useState("");
+
+
     useEffect(() => {
         const fetchReaction = async () => {
-            const { data } = await axios.get(
-                `https://teammanagementtools.vercel.app/reaction/${task._id}`
-            );
+            const { data } = await axios.get(`https://teammanagementtools.vercel.app/reaction/${task._id}`);
             setReaction({
                 likeCount: data.likeCount || 0,
                 disLikeCount: data.disLikeCount || 0,
@@ -311,23 +313,17 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
             } else {
                 return {
                     ...prev,
-                    disLikeCount:
-                        prev.disLikeCount + (activeReaction === "dislike" ? -1 : 1),
+                    disLikeCount: prev.disLikeCount + (activeReaction === "dislike" ? -1 : 1),
                 };
             }
         });
 
-        setActiveReaction((prev) => (prev === reactType ? null : reactType)); // Toggle the active reaction
-
+        setActiveReaction((prev) => (prev === reactType ? null : reactType));
         try {
-            const { data } = await axios.post(
-                "https://teammanagementtools.vercel.app/reactions",
-                {
-                    cardId: task._id,
-                    reactions: reactType,
-                }
-            );
-
+            const { data } = await axios.post("https://teammanagementtools.vercel.app/reactions", {
+                cardId: task._id,
+                reactions: reactType,
+            });
             setReaction({
                 likeCount: data.likeCount || 0,
                 disLikeCount: data.disLikeCount || 0,
@@ -338,9 +334,7 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
             setLoading(false);
         }
     };
-    // reaction related codes end
 
-    // comment related codes start
     const handleModal = (id) => {
         document.getElementById(`modal_${id}`).showModal();
     };
@@ -348,35 +342,30 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
 
     const handleCommentSubmit = async (event) => {
         event.preventDefault();
-        const comment = event.target.comment.value;
         const userName = user?.displayName;
         const time = new Date().toISOString();
-        const commentInfo = { userName, comment, time };
+        const commentInfo = { userName, comment: commentInput, time };
 
         try {
-            const { data } = await axios.post(
-                `https://teammanagementtools.vercel.app/comments/${task._id}`,
-                { commentInfo }
-            );
+            const { data } = await axios.post(`https://teammanagementtools.vercel.app/comments/${task._id}`, { commentInfo });
             if (data.insertedId) {
-                event.target.reset();
-                toast.success("comment added");
+                setCommentInput("");
+                toast.success("Comment added");
                 setComment((prevComments) => [...prevComments, commentInfo]);
+                await sendMentionNotifications(commentInput, task._id, userName);
             } else {
-                toast.error("something went wrong!");
+                toast.error("Something went wrong!");
             }
         } catch (err) {
             console.log(err);
+            toast.error("Failed to submit comment.");
         }
     };
-
     useEffect(() => {
         const fetchComments = async () => {
             if (task._id) {
                 try {
-                    const { data } = await axios.get(
-                        `https://teammanagementtools.vercel.app/comment/${task._id}`
-                    );
+                    const { data } = await axios.get(`https://teammanagementtools.vercel.app/comment/${task._id}`);
                     setComment(data);
                 } catch (error) {
                     console.error("Error fetching comments:", error);
@@ -400,8 +389,6 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
                 <span className={`text-sm font-bold px-3 py-1 rounded-full ${statusColors[task.status]} text-white`}>
                     {task.status}
                 </span>
-
-
             </div>
             <p className="text-gray-600 mt-2">{task.description}</p>
             <p className="text-sm text-gray-500 mt-1">Due: {new Date(task.dueDate).toLocaleString()}</p>
@@ -411,12 +398,6 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
                     <FaLink className="mr-1" /> View File
                 </a>
             )}
-            <div>
-                Done Count:{task.doneCount}
-            </div>
-            <div>
-                In Progress Count:{task.inProgressCount}
-            </div>
 
             {task.userId === loggedInUserId && (
                 <div className="mt-4 flex space-x-3">
@@ -446,13 +427,11 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
                         <div className="flex justify-center space-x-2 text-2xl">
                             <FiThumbsUp
                                 onClick={() => handleReaction("like")}
-                                className={`hover:text-gray-500 duration-200 ${activeReaction === "like" ? "text-blue-500" : ""
-                                    }`}
+                                className={`hover:text-gray-500 duration-200 ${activeReaction === "like" ? "text-blue-500" : ""}`}
                             />
                             <FiThumbsDown
                                 onClick={() => handleReaction("dislike")}
-                                className={`mt-1 hover:text-gray-500 duration-200 ${activeReaction === "dislike" ? "text-blue-500" : ""
-                                    }`}
+                                className={`mt-1 hover:text-gray-500 duration-200 ${activeReaction === "dislike" ? "text-blue-500" : ""}`}
                             />
                         </div>
                         <div>
@@ -465,17 +444,14 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
                         <dialog id={`modal_${task._id}`} className="modal modal-middle">
                             <div className="modal-box relative h-[80vh]">
                                 <h3 className="font-bold text-lg">
-                                    Add a Comment to{" "}
-                                    <span className="text-red-500">{task.title}</span>
+                                    Add a Comment to <span className="text-red-500">{task.title}</span>
                                 </h3>
-                                {/* Comment input form */}
                                 <form onSubmit={handleCommentSubmit} className="space-y-4 mt-2">
                                     <div className="relative">
-                                        <textarea
-                                            type="text"
-                                            id="comment"
-                                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                            placeholder="Write a comment..."
+                                        <MentionTextarea
+                                            value={commentInput}
+                                            onChange={setCommentInput}
+                                            placeholder="Write a comment with @mentions..."
                                         />
                                         <button type="submit">
                                             <MdSend className="absolute top-3 right-3 cursor-pointer" />
@@ -483,12 +459,11 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
                                     </div>
                                 </form>
 
-                                {/* Displaying the comments */}
                                 <div className="">
                                     <h4 className="text-lg font-semibold text-gray-900"></h4>
                                     <ul className="space-y-2 mt-2">
                                         {comment.length === 0 ? (
-                                            <p className="font-normal text-center text-xs capitalize">no comments yet</p>
+                                            <p className="font-normal text-center text-xs capitalize">No comments yet</p>
                                         ) : (
                                             comment.map((commentData, index) => (
                                                 <div key={index} className="text-sm text-gray-900">
@@ -497,12 +472,8 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
                                                             {commentData.userName}
                                                             <div className="text-xs font-normal">
                                                                 (
-                                                                <span>
-                                                                    {new Date(commentData.time).toLocaleDateString()}
-                                                                </span>
-                                                                <span>
-                                                                    {new Date(commentData.time).toLocaleTimeString()}
-                                                                </span>
+                                                                <span>{new Date(commentData.time).toLocaleDateString()}</span>
+                                                                <span>{new Date(commentData.time).toLocaleTimeString()}</span>
                                                                 )
                                                             </div>
                                                         </h2>
@@ -524,7 +495,6 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
                             </div>
                         </dialog>
                     </div>
-
                 </div>
             )
             }
@@ -533,5 +503,7 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
 };
 
 
+
 export default Task;
+
 
