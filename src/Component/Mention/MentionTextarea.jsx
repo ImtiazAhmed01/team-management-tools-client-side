@@ -1,42 +1,4 @@
-// import React, { useEffect, useState } from 'react';
-// // import MentionCommentForm from './MentionCommentForm';
 
-// const MentionTextarea = () => {
-//     const [userInfo, setUserInfo] = useState([]);
-//     const [comment, setComment] = useState('');
-
-//     useEffect(() => {
-//         fetch('http://localhost:5000/user')
-//             .then((res) => res.json())
-//             .then((data) => {
-//                 const formattedUsers = data.map((user) => ({
-//                     id: user._id,
-//                     display: user.fullName,
-//                     Email: user.email,
-//                 }));
-//                 setUserInfo(formattedUsers);
-//             })
-//             .catch((err) => console.error('Failed to fetch users:', err));
-//     }, []);
-
-//     const handleCommentSubmit = (e) => {
-//         e.preventDefault();
-//         console.log('Submitted:', comment);
-//         // handle backend logic
-//         setComment('');
-//     };
-
-//     return (
-//         <MentionCommentForm
-//             comment={comment}
-//             setComment={setComment}
-//             userInfo={userInfo}
-//             handleCommentSubmit={handleCommentSubmit}
-//         />
-//     );
-// };
-
-// export default MentionTextarea;
 
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
