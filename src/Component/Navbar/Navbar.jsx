@@ -34,11 +34,12 @@ const Navbar = () => {
         <div className="hidden lg:flex items-center space-x-6 font-semibold">
           <NavLink className="hover:text-[#4978ff]" to="/">Home</NavLink>
           <NavLink className="hover:text-[#4978ff]" to="/about">About</NavLink>
-          <NavLink className="hover:text-[#4978ff]" to="/Products">Features</NavLink>
+
           {user && <NavLink className="hover:text-[#4978ff]" to="/tasks">Tasks</NavLink>}
-          <NavLink className="hover:text-[#4978ff]" to="/contact">Contact</NavLink>
+          {user && <NavLink className="hover:text-[#4978ff]" to="/image">Gallery</NavLink>}
+
           {user && <NavLink className="hover:text-[#4978ff]" to="/mytask">My Tasks</NavLink>}
-          {user && <NavLink className="hover:text-[#4978ff]" to="/user">DashBoard</NavLink>}
+          {/* {user && <NavLink className="hover:text-[#4978ff]" to="/user">DashBoard</NavLink>} */}
 
 
           {!user ? (

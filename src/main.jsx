@@ -14,6 +14,8 @@ import Task from './Component/Task/Task'
 import Profile from "./Component/Profile/Profile";
 import Eid from "./Component/Eid-Greetings/Eid";
 import MyTask from "./Component/Task/MyTask";
+import Image from "./Component/Imagesfile/Image";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 
 const router = createBrowserRouter([
@@ -46,30 +48,37 @@ const router = createBrowserRouter([
       {
         path: "/mytask",
         element: <MyTask></MyTask>
+      },
+      {
+        path: "/image",
+        element: <Image></Image>
       }
     ],
 
   },
 ]);
+const queryClient = new QueryClient();
 createRoot(document.getElementById("root")).render(
 
 
   <StrictMode>
-    <AuthProvider>
-      <RouterProvider router={router}> </RouterProvider>
-      <ToastContainer
-        position="top-center"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-        transition="bounce"
-      />
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <RouterProvider router={router} />
+        <ToastContainer
+          position="top-center"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+          transition="bounce"
+        />
+      </AuthProvider>
+    </QueryClientProvider>
   </StrictMode>
 );

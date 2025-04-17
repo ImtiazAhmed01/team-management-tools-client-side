@@ -43,23 +43,31 @@ const Register = () => {
 
     const handleRegister = async (e) => {
         e.preventDefault();
+
+        toast.info("Registering your account...", {
+            position: "top-center",
+            autoClose: 3000,
+            theme: "light",
+            transition: Bounce,
+        });
+
         const form = e.target;
         const uname = form.uname.value;
         const email = form.email.value;
         const password = form.password.value;
 
         const additionalInfo = {
-            userRole: form.userRole.value || "Member",
-            userImage: form.userImage.value || "n/a",
-            profession: form.profession.value || "n/a",
-            yearOfExperience: form.yearOfExperience.value || "n/a",
+            userRole: form.userRole?.value || "Member",
+            userImage: form.userImage?.value || "n/a",
+            profession: form.profession?.value || "n/a",
+            yearOfExperience: form.yearOfExperience?.value || "n/a",
         };
 
         if (!validatePassword(password)) {
-            toast.error("Invalid password. Please check the requirements.", {
+            toast.warn(passwordError, {
                 position: "top-center",
-                autoClose: 5000,
-                theme: "light",
+                autoClose: 4000,
+                theme: "colored",
                 transition: Bounce,
             });
             return;
@@ -67,15 +75,25 @@ const Register = () => {
 
         try {
             const auth = getAuth();
-            const userCredential = await createUserWithEmailAndPassword(
-                auth,
-                email,
-                password
-            );
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
+
+            toast.success("Account created successfully!", {
+                position: "top-center",
+                autoClose: 3000,
+                theme: "light",
+                transition: Bounce,
+            });
 
             await updateProfile(user, {
                 displayName: uname,
+            });
+
+            toast.info("Profile updated with display name.", {
+                position: "top-center",
+                autoClose: 2500,
+                theme: "light",
+                transition: Bounce,
             });
 
             const registrationDate = new Date().toISOString();
@@ -91,6 +109,13 @@ const Register = () => {
                 yearOfExperience: additionalInfo.yearOfExperience,
             };
 
+            toast.info("Saving your information...", {
+                position: "top-center",
+                autoClose: 2000,
+                theme: "light",
+                transition: Bounce,
+            });
+
             const response = await fetch("http://localhost:5000/user", {
                 method: "POST",
                 headers: {
@@ -100,7 +125,7 @@ const Register = () => {
             });
 
             if (response.ok) {
-                toast.success("User created and information saved successfully!", {
+                toast.success("User information saved successfully!", {
                     position: "top-center",
                     autoClose: 5000,
                     theme: "light",
@@ -124,13 +149,20 @@ const Register = () => {
                 })
             );
 
+            toast.success("Welcome aboard! Redirecting...", {
+                position: "top-center",
+                autoClose: 3000,
+                theme: "light",
+                transition: Bounce,
+            });
+
             navigate("/");
         } catch (error) {
             console.error("Error creating user:", error.message);
-            toast.error("Error creating user. Please try again.", {
+            toast.error(`Registration failed: ${error.message}`, {
                 position: "top-center",
                 autoClose: 5000,
-                theme: "light",
+                theme: "colored",
                 transition: Bounce,
             });
         }
@@ -139,10 +171,8 @@ const Register = () => {
     const handleGoogleSignIn = async () => {
         try {
             await signInWithGoogle();
-            navigate("/");
-
-            const registrationDate = new Date().toISOString();
             const user = getAuth().currentUser;
+            const registrationDate = new Date().toISOString();
 
             const userInfo = {
                 fullName: user.displayName,
@@ -153,29 +183,13 @@ const Register = () => {
                 registryType: "google",
             };
 
-            const response = await fetch("http://localhost:5000/user", {
+            await fetch("http://localhost:5000/user", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify(userInfo),
             });
-
-            if (response.ok) {
-                toast.success("User created and information saved successfully!", {
-                    position: "top-center",
-                    autoClose: 5000,
-                    theme: "light",
-                    transition: Bounce,
-                });
-            } else {
-                toast.error("Error saving user information. Please try again.", {
-                    position: "top-center",
-                    autoClose: 5000,
-                    theme: "light",
-                    transition: Bounce,
-                });
-            }
 
             localStorage.setItem(
                 "userProfile",
@@ -185,6 +199,13 @@ const Register = () => {
                     uname: user.displayName,
                 })
             );
+
+            toast.success("Signed in with Google successfully!", {
+                position: "top-center",
+                autoClose: 3000,
+                theme: "light",
+                transition: Bounce,
+            });
 
             navigate("/");
         } catch (error) {
@@ -201,10 +222,8 @@ const Register = () => {
     const handleGithubSignIn = async () => {
         try {
             await signInWithGithub();
-            navigate("/");
-
-            const registrationDate = new Date().toISOString();
             const user = getAuth().currentUser;
+            const registrationDate = new Date().toISOString();
 
             const userInfo = {
                 fullName: user.displayName,
@@ -215,29 +234,13 @@ const Register = () => {
                 registryType: "github",
             };
 
-            const response = await fetch("http://localhost:5000/user", {
+            await fetch("http://localhost:5000/user", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify(userInfo),
             });
-
-            if (response.ok) {
-                toast.success("User created and information saved successfully!", {
-                    position: "top-center",
-                    autoClose: 5000,
-                    theme: "light",
-                    transition: Bounce,
-                });
-            } else {
-                toast.error("Error saving user information. Please try again.", {
-                    position: "top-center",
-                    autoClose: 5000,
-                    theme: "light",
-                    transition: Bounce,
-                });
-            }
 
             localStorage.setItem(
                 "userProfile",
@@ -247,6 +250,13 @@ const Register = () => {
                     uname: user.displayName,
                 })
             );
+
+            toast.success("Signed in with GitHub successfully!", {
+                position: "top-center",
+                autoClose: 3000,
+                theme: "light",
+                transition: Bounce,
+            });
 
             navigate("/");
         } catch (error) {
@@ -282,61 +292,18 @@ const Register = () => {
                     <h2 className="text-2xl md:text-3xl font-bold mb-4">Registration</h2>
 
                     <form className="space-y-4" onSubmit={handleRegister}>
-                        <input
-                            type="text"
-                            name="uname"
-                            placeholder="Username"
-                            className="input input-bordered w-full"
-                            required
-                        />
-                        <input
-                            type="email"
-                            name="email"
-                            placeholder="Email"
-                            className="input input-bordered w-full"
-                            required
-                        />
-                        <input
-                            type={showPassword ? "text" : "password"}
-                            name="password"
-                            placeholder="Password"
-                            className="input input-bordered w-full"
-                            required
-                        />
-                        <button
-                            type="button"
-                            onClick={togglePasswordVisibility}
-                            className="text-sm text-blue-500"
-                        >
+                        <input type="text" name="uname" placeholder="Username" className="input input-bordered w-full" required />
+                        <input type="email" name="email" placeholder="Email" className="input input-bordered w-full" required />
+                        <input type={showPassword ? "text" : "password"} name="password" placeholder="Password" className="input input-bordered w-full" required />
+                        <button type="button" onClick={togglePasswordVisibility} className="text-sm text-blue-500">
                             {showPassword ? "Hide Password" : "Show Password"}
                         </button>
 
-                        {/* Additional fields */}
-                        <input
-                            type="text"
-                            name="userImage"
-                            placeholder="User Image URL"
-                            className="input input-bordered w-full"
-                        />
-                        <input
-                            type="text"
-                            name="profession"
-                            placeholder="Profession"
-                            className="input input-bordered w-full"
-                        />
-                        <input
-                            type="text"
-                            name="yearOfExperience"
-                            placeholder="Year of Experience"
-                            className="input input-bordered w-full"
-                        />
+                        <input type="text" name="userImage" placeholder="User Image URL" className="input input-bordered w-full" />
+                        <input type="text" name="profession" placeholder="Profession" className="input input-bordered w-full" />
+                        <input type="text" name="yearOfExperience" placeholder="Year of Experience" className="input input-bordered w-full" />
 
-                        <motion.button
-                            type="submit"
-                            className="btn btn-primary w-full bg-blue-500"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
+                        <motion.button type="submit" className="btn btn-primary w-full bg-blue-500" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                             Register
                         </motion.button>
                     </form>
@@ -348,12 +315,7 @@ const Register = () => {
                             whileTap={{ scale: 0.95 }}
                             onClick={handleGoogleSignIn}
                         >
-                            <img
-                                width="30"
-                                height="30"
-                                src="https://img.icons8.com/color/48/google-logo.png"
-                                alt="google-logo"
-                            />
+                            <img width="30" height="30" src="https://img.icons8.com/color/48/google-logo.png" alt="google-logo" />
                             Sign Up with Google
                         </motion.button>
 
@@ -363,12 +325,7 @@ const Register = () => {
                             whileTap={{ scale: 0.95 }}
                             onClick={handleGithubSignIn}
                         >
-                            <img
-                                width="30"
-                                height="30"
-                                src="https://img.icons8.com/ios-filled/50/ffffff/github.png"
-                                alt="github-logo"
-                            />
+                            <img width="30" height="30" src="https://img.icons8.com/ios-filled/50/ffffff/github.png" alt="github-logo" />
                             Sign Up with GitHub
                         </motion.button>
                     </div>
@@ -381,9 +338,7 @@ const Register = () => {
                     transition={{ duration: 0.5 }}
                 >
                     <h2 className="text-2xl md:text-3xl font-bold mb-2">Welcome Back!</h2>
-                    <p className="text-sm mb-4 text-center">
-                        Already have an account?
-                    </p>
+                    <p className="text-sm mb-4 text-center">Already have an account?</p>
                     <motion.button
                         className="btn btn-outline text-white border-white"
                         whileHover={{ scale: 1.05 }}
@@ -399,3 +354,4 @@ const Register = () => {
 };
 
 export default Register;
+
