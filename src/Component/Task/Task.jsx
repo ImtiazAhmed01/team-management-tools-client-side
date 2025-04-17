@@ -93,6 +93,7 @@ const Task = ({ loggedInUserId }) => {
 
 
 
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -115,6 +116,7 @@ const Task = ({ loggedInUserId }) => {
                     transition: Bounce,
                 });
                 setShowForm(false);
+
             } else {
                 // CREATE TASK
                 await axios.post("http://localhost:5000/tasks", taskData);
@@ -166,7 +168,6 @@ const Task = ({ loggedInUserId }) => {
             setShowForm(false);
         }
     };
-
 
 
 
@@ -481,8 +482,7 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
             } else {
                 return {
                     ...prev,
-                    disLikeCount:
-                        prev.disLikeCount + (activeReaction === "dislike" ? -1 : 1),
+                    disLikeCount: prev.disLikeCount + (activeReaction === "dislike" ? -1 : 1),
                 };
             }
         });
@@ -534,13 +534,18 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
             if (data.insertedId) {
                 setCommentInput("");
                 toast.success("Comment added");
+                setCommentInput("");
+                toast.success("Comment added");
                 setComment((prevComments) => [...prevComments, commentInfo]);
                 await sendMentionNotifications(commentInput, task._id, userName);
+                await sendMentionNotifications(commentInput, task._id, userName);
             } else {
+                toast.error("Something went wrong!");
                 toast.error("Something went wrong!");
             }
         } catch (err) {
             console.log(err);
+            toast.error("Failed to submit comment.");
             toast.error("Failed to submit comment.");
         }
     };
@@ -602,12 +607,6 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
                     <FaLink className="mr-1" /> View File
                 </a>
             )}
-            <div>
-                Done Count:{task.doneCount}
-            </div>
-            <div>
-                In Progress Count:{task.inProgressCount}
-            </div>
 
 
 
@@ -655,13 +654,11 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
                         <div className="flex justify-center space-x-2 text-2xl">
                             <FiThumbsUp
                                 onClick={() => handleReaction("like")}
-                                className={`hover:text-gray-500 duration-200 ${activeReaction === "like" ? "text-blue-500" : ""
-                                    }`}
+                                className={`hover:text-gray-500 duration-200 ${activeReaction === "like" ? "text-blue-500" : ""}`}
                             />
                             <FiThumbsDown
                                 onClick={() => handleReaction("dislike")}
-                                className={`mt-1 hover:text-gray-500 duration-200 ${activeReaction === "dislike" ? "text-blue-500" : ""
-                                    }`}
+                                className={`mt-1 hover:text-gray-500 duration-200 ${activeReaction === "dislike" ? "text-blue-500" : ""}`}
                             />
                         </div>
                         <div>
@@ -674,17 +671,20 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
                         <dialog id={`modal_${task._id}`} className="modal modal-middle">
                             <div className="modal-box relative h-[80vh]">
                                 <h3 className="font-bold text-lg">
-                                    Add a Comment to{" "}
-                                    <span className="text-red-500">{task.title}</span>
+                                    Add a Comment to <span className="text-red-500">{task.title}</span>
                                 </h3>
                                 {/* commemt-form */}
                                 <form onSubmit={handleCommentSubmit} className="space-y-4 mt-2">
                                     <div className="relative">
+                                        {/* <MentionTextarea
+                                            value={commentInput}
+                                            onChange={setCommentInput}
+                                            placeholder="Write a comment with @mentions..."
                                         <MentionTextarea
                                             value={commentInput}
                                             onChange={setCommentInput}
                                             placeholder="Write a comment with @mentions..."
-                                        />
+                                        /> */}
                                         <button type="submit">
                                             <MdSend className="absolute top-3 right-3 cursor-pointer" />
                                         </button>

@@ -1,5 +1,5 @@
 import { MdOutlineEditNote } from "react-icons/md";
-import Eid from "../../Eid-Greetings/Eid";
+// import Eid from "../../Eid-Greetings/Eid";
 
 const Hero = () => {
   return (
