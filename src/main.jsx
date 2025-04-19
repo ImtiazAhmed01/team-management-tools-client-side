@@ -13,7 +13,12 @@ import Home from './Component/pages/Home/Home'
 import Task from './Component/Task/Task'
 //import Eid from "./Component/Eid-Greetings/Eid";
 import MyTask from "./Component/Task/MyTask";
+
+import Image from "./Component/Imagesfile/Image";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Profile from "./Component/profile/Profile";
+import Comment from "./Component/comment/Comment";
+
 
 
 
@@ -47,30 +52,42 @@ const router = createBrowserRouter([
       {
         path: "/mytask",
         element: <MyTask></MyTask>
+      },
+      {
+        path: "/image",
+        element: <Image></Image>
+      },
+      {
+        path: "/comment/:id",
+        element: <Comment></Comment>
       }
     ],
 
   },
 ]);
+const queryClient = new QueryClient();
 createRoot(document.getElementById("root")).render(
 
 
   <StrictMode>
-    <AuthProvider>
-      <RouterProvider router={router}> </RouterProvider>
-      <ToastContainer
-        position="top-center"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        // rtl={false}
-        // pauseOnFocusLoss
-        // draggable
-        // pauseOnHover
-        // theme="light"
-        // transition="bounce"
-      />
-    </AuthProvider>
+
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <RouterProvider router={router} />
+        <ToastContainer
+          position="top-center"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+          transition="bounce"
+        />
+      </AuthProvider>
+    </QueryClientProvider>
   </StrictMode>
 );

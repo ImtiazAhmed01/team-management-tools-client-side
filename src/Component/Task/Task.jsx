@@ -19,9 +19,9 @@ import { IoIosCloseCircle } from "react-icons/io";
 
 import { AuthContext } from "../provider/authProvider";
 
-import MentionTextarea from "../Mention/MentionTextarea";
-import sendMentionNotifications from "../Notification/Notification";
 import useAuth from "../provider/useAuth";
+import { Mention, MentionsInput } from "react-mentions";
+import { useNavigate } from "react-router-dom";
 
 const Task = ({ loggedInUserId }) => {
   const { user } = useAuth();
@@ -45,7 +45,7 @@ const Task = ({ loggedInUserId }) => {
     });
   }, []);
 
-//    fetching user role
+  //    fetching user role
   useEffect(() => {
     if (user?.email) {
       axios
@@ -175,11 +175,14 @@ const Task = ({ loggedInUserId }) => {
         <button
           onClick={toggleForm}
           disabled={
-            !(userRole?.role === "admin" || userRole?.role === "group leader")
+            !(
+              userRole?.userRole === "admin" ||
+              userRole?.userRole === "group leader"
+            )
           }
           className={`px-5 py-2 rounded-lg flex items-center shadow-lg
       ${
-        userRole?.role === "admin" || userRole?.role === "group leader"
+        userRole?.userRole === "admin" || userRole?.userRole === "group leader"
           ? "bg-blue-500 text-white hover:bg-blue-600"
           : "bg-gray-300 text-gray-500 cursor-not-allowed"
       }
@@ -300,7 +303,7 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
   const [loading, setLoading] = useState(false);
   const [activeReaction, setActiveReaction] = useState(null);
   const { user } = useContext(AuthContext);
-  const [comment, setComment] = useState([]);
+  const navigate = useNavigate();
 
   const loggedInUserIds = user?.uid;
   // checking if a particular task is assigned or not. If not then assign {Imtiaz} starts here
@@ -367,9 +370,6 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
       }
     }
   };
-  // Checking and assigning code ends here
-
-  const [commentInput, setCommentInput] = useState("");
 
   useEffect(() => {
     const fetchReaction = async () => {
@@ -420,51 +420,22 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
     }
   };
 
-  const handleModal = (id) => {
-    document.getElementById(`modal_${id}`).showModal();
-  };
+  const [userInfo, setUserInfo] = useState([]);
 
-  const handleCommentSubmit = async (event) => {
-    event.preventDefault();
-    const userName = user?.displayName;
-    const time = new Date().toISOString();
-    const commentInfo = { userName, comment: commentInput, time };
-
-    try {
-      const { data } = await axios.post(
-        `http://localhost:5000/comments/${task._id}`,
-        { commentInfo }
-      );
-      if (data.insertedId) {
-        setCommentInput("");
-        toast.success("Comment added");
-        setComment((prevComments) => [...prevComments, commentInfo]);
-        await sendMentionNotifications(commentInput, task._id, userName);
-      } else {
-        toast.error("Something went wrong!");
-      }
-    } catch (err) {
-      console.log(err);
-      toast.error("Failed to submit comment.");
-    }
-  };
   useEffect(() => {
-    const fetchComments = async () => {
-      if (task._id) {
-        try {
-          const { data } = await axios.get(
-            `http://localhost:5000/comment/${task._id}`
-          );
-          setComment(data);
-        } catch (error) {
-          console.error("Error fetching comments:", error);
-        }
-      }
-    };
-    fetchComments();
-  }, [task._id]);
-
-  // if (loading) return <span className="loading loading-ring loading-xl"></span>;
+    fetch("http://localhost:5000/user")
+      .then((res) => res.json())
+      .then((data) => {
+        const formattedUsers = data.map((user) => ({
+          id: user._id,
+          display: user.fullName,
+          Email: user.email,
+          photo: user.photoURL,
+        }));
+        setUserInfo(formattedUsers);
+      })
+      .catch((err) => console.error("Failed to fetch users:", err));
+  }, []);
 
   return (
     <motion.div
@@ -498,41 +469,48 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
           <FaLink className="mr-1" /> View File
         </a>
       )}
+      <div>Done Count:{task.doneCount}</div>
+      <div>In Progress Count:{task.inProgressCount}</div>
 
       {task.userId === loggedInUserId && (
-        <div className="mt-4 flex space-x-3">
-          <button
-            onClick={() => onEdit(task)}
-            className="bg-yellow-500 text-white px-4 py-2 rounded shadow-md hover:bg-yellow-600 transition"
-          >
-            <FaEdit />
-          </button>
-          <button
-            onClick={() => onDelete(task._id)}
-            className="bg-red-500 text-white px-4 py-2 rounded shadow-md hover:bg-red-600 transition"
-          >
-            <FaTrash />
-          </button>
-          <button
-            onClick={() => handleModal(`${task._id}`)}
-            className="bg-green-500 text-white px-4 py-2 rounded shadow-md hover:bg-green-600 transition cursor-pointer"
-          >
-            <FaComment />
-          </button>
-          {task.userId === loggedInUserId && (
+        <div className="mt-4 flex justify-between items-center">
+          <div className="flex space-x-3">
             <button
-              button
-              onClick={handleAssignTask}
-              disabled={assigned}
-              className={`bg-green-500 text-white px-4 py-2 rounded shadow-md ${
-                assigned
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:bg-green-600"
-              } transition`}
+              onClick={() => onEdit(task)}
+              className="bg-yellow-500 text-white px-4 py-2 rounded shadow-md hover:bg-yellow-600 transition"
             >
-              {assigned ? "Assigned" : "Assign Me"}
+              <FaEdit />
             </button>
-          )}
+            <button
+              onClick={() => onDelete(task._id)}
+              className="bg-red-500 text-white px-4 py-2 rounded shadow-md hover:bg-red-600 transition"
+            >
+              <FaTrash />
+            </button>
+
+            {/* comment redirect button */}
+            <button
+              onClick={() => navigate(`/comment/${task._id}`)}
+              className="bg-green-500 text-white px-4 py-2 rounded shadow-md hover:bg-green-600 transition cursor-pointer"
+            >
+              <FaComment />
+            </button>
+
+            {task.userId === loggedInUserId && (
+              <button
+                button
+                onClick={handleAssignTask}
+                disabled={assigned}
+                className={`bg-green-500 text-white px-4 py-2 rounded shadow-md ${
+                  assigned
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-green-600"
+                } transition`}
+              >
+                {assigned ? "Assigned" : "Assign Me"}
+              </button>
+            )}
+          </div>
 
           <div className="mt-2">
             <div className="flex justify-center space-x-2 text-2xl">
@@ -554,72 +532,6 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
                 {reaction.likeCount} Likes & {reaction.disLikeCount} Dislikes
               </p>
             </div>
-          </div>
-          <div>
-            <dialog id={`modal_${task._id}`} className="modal modal-middle">
-              <div className="modal-box relative h-[80vh]">
-                <h3 className="font-bold text-lg">
-                  Add a Comment to{" "}
-                  <span className="text-red-500">{task.title}</span>
-                </h3>
-                <form onSubmit={handleCommentSubmit} className="space-y-4 mt-2">
-                  <div className="relative">
-                    <MentionTextarea
-                      value={commentInput}
-                      onChange={setCommentInput}
-                      placeholder="Write a comment with @mentions..."
-                    />
-                    <button type="submit">
-                      <MdSend className="absolute top-3 right-3 cursor-pointer" />
-                    </button>
-                  </div>
-                </form>
-
-                <div className="">
-                  <h4 className="text-lg font-semibold text-gray-900"></h4>
-                  <ul className="space-y-2 mt-2">
-                    {comment.length === 0 ? (
-                      <p className="font-normal text-center text-xs capitalize">
-                        No comments yet
-                      </p>
-                    ) : (
-                      comment.map((commentData, index) => (
-                        <div key={index} className="text-sm text-gray-900">
-                          <div>
-                            <h2 className="font-bold text-lg flex items-center gap-1">
-                              {commentData.userName}
-                              <div className="text-xs font-normal">
-                                (
-                                <span>
-                                  {new Date(
-                                    commentData.time
-                                  ).toLocaleDateString()}
-                                </span>
-                                <span>
-                                  {new Date(
-                                    commentData.time
-                                  ).toLocaleTimeString()}
-                                </span>
-                                )
-                              </div>
-                            </h2>
-                            <p>{commentData.comment}</p>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </ul>
-                </div>
-
-                <div className="modal-action">
-                  <form method="dialog">
-                    <button className="absolute top-7 right-8 font-bold text-xl text-black">
-                      <IoIosCloseCircle />
-                    </button>
-                  </form>
-                </div>
-              </div>
-            </dialog>
           </div>
         </div>
       )}

@@ -4,353 +4,409 @@ import { motion } from "framer-motion";
 import { Bounce, toast } from "react-toastify";
 import { AuthContext } from "../provider/authProvider";
 import {
-    getAuth,
-    createUserWithEmailAndPassword,
-    updateProfile,
+  getAuth,
+  createUserWithEmailAndPassword,
+  updateProfile,
 } from "firebase/auth";
 
 const Register = () => {
-    const { signInWithGoogle, signInWithGithub } = useContext(AuthContext);
-    const navigate = useNavigate();
-    const [showPassword, setShowPassword] = useState(false);
-    const [passwordError, setPasswordError] = useState("");
+  const { signInWithGoogle, signInWithGithub } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
 
-    const togglePasswordVisibility = () => {
-        setShowPassword((prevState) => !prevState);
+  const togglePasswordVisibility = () => {
+    setShowPassword((prevState) => !prevState);
+  };
+
+  const validatePassword = (password) => {
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasLowercase = /[a-z]/.test(password);
+    const isLongEnough = password.length >= 6;
+
+    if (!hasUppercase) {
+      setPasswordError("Password must contain at least one uppercase letter.");
+      return false;
+    }
+    if (!hasLowercase) {
+      setPasswordError("Password must contain at least one lowercase letter.");
+      return false;
+    }
+    if (!isLongEnough) {
+      setPasswordError("Password must be at least 6 characters long.");
+      return false;
+    }
+
+    setPasswordError("");
+    return true;
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+
+    toast.info("Registering your account...", {
+      position: "top-center",
+      autoClose: 3000,
+      theme: "light",
+      transition: Bounce,
+    });
+
+    const form = e.target;
+    const uname = form.uname.value;
+    const email = form.email.value;
+    const password = form.password.value;
+
+    const additionalInfo = {
+      userRole: form.userRole?.value || "Member",
+      userImage: form.userImage?.value || "n/a",
+      profession: form.profession?.value || "n/a",
+      yearOfExperience: form.yearOfExperience?.value || "n/a",
     };
 
-    const validatePassword = (password) => {
-        const hasUppercase = /[A-Z]/.test(password);
-        const hasLowercase = /[a-z]/.test(password);
-        const isLongEnough = password.length >= 6;
+    if (!validatePassword(password)) {
+      toast.warn(passwordError, {
+        position: "top-center",
+        autoClose: 4000,
+        theme: "colored",
+        transition: Bounce,
+      });
+      return;
+    }
 
-        if (!hasUppercase) {
-            setPasswordError("Password must contain at least one uppercase letter.");
-            return false;
-        }
-        if (!hasLowercase) {
-            setPasswordError("Password must contain at least one lowercase letter.");
-            return false;
-        }
-        if (!isLongEnough) {
-            setPasswordError("Password must be at least 6 characters long.");
-            return false;
-        }
+    try {
+      const auth = getAuth();
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
 
-        setPasswordError("");
-        return true;
-    };
+      toast.success("Account created successfully!", {
+        position: "top-center",
+        autoClose: 3000,
+        theme: "light",
+        transition: Bounce,
+      });
 
-    const handleRegister = async (e) => {
-        e.preventDefault();
+      await updateProfile(user, {
+        displayName: uname,
+      });
 
-        toast.info("Registering your account...", {
-            position: "top-center",
-            autoClose: 3000,
-            theme: "light",
-            transition: Bounce,
+      toast.info("Profile updated with display name.", {
+        position: "top-center",
+        autoClose: 2500,
+        theme: "light",
+        transition: Bounce,
+      });
+
+      const registrationDate = new Date().toISOString();
+
+      const userInfo = {
+        fullName: uname,
+        email: user.email,
+        photoURL: user.photoURL || "",
+        userRole: additionalInfo.userRole,
+        registrationDate,
+        userImage: additionalInfo.userImage,
+        profession: additionalInfo.profession,
+        yearOfExperience: additionalInfo.yearOfExperience,
+      };
+
+      toast.info("Saving your information...", {
+        position: "top-center",
+        autoClose: 2000,
+        theme: "light",
+        transition: Bounce,
+      });
+
+      const response = await fetch("http://localhost:5000/user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userInfo),
+      });
+
+      if (response.ok) {
+        toast.success("User information saved successfully!", {
+          position: "top-center",
+          autoClose: 5000,
+          theme: "light",
+          transition: Bounce,
         });
+      } else {
+        toast.error("Error saving user information. Please try again.", {
+          position: "top-center",
+          autoClose: 5000,
+          theme: "light",
+          transition: Bounce,
+        });
+      }
 
-        const form = e.target;
-        const uname = form.uname.value;
-        const email = form.email.value;
-        const password = form.password.value;
+      localStorage.setItem(
+        "userProfile",
+        JSON.stringify({
+          displayName: uname,
+          email: user.email,
+          uname,
+        })
+      );
 
-        const additionalInfo = {
-            userRole: form.userRole?.value || "Member",
-            userImage: form.userImage?.value || "n/a",
-            profession: form.profession?.value || "n/a",
-            yearOfExperience: form.yearOfExperience?.value || "n/a",
-        };
+      toast.success("Welcome aboard! Redirecting...", {
+        position: "top-center",
+        autoClose: 3000,
+        theme: "light",
+        transition: Bounce,
+      });
 
-        if (!validatePassword(password)) {
-            toast.warn(passwordError, {
-                position: "top-center",
-                autoClose: 4000,
-                theme: "colored",
-                transition: Bounce,
-            });
-            return;
-        }
+      navigate("/");
+    } catch (error) {
+      console.error("Error creating user:", error.message);
+      toast.error(`Registration failed: ${error.message}`, {
+        position: "top-center",
+        autoClose: 5000,
+        theme: "colored",
+        transition: Bounce,
+      });
+    }
+  };
 
-        try {
-            const auth = getAuth();
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
+  const handleGoogleSignIn = async () => {
+    try {
+      await signInWithGoogle();
+      const user = getAuth().currentUser;
+      const registrationDate = new Date().toISOString();
 
-            toast.success("Account created successfully!", {
-                position: "top-center",
-                autoClose: 3000,
-                theme: "light",
-                transition: Bounce,
-            });
+      const userInfo = {
+        fullName: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL || "",
+        userRole: "Member",
+        registrationDate,
+        registryType: "google",
+      };
 
-            await updateProfile(user, {
-                displayName: uname,
-            });
+      await fetch("http://localhost:5000/user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userInfo),
+      });
 
-            toast.info("Profile updated with display name.", {
-                position: "top-center",
-                autoClose: 2500,
-                theme: "light",
-                transition: Bounce,
-            });
+      localStorage.setItem(
+        "userProfile",
+        JSON.stringify({
+          displayName: user.displayName,
+          email: user.email,
+          uname: user.displayName,
+        })
+      );
 
-            const registrationDate = new Date().toISOString();
+      toast.success("Signed in with Google successfully!", {
+        position: "top-center",
+        autoClose: 3000,
+        theme: "light",
+        transition: Bounce,
+      });
 
-            const userInfo = {
-                fullName: uname,
-                email: user.email,
-                photoURL: user.photoURL || "",
-                userRole: additionalInfo.userRole,
-                registrationDate,
-                userImage: additionalInfo.userImage,
-                profession: additionalInfo.profession,
-                yearOfExperience: additionalInfo.yearOfExperience,
-            };
+      navigate("/");
+    } catch (error) {
+      console.error("Google login failed:", error.message);
+      toast.error("Google sign-in failed. Please try again.", {
+        position: "top-center",
+        autoClose: 5000,
+        theme: "light",
+        transition: Bounce,
+      });
+    }
+  };
 
-            toast.info("Saving your information...", {
-                position: "top-center",
-                autoClose: 2000,
-                theme: "light",
-                transition: Bounce,
-            });
+  const handleGithubSignIn = async () => {
+    try {
+      await signInWithGithub();
+      const user = getAuth().currentUser;
+      const registrationDate = new Date().toISOString();
 
-            const response = await fetch("http://localhost:5000/user", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(userInfo),
-            });
+      const userInfo = {
+        fullName: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL || "",
+        userRole: "Member",
+        registrationDate,
+        registryType: "github",
+      };
 
-            if (response.ok) {
-                toast.success("User information saved successfully!", {
-                    position: "top-center",
-                    autoClose: 5000,
-                    theme: "light",
-                    transition: Bounce,
-                });
-            } else {
-                toast.error("Error saving user information. Please try again.", {
-                    position: "top-center",
-                    autoClose: 5000,
-                    theme: "light",
-                    transition: Bounce,
-                });
-            }
+      await fetch("http://localhost:5000/user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userInfo),
+      });
 
-            localStorage.setItem(
-                "userProfile",
-                JSON.stringify({
-                    displayName: uname,
-                    email: user.email,
-                    uname,
-                })
-            );
+      localStorage.setItem(
+        "userProfile",
+        JSON.stringify({
+          displayName: user.displayName,
+          email: user.email,
+          uname: user.displayName,
+        })
+      );
 
-            toast.success("Welcome aboard! Redirecting...", {
-                position: "top-center",
-                autoClose: 3000,
-                theme: "light",
-                transition: Bounce,
-            });
+      toast.success("Signed in with GitHub successfully!", {
+        position: "top-center",
+        autoClose: 3000,
+        theme: "light",
+        transition: Bounce,
+      });
 
-            navigate("/");
-        } catch (error) {
-            console.error("Error creating user:", error.message);
-            toast.error(`Registration failed: ${error.message}`, {
-                position: "top-center",
-                autoClose: 5000,
-                theme: "colored",
-                transition: Bounce,
-            });
-        }
-    };
+      navigate("/");
+    } catch (error) {
+      console.error("GitHub login failed:", error.message);
+      toast.error("GitHub sign-in failed. Please try again.", {
+        position: "top-center",
+        autoClose: 5000,
+        theme: "light",
+        transition: Bounce,
+      });
+    }
+  };
 
-    const handleGoogleSignIn = async () => {
-        try {
-            await signInWithGoogle();
-            const user = getAuth().currentUser;
-            const registrationDate = new Date().toISOString();
-
-            const userInfo = {
-                fullName: user.displayName,
-                email: user.email,
-                photoURL: user.photoURL || "",
-                userRole: "Member",
-                registrationDate,
-                registryType: "google",
-            };
-
-            await fetch("http://localhost:5000/user", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(userInfo),
-            });
-
-            localStorage.setItem(
-                "userProfile",
-                JSON.stringify({
-                    displayName: user.displayName,
-                    email: user.email,
-                    uname: user.displayName,
-                })
-            );
-
-            toast.success("Signed in with Google successfully!", {
-                position: "top-center",
-                autoClose: 3000,
-                theme: "light",
-                transition: Bounce,
-            });
-
-            navigate("/");
-        } catch (error) {
-            console.error("Google login failed:", error.message);
-            toast.error("Google sign-in failed. Please try again.", {
-                position: "top-center",
-                autoClose: 5000,
-                theme: "light",
-                transition: Bounce,
-            });
-        }
-    };
-
-    const handleGithubSignIn = async () => {
-        try {
-            await signInWithGithub();
-            const user = getAuth().currentUser;
-            const registrationDate = new Date().toISOString();
-
-            const userInfo = {
-                fullName: user.displayName,
-                email: user.email,
-                photoURL: user.photoURL || "",
-                userRole: "Member",
-                registrationDate,
-                registryType: "github",
-            };
-
-            await fetch("http://localhost:5000/user", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(userInfo),
-            });
-
-            localStorage.setItem(
-                "userProfile",
-                JSON.stringify({
-                    displayName: user.displayName,
-                    email: user.email,
-                    uname: user.displayName,
-                })
-            );
-
-            toast.success("Signed in with GitHub successfully!", {
-                position: "top-center",
-                autoClose: 3000,
-                theme: "light",
-                transition: Bounce,
-            });
-
-            navigate("/");
-        } catch (error) {
-            console.error("GitHub login failed:", error.message);
-            toast.error("GitHub sign-in failed. Please try again.", {
-                position: "top-center",
-                autoClose: 5000,
-                theme: "light",
-                transition: Bounce,
-            });
-        }
-    };
-
-    return (
+  return (
+    <motion.div
+      className="flex min-h-screen items-center justify-center bg-gray-100 p-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.6 }}
+    >
+      <motion.div
+        className="bg-white rounded-2xl shadow-lg flex flex-col md:flex-row w-full max-w-4xl"
+        initial={{ scale: 0.9 }}
+        animate={{ scale: 1 }}
+        transition={{ duration: 0.4 }}
+      >
         <motion.div
-            className="flex min-h-screen items-center justify-center bg-gray-100 p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6 }}
+          className="w-full md:w-1/2 p-6 md:p-8"
+          initial={{ x: -100 }}
+          animate={{ x: 0 }}
+          transition={{ duration: 0.5 }}
         >
-            <motion.div
-                className="bg-white rounded-2xl shadow-lg flex flex-col md:flex-row w-full max-w-4xl"
-                initial={{ scale: 0.9 }}
-                animate={{ scale: 1 }}
-                transition={{ duration: 0.4 }}
+          <h2 className="text-2xl md:text-3xl font-bold mb-4">Registration</h2>
+
+          <form className="space-y-4" onSubmit={handleRegister}>
+            <input
+              type="text"
+              name="uname"
+              placeholder="Username"
+              className="input input-bordered w-full"
+              required
+            />
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              className="input input-bordered w-full"
+              required
+            />
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder="Password"
+              className="input input-bordered w-full"
+              required
+            />
+            <button
+              type="button"
+              onClick={togglePasswordVisibility}
+              className="text-sm text-blue-500"
             >
-                <motion.div
-                    className="w-full md:w-1/2 p-6 md:p-8"
-                    initial={{ x: -100 }}
-                    animate={{ x: 0 }}
-                    transition={{ duration: 0.5 }}
-                >
-                    <h2 className="text-2xl md:text-3xl font-bold mb-4">Registration</h2>
+              {showPassword ? "Hide Password" : "Show Password"}
+            </button>
 
-                    <form className="space-y-4" onSubmit={handleRegister}>
-                        <input type="text" name="uname" placeholder="Username" className="input input-bordered w-full" required />
-                        <input type="email" name="email" placeholder="Email" className="input input-bordered w-full" required />
-                        <input type={showPassword ? "text" : "password"} name="password" placeholder="Password" className="input input-bordered w-full" required />
-                        <button type="button" onClick={togglePasswordVisibility} className="text-sm text-blue-500">
-                            {showPassword ? "Hide Password" : "Show Password"}
-                        </button>
+            <input
+              type="text"
+              name="userImage"
+              placeholder="User Image URL"
+              className="input input-bordered w-full"
+            />
+            <input
+              type="text"
+              name="profession"
+              placeholder="Profession"
+              className="input input-bordered w-full"
+            />
+            <input
+              type="text"
+              name="yearOfExperience"
+              placeholder="Year of Experience"
+              className="input input-bordered w-full"
+            />
 
-                        <input type="text" name="userImage" placeholder="User Image URL" className="input input-bordered w-full" />
-                        <input type="text" name="profession" placeholder="Profession" className="input input-bordered w-full" />
-                        <input type="text" name="yearOfExperience" placeholder="Year of Experience" className="input input-bordered w-full" />
+            <motion.button
+              type="submit"
+              className="btn btn-primary w-full bg-blue-500"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Register
+            </motion.button>
+          </form>
 
-                        <motion.button type="submit" className="btn btn-primary w-full bg-blue-500" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                            Register
-                        </motion.button>
-                    </form>
+          <div className="mt-4 space-y-4">
+            <motion.button
+              className="btn btn-outline w-full bg-purple-500 animate-bounce"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleGoogleSignIn}
+            >
+              <img
+                width="30"
+                height="30"
+                src="https://img.icons8.com/color/48/google-logo.png"
+                alt="google-logo"
+              />
+              Sign Up with Google
+            </motion.button>
 
-                    <div className="mt-4 space-y-4">
-                        <motion.button
-                            className="btn btn-outline w-full bg-purple-500 animate-bounce"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={handleGoogleSignIn}
-                        >
-                            <img width="30" height="30" src="https://img.icons8.com/color/48/google-logo.png" alt="google-logo" />
-                            Sign Up with Google
-                        </motion.button>
-
-                        <motion.button
-                            className="btn btn-outline w-full bg-gray-800 text-white animate-pulse"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={handleGithubSignIn}
-                        >
-                            <img width="30" height="30" src="https://img.icons8.com/ios-filled/50/ffffff/github.png" alt="github-logo" />
-                            Sign Up with GitHub
-                        </motion.button>
-                    </div>
-                </motion.div>
-
-                <motion.div
-                    className="w-full md:w-1/2 bg-blue-500 text-white rounded-b-2xl md:rounded-r-2xl md:rounded-bl-none flex flex-col items-center justify-center p-6 md:p-8"
-                    initial={{ x: 100 }}
-                    animate={{ x: 0 }}
-                    transition={{ duration: 0.5 }}
-                >
-                    <h2 className="text-2xl md:text-3xl font-bold mb-2">Welcome Back!</h2>
-                    <p className="text-sm mb-4 text-center">Already have an account?</p>
-                    <motion.button
-                        className="btn btn-outline text-white border-white"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => navigate("/login")}
-                    >
-                        Login
-                    </motion.button>
-                </motion.div>
-            </motion.div>
+            <motion.button
+              className="btn btn-outline w-full bg-gray-800 text-white animate-pulse"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleGithubSignIn}
+            >
+              <img
+                width="30"
+                height="30"
+                src="https://img.icons8.com/ios-filled/50/ffffff/github.png"
+                alt="github-logo"
+              />
+              Sign Up with GitHub
+            </motion.button>
+          </div>
         </motion.div>
-    );
+
+        <motion.div
+          className="w-full md:w-1/2 bg-blue-500 text-white rounded-b-2xl md:rounded-r-2xl md:rounded-bl-none flex flex-col items-center justify-center p-6 md:p-8"
+          initial={{ x: 100 }}
+          animate={{ x: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h2 className="text-2xl md:text-3xl font-bold mb-2">Welcome Back!</h2>
+          <p className="text-sm mb-4 text-center">Already have an account?</p>
+          <motion.button
+            className="btn btn-outline text-white border-white"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => navigate("/login")}
+          >
+            Login
+          </motion.button>
+        </motion.div>
+      </motion.div>
+    </motion.div>
+  );
 };
 
 export default Register;
