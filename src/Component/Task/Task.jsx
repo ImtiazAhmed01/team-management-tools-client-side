@@ -45,12 +45,18 @@ const Task = ({ loggedInUserId }) => {
     });
   }, []);
 
-  useEffect(async () => {
-    const { data } = await fetch(
-      `http://localhost:5000/profileInfo/${user?.user}`
-    );
-    setUserRole(data.role);
-  }, [user?.user]);
+//    fetching user role
+  useEffect(() => {
+    if (user?.email) {
+      axios
+        .get(`http://localhost:5000/profileInfo/${user?.email}`)
+        .then((res) => {
+          const userData = res.data?.[0];
+          setUserRole(userData);
+        })
+        .catch((err) => console.error(err));
+    }
+  }, [user?.email]);
 
   const toggleForm = () => setShowForm(!showForm);
 
@@ -164,17 +170,24 @@ const Task = ({ loggedInUserId }) => {
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-xl rounded-lg my-20">
-      {(userRole?.role === "admin" || userRole?.role === "group leader") && (
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">My Tasks</h2>
-          <button
-            onClick={toggleForm}
-            className="bg-blue-500 text-white px-5 py-2 rounded-lg flex items-center shadow-lg"
-          >
-            <FaPlus className="mr-2" /> Add Task
-          </button>
-        </div>
-      )}
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-800">My Tasks</h2>
+        <button
+          onClick={toggleForm}
+          disabled={
+            !(userRole?.role === "admin" || userRole?.role === "group leader")
+          }
+          className={`px-5 py-2 rounded-lg flex items-center shadow-lg
+      ${
+        userRole?.role === "admin" || userRole?.role === "group leader"
+          ? "bg-blue-500 text-white hover:bg-blue-600"
+          : "bg-gray-300 text-gray-500 cursor-not-allowed"
+      }
+    `}
+        >
+          <FaPlus className="mr-2" /> Add Task
+        </button>
+      </div>
 
       <div className="flex gap-4 mb-6">
         <select

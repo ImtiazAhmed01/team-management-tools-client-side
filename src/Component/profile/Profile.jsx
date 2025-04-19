@@ -368,9 +368,9 @@ const Profile = () => {
           const userData = data?.[0] || {};
           setUserData(userData);
           setStatus(userData?.status);
-          setRole(userData?.role || "");
+          setRole(userData?.role || "not set yet");
           setBio(userData?.bio || "Add Your Bio..");
-          setLocation(userData?.location || "");
+          setLocation(userData?.location || "Not set yet");
           setSocialLinks({
             linkedin: userData.socialLinks?.linkedin || "",
             portfolio: userData.socialLinks?.portfolio || "",
@@ -378,6 +378,20 @@ const Profile = () => {
           });
         })
         .catch((error) => console.error("Error fetching user data:", error));
+    }
+  }, [user?.email]);
+
+  //  fetching user role----srity
+  useEffect(() => {
+    if (user?.email) {
+      axios
+        .get(`http://localhost:5000/profileInfo/${user?.email}`)
+        .then((res) => {
+          const userData = res.data?.[0];
+          setRole(userData?.role);
+          // console.log(userData)
+        })
+        .catch((err) => console.error(err));
     }
   }, [user?.email]);
 
@@ -406,16 +420,57 @@ const Profile = () => {
     const profileInfo = { bio, role, location, socialLinks, status };
 
     try {
-      const response = await fetch(`http://localhost:5000/profile/${user?.email}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(profileInfo),
-      });
+      // If user is trying to set role to group leader (but is not already group leader/admin), request approval instead
+      if (
+        role === "group leader" &&
+        userData.role !== "group leader" &&
+        userData.role !== "admin"
+      ) {
+        const response = await fetch("http://localhost:5000/requestLeader", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: user.displayName, email: user.email }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          toast.success("Leader request sent to admin", {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Bounce,
+          });
+        } else {
+          toast.error(result.message || "Request failed", {
+            position: "top-right",
+            autoClose: 5000,
+          });
+        }
+
+        return; // Don't try to update role directly
+      }
+
+      const response = await fetch(
+        `http://localhost:5000/profile/${user?.email}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(profileInfo),
+        }
+      );
 
       const data = await response.json();
 
       if (response.ok && data.message === "profile updated successfully!") {
-        const updatedRes = await fetch(`http://localhost:5000/profileInfo/${user.email}`);
+        const updatedRes = await fetch(
+          `http://localhost:5000/profileInfo/${user.email}`
+        );
         const updatedProfile = await updatedRes.json();
         const updatedUserData = updatedProfile?.[0] || {};
         setUserData(updatedUserData);
@@ -515,7 +570,9 @@ const Profile = () => {
         theme: "light",
         transition: Bounce,
       });
-      await axios.post(`http://localhost:5000/user/${user?.email}`, { image: image_url });
+      await axios.post(`http://localhost:5000/user/${user?.email}`, {
+        image: image_url,
+      });
       setImage(image_url);
     }
   };
@@ -533,20 +590,33 @@ const Profile = () => {
         </div>
         <div className="lg:w-[150px] md:w-[110px] md:h-[110px] lg:h-[150px] w-[80px] h-[80px] -translate-y-[150%] translate-x-[40%] absolute">
           <img
-            src={image || "https://media.istockphoto.com/id/1409329028/vector/no-picture-available-placeholder-thumbnail-icon-illustration-design.jpg"}
-            className={`w-full h-full rounded-full ring-2 shadow-2xl drop-shadow-2xl ${userData?.status === "Available"
-              ? "ring-green-500"
-              : userData?.status === "Busy"
-              ? "ring-yellow-500"
-              : userData?.status === "Unavailable"
-              ? "ring-red-500"
-              : "ring-white"
+            src={
+              image ||
+              "https://media.istockphoto.com/id/1409329028/vector/no-picture-available-placeholder-thumbnail-icon-illustration-design.jpg"
+            }
+            className={`w-full h-full rounded-full ring-2 shadow-2xl drop-shadow-2xl ${
+              userData?.status === "Available"
+                ? "ring-green-500"
+                : userData?.status === "Busy"
+                ? "ring-yellow-500"
+                : userData?.status === "Unavailable"
+                ? "ring-red-500"
+                : "ring-white"
             }`}
             alt="Profile"
           />
-          <input type="file" id="image" accept="image/*" className="hidden" onChange={handleImageChange} />
+          <input
+            type="file"
+            id="image"
+            accept="image/*"
+            className="hidden"
+            onChange={handleImageChange}
+          />
           <div className="absolute lg:top-4 top-1 md:right-1 -right-2 lg:right-1 bg-gray-300 rounded-full p-1 cursor-pointer">
-            <IoCameraReverseOutline onClick={() => document.getElementById("image").click()} className="text-gray-900 text-xl" />
+            <IoCameraReverseOutline
+              onClick={() => document.getElementById("image").click()}
+              className="text-gray-900 text-xl"
+            />
           </div>
         </div>
       </div>
@@ -558,7 +628,9 @@ const Profile = () => {
             {user ? user.displayName : "N/A"}
           </p>
           {!isEditable ? (
-            <p className="text-black font-semibold text-sm">{status || "Available"}</p>
+            <p className="text-black font-semibold text-sm">
+              {status || "Available"}
+            </p>
           ) : (
             <select
               name="status"
@@ -574,7 +646,11 @@ const Profile = () => {
           )}
         </div>
 
-        {!isEditable && <p className="text-black font-semibold text-sm mt-1">{userData?.bio}</p>}
+        {!isEditable && (
+          <p className="text-black font-semibold text-sm mt-1">
+            {userData?.bio}
+          </p>
+        )}
         {isEditable && (
           <div className="flex flex-col gap-3 mt-6">
             <div className="flex flex-col gap-1">
@@ -595,7 +671,9 @@ const Profile = () => {
           <div className="flex md:flex-row flex-col gap-6 mt-6">
             {/* About Section */}
             <div className="md:w-1/2 w-full">
-              <h1 className="font-bold text-xl text-gray-600 mb-3">About Yourself</h1>
+              <h1 className="font-bold text-xl text-gray-600 mb-3">
+                About Yourself
+              </h1>
               <div className="flex flex-col gap-3">
                 {/* Role Dropdown */}
                 <div className="flex flex-col gap-1">
@@ -614,7 +692,9 @@ const Profile = () => {
                       <option value="member">Member</option>
                     </select>
                   ) : (
-                    <p className="text-black font-semibold text-sm">{role || "Not set"}</p>
+                    <p className="text-black font-semibold text-sm">
+                      {role || "Not set"}
+                    </p>
                   )}
                 </div>
 
@@ -635,34 +715,48 @@ const Profile = () => {
 
             {/* Social Media */}
             <div className="md:w-1/2 w-full">
-              <h1 className="font-bold text-lg text-gray-600 mb-3">Social Media Profiles</h1>
+              <h1 className="font-bold text-lg text-gray-600 mb-3">
+                Social Media Profiles
+              </h1>
               <div className="flex flex-col gap-3">
-                {[{ platform: "linkedin", label: "LinkedIn", icon: <FaLinkedin /> },
-                  { platform: "portfolio", label: "Portfolio", icon: <FaFacebook /> },
-                  { platform: "github", label: "Github", icon: <FaGithub /> }].map(({ platform, label, icon }) => (
-                    <div className="relative" key={platform}>
-                      <div className="absolute right-3 top-2 text-black text-lg">{icon}</div>
-                      {isEditable ? (
-                        <input
-                          type="text"
-                          name={platform}
-                          value={socialLinks[platform]}
-                          onChange={handleInputChange}
-                          placeholder={`Enter your ${label} link`}
-                          className="border-2 border-gray-300 py-1 px-3 rounded-lg text-gray-500 font-bold w-full"
-                        />
-                      ) : (
-                        <a
-                          href={socialLinks[platform] || "#"}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="border-2 border-gray-300 py-1 px-3 rounded-lg text-gray-500 font-bold w-full block"
-                        >
-                          {socialLinks[platform] || `Enter your ${label} link`}
-                        </a>
-                      )}
+                {[
+                  {
+                    platform: "linkedin",
+                    label: "LinkedIn",
+                    icon: <FaLinkedin />,
+                  },
+                  {
+                    platform: "portfolio",
+                    label: "Portfolio",
+                    icon: <FaFacebook />,
+                  },
+                  { platform: "github", label: "Github", icon: <FaGithub /> },
+                ].map(({ platform, label, icon }) => (
+                  <div className="relative" key={platform}>
+                    <div className="absolute right-3 top-2 text-black text-lg">
+                      {icon}
                     </div>
-                  ))}
+                    {isEditable ? (
+                      <input
+                        type="text"
+                        name={platform}
+                        value={socialLinks[platform]}
+                        onChange={handleInputChange}
+                        placeholder={`Enter your ${label} link`}
+                        className="border-2 border-gray-300 py-1 px-3 rounded-lg text-gray-500 font-bold w-full"
+                      />
+                    ) : (
+                      <a
+                        href={socialLinks[platform] || "#"}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="border-2 border-gray-300 py-1 px-3 rounded-lg text-gray-500 font-bold w-full block"
+                      >
+                        {socialLinks[platform] || `Enter your ${label} link`}
+                      </a>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -679,9 +773,12 @@ const Profile = () => {
         </form>
 
         {/* Admin Role - Leader Requests Table */}
+        {/* Admin Role - Leader Requests Table */}
         {role === "admin" && (
           <div className="mt-10">
-            <h2 className="text-xl font-bold text-center text-blue-700 mb-4">Group Leader Requests</h2>
+            <h2 className="text-xl font-bold text-center text-blue-700 mb-4">
+              Group Leader Requests
+            </h2>
             <div className="overflow-x-auto">
               <table className="min-w-full table-auto bg-white shadow-md rounded-lg">
                 <thead>
@@ -708,7 +805,10 @@ const Profile = () => {
                   ))}
                   {requests.length === 0 && (
                     <tr>
-                      <td colSpan="3" className="text-gray-500 py-4">
+                      <td
+                        colSpan="3"
+                        className="text-gray-500 py-4 text-center"
+                      >
                         No group leader requests
                       </td>
                     </tr>
@@ -724,4 +824,3 @@ const Profile = () => {
 };
 
 export default Profile;
-
