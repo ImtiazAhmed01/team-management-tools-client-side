@@ -1,4 +1,3 @@
-// imtiaz original code
 import React, { useState, useEffect, useContext } from "react";
 import {
     FaPlus,
@@ -24,14 +23,16 @@ import { IoIosCloseCircle } from "react-icons/io";
 
 
 
+
 import { AuthContext } from "../provider/authProvider";
 
 
 
 
-import MentionTextarea from "../Mention/MentionTextarea";
-import sendMentionNotifications from "../Notification/Notification";
+// import MentionTextarea from "../Mention/MentionTextarea";
+// import sendMentionNotifications from "../Notification/Notification";
 import useAuth from "../provider/useAuth";
+import { Mention, MentionsInput } from "react-mentions";
 
 
 
@@ -56,7 +57,7 @@ const Task = ({ loggedInUserId }) => {
 
 
     useEffect(() => {
-        axios.get("http://localhost:5000/tasks").then((response) => {
+        axios.get("https://teammanagementtools.vercel.app/tasks").then((response) => {
             setTasks(response.data);
         });
     }, []);
@@ -68,7 +69,7 @@ const Task = ({ loggedInUserId }) => {
     useEffect(() => {
         if (user?.email) {
             axios
-                .get(`http://localhost:5000/profileInfo/${user?.email}`)
+                .get(`https://teammanagementtools.vercel.app/profileInfo/${user?.email}`)
                 .then((res) => {
                     const userData = res.data?.[0];
                     setUserRole(userData);
@@ -93,7 +94,6 @@ const Task = ({ loggedInUserId }) => {
 
 
 
-
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -103,7 +103,7 @@ const Task = ({ loggedInUserId }) => {
         try {
             if (taskData.id) {
                 // UPDATE TASK
-                await axios.put(`http://localhost:5000/tasks/${taskData.id}`, taskData);
+                await axios.put(`https://teammanagementtools.vercel.app/tasks/${taskData.id}`, taskData);
                 toast.success("Task updated successfully!", {
                     position: "top-right",
                     autoClose: 5000,
@@ -116,10 +116,9 @@ const Task = ({ loggedInUserId }) => {
                     transition: Bounce,
                 });
                 setShowForm(false);
-
             } else {
                 // CREATE TASK
-                await axios.post("http://localhost:5000/tasks", taskData);
+                await axios.post("https://teammanagementtools.vercel.app/tasks", taskData);
                 toast.success("Task created successfully!", {
                     position: "top-right",
                     autoClose: 5000,
@@ -138,7 +137,7 @@ const Task = ({ loggedInUserId }) => {
 
 
             // Refresh task list
-            const response = await axios.get("http://localhost:5000/tasks");
+            const response = await axios.get("https://teammanagementtools.vercel.app/tasks");
             setTasks(response.data);
 
 
@@ -171,10 +170,11 @@ const Task = ({ loggedInUserId }) => {
 
 
 
+
     const handleDelete = async (taskId) => {
         try {
-            await axios.delete(`http://localhost:5000/tasks/${taskId}`);
-            const response = await axios.get("http://localhost:5000/tasks");
+            await axios.delete(`https://teammanagementtools.vercel.app/tasks/${taskId}`);
+            const response = await axios.get("https://teammanagementtools.vercel.app/tasks");
             setTasks(response.data);
         } catch (error) {
             console.error("Error deleting task:", error);
@@ -374,7 +374,7 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
         const checkIfAssigned = async () => {
             try {
                 const { data } = await axios.get(
-                    `http://localhost:5000/is-assigned/${task._id}/${user?.email}`
+                    `https://teammanagementtools.vercel.app/is-assigned/${task._id}/${user?.email}`
                 );
                 setAssigned(data.assigned);
             } catch (error) {
@@ -406,7 +406,7 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
 
 
             try {
-                const { data } = await axios.post("http://localhost:5000/assign-task", {
+                const { data } = await axios.post("https://teammanagementtools.vercel.app/assign-task", {
                     task,
                     userId: loggedInUserIds,
                     email: user?.email,
@@ -456,7 +456,7 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
     useEffect(() => {
         const fetchReaction = async () => {
             const { data } = await axios.get(
-                `http://localhost:5000/reaction/${task._id}`
+                `https://teammanagementtools.vercel.app/reaction/${task._id}`
             );
             setReaction({
                 likeCount: data.likeCount || 0,
@@ -482,7 +482,8 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
             } else {
                 return {
                     ...prev,
-                    disLikeCount: prev.disLikeCount + (activeReaction === "dislike" ? -1 : 1),
+                    disLikeCount:
+                        prev.disLikeCount + (activeReaction === "dislike" ? -1 : 1),
                 };
             }
         });
@@ -492,7 +493,7 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
 
         setActiveReaction((prev) => (prev === reactType ? null : reactType));
         try {
-            const { data } = await axios.post("http://localhost:5000/reactions", {
+            const { data } = await axios.post("https://teammanagementtools.vercel.app/reactions", {
                 cardId: task._id,
                 reactions: reactType,
             });
@@ -528,25 +529,53 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
 
         try {
             const { data } = await axios.post(
-                `http://localhost:5000/comments/${task._id}`,
+                `https://teammanagementtools.vercel.app/comments/${task._id}`,
                 { commentInfo }
             );
             if (data.insertedId) {
                 setCommentInput("");
-                toast.success("Comment added");
-                setCommentInput("");
-                toast.success("Comment added");
+                // toast.success("Comment added");
+                toast.success("Comment added", {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    transition: Bounce,
+                });
                 setComment((prevComments) => [...prevComments, commentInfo]);
-                await sendMentionNotifications(commentInput, task._id, userName);
-                await sendMentionNotifications(commentInput, task._id, userName);
+                // await sendMentionNotifications(commentInput, task._id, userName);
             } else {
-                toast.error("Something went wrong!");
-                toast.error("Something went wrong!");
+                // toast.error("Something went wrong!");
+                toast.error("Somethig wrong", {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    transition: Bounce,
+                });
             }
         } catch (err) {
             console.log(err);
-            toast.error("Failed to submit comment.");
-            toast.error("Failed to submit comment.");
+            // toast.error("Failed to submit comment.");
+            toast.error("Failed to submit comment", {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+                transition: Bounce,
+            });
         }
     };
     useEffect(() => {
@@ -554,7 +583,7 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
             if (task._id) {
                 try {
                     const { data } = await axios.get(
-                        `http://localhost:5000/comment/${task._id}`
+                        `https://teammanagementtools.vercel.app/comment/${task._id}`
                     );
                     setComment(data);
                 } catch (error) {
@@ -565,11 +594,25 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
         fetchComments();
     }, [task._id]);
 
+    const [userInfo, setUserInfo] = useState([]);
 
+    useEffect(() => {
+        fetch("http://localhost:5000/user")
+            .then((res) => res.json())
+            .then((data) => {
+                const formattedUsers = data.map((user) => ({
+                    id: user._id,
+                    display: user.fullName,
+                    Email: user.email,
+                    photo: user.photoURL,
+                }));
+                setUserInfo(formattedUsers);
+            })
+            .catch((err) => console.error("Failed to fetch users:", err));
+    }, []);
 
 
     // if (loading) return <span className="loading loading-ring loading-xl"></span>;
-
 
 
 
@@ -607,6 +650,12 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
                     <FaLink className="mr-1" /> View File
                 </a>
             )}
+            <div>
+                Done Count:{task.doneCount}
+            </div>
+            <div>
+                In Progress Count:{task.inProgressCount}
+            </div>
 
 
 
@@ -654,11 +703,13 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
                         <div className="flex justify-center space-x-2 text-2xl">
                             <FiThumbsUp
                                 onClick={() => handleReaction("like")}
-                                className={`hover:text-gray-500 duration-200 ${activeReaction === "like" ? "text-blue-500" : ""}`}
+                                className={`hover:text-gray-500 duration-200 ${activeReaction === "like" ? "text-blue-500" : ""
+                                    }`}
                             />
                             <FiThumbsDown
                                 onClick={() => handleReaction("dislike")}
-                                className={`mt-1 hover:text-gray-500 duration-200 ${activeReaction === "dislike" ? "text-blue-500" : ""}`}
+                                className={`mt-1 hover:text-gray-500 duration-200 ${activeReaction === "dislike" ? "text-blue-500" : ""
+                                    }`}
                             />
                         </div>
                         <div>
@@ -671,26 +722,67 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
                         <dialog id={`modal_${task._id}`} className="modal modal-middle">
                             <div className="modal-box relative h-[80vh]">
                                 <h3 className="font-bold text-lg">
-                                    Add a Comment to <span className="text-red-500">{task.title}</span>
+                                    Add a Comment to{" "}
+                                    <span className="text-red-500">{task.title}</span>
                                 </h3>
                                 {/* commemt-form */}
                                 <form onSubmit={handleCommentSubmit} className="space-y-4 mt-2">
                                     <div className="relative">
-                                        {/* <MentionTextarea
+                                        <MentionsInput
                                             value={commentInput}
-                                            onChange={setCommentInput}
-                                            placeholder="Write a comment with @mentions..."
-                                        <MentionTextarea
-                                            value={commentInput}
-                                            onChange={setCommentInput}
-                                            placeholder="Write a comment with @mentions..."
-                                        /> */}
+                                            onChange={(e) => setCommentInput(e.target.value)}
+                                            placeholder="Write a comment... use @ to mention"
+                                            className="w-full border border-gray-300 rounded-md p-3 min-h-[80px] text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                            style={{
+                                                mention: {
+                                                    backgroundColor: "#3B82F6",
+                                                    color: "#ffffff",
+                                                    padding: "2px 6px",
+                                                    borderRadius: "6px",
+                                                    fontWeight: 500,
+                                                },
+                                            }}
+                                        >
+                                            <Mention
+                                                trigger="@"
+                                                data={userInfo}
+                                                displayTransform={(display) => `@${display}`}
+                                                markup="@__display__"
+
+                                                renderSuggestion={(
+                                                    suggestion,
+                                                    search,
+                                                    highlightedDisplay,
+                                                    index,
+                                                    focused
+                                                ) => (
+                                                    <div
+                                                        className={`flex items-center gap-3 px-3 py-2 ${focused ? "bg-blue-100" : "bg-white"
+                                                            } cursor-pointer`}
+                                                    >
+                                                        <img
+                                                            src={suggestion.photo}
+                                                            alt={suggestion.display}
+                                                            className="w-[50px] h-[50px] rounded-full object-cover"
+                                                        />
+                                                        <div>
+                                                            <p className="font-medium text-gray-800 ">
+                                                                {highlightedDisplay}
+                                                            </p>
+                                                            <p className="text-xs text-gray-500">
+                                                                {suggestion.Email}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            />
+                                        </MentionsInput>
                                         <button type="submit">
                                             <MdSend className="absolute top-3 right-3 cursor-pointer" />
                                         </button>
                                     </div>
                                 </form>
-
+                                {/*  */}
 
 
 
@@ -723,7 +815,7 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
                                                                 )
                                                             </div>
                                                         </h2>
-                                                        <p>{commentData.comment}</p>
+                                                        <p className="bg-amber-600">{commentData.comment}</p>
                                                     </div>
                                                 </div>
                                             ))
