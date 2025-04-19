@@ -11,11 +11,12 @@ import { ToastContainer } from 'react-toastify'
 import AuthProvider from './Component/provider/authProvider'
 import Home from './Component/pages/Home/Home'
 import Task from './Component/Task/Task'
-import Profile from "./Component/Profile/Profile";
 //import Eid from "./Component/Eid-Greetings/Eid";
 import MyTask from "./Component/Task/MyTask";
+
 import Image from "./Component/Imagesfile/Image";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 
 
 
@@ -63,6 +64,7 @@ createRoot(document.getElementById("root")).render(
 
 
   <StrictMode>
+
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <RouterProvider router={router} />
