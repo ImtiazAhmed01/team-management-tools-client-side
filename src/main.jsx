@@ -13,6 +13,7 @@ import Home from './Component/pages/Home/Home'
 import Task from './Component/Task/Task'
 //import Eid from "./Component/Eid-Greetings/Eid";
 import MyTask from "./Component/Task/MyTask";
+import Profile from "./Component/Profile/Profile";
 
 import Image from "./Component/Imagesfile/Image";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
