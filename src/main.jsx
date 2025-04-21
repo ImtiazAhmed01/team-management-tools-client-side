@@ -16,6 +16,7 @@ import MyTask from "./Component/Task/MyTask";
 
 import Image from "./Component/Imagesfile/Image";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Profile from "./Component/Profile/Profile";
 
 
 
