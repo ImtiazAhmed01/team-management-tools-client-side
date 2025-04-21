@@ -11,12 +11,14 @@ import { ToastContainer } from 'react-toastify'
 import AuthProvider from './Component/provider/authProvider'
 import Home from './Component/pages/Home/Home'
 import Task from './Component/Task/Task'
-//import Eid from "./Component/Eid-Greetings/Eid";
+import Eid from './Component/Eid-Greetings/Eid'
 import MyTask from "./Component/Task/MyTask";
 
 import Image from "./Component/Imagesfile/Image";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import Profile from "./Component/Profile/Profile";
+import Profile from "./Component/profile/Profile";
+import Comment from "./Component/comment/Comment";
+import About from "./Component/AboutUs/AboutUs";
 
 
 
@@ -55,6 +57,13 @@ const router = createBrowserRouter([
       {
         path: "/image",
         element: <Image></Image>
+      },
+      {
+        path: "/comment/:id",
+        element: <Comment></Comment>
+      }, {
+        path: "/aboutus",
+        element: <About></About>
       }
     ],
 
@@ -75,12 +84,12 @@ createRoot(document.getElementById("root")).render(
           hideProgressBar={false}
           newestOnTop={false}
           closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
-          transition="bounce"
+        // rtl={false}
+        // pauseOnFocusLoss
+        // draggable
+        // pauseOnHover
+        // theme="light"
+        // transition="bounce"
         />
       </AuthProvider>
     </QueryClientProvider>

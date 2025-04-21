@@ -1,9 +1,9 @@
-// import React, { useState } from 'react';
-// import eidSound from "../../assets/eid-mubarak-201252.mp3";
-// import gif1 from "../../assets/fjdfkljdkfjk.gif"
-// import gif2 from "../../assets/Green and Gold Islamic Decoration Eid Mubarak Mobile Video.gif"
-// import gif3 from "../../assets/Green Gold Animated Eid Mubarak Instagram Post.gif"
-// import confetti from 'canvas-confetti';
+import React, { useState } from 'react';
+import eidSound from "../../assets/eid-mubarak-201252.mp3";
+import gif1 from "../../assets/fjdfkljdkfjk.gif"
+import gif2 from "../../assets/Green and Gold Islamic Decoration Eid Mubarak Mobile Video.gif"
+import gif3 from "../../assets/Green Gold Animated Eid Mubarak Instagram Post.gif"
+import confetti from 'canvas-confetti';
 
 const greetings = [
   "Eid Mubarak!",
@@ -92,4 +92,4 @@ const Eid = ({ setShowIntro }) => {
   );
 };
 
-// export default Eid;
+export default Eid;

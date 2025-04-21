@@ -3,14 +3,14 @@ import "./App.css";
 import Navbar from "./Component/Navbar/Navbar";
 import Footer from "./Component/Footer/Footer";
 import { Outlet } from "react-router-dom";
-// import Eid from "./Component/Eid-Greetings/Eid";
+import Eid from "./Component/Eid-Greetings/Eid";
 
 function App() {
   const [showIntro, setShowIntro] = useState(true);
 
   return (
     <>
-      {/* {showIntro ? (
+      {showIntro ? (
         <Eid setShowIntro={setShowIntro} />
       ) : (
         <>
@@ -18,10 +18,10 @@ function App() {
           <Outlet />
           <Footer />
         </>
-      )} */}
-      <Navbar></Navbar>
+      )}
+      {/* <Navbar></Navbar>
       <Outlet />
-      <Footer />
+      <Footer /> */}
     </>
   );
 }

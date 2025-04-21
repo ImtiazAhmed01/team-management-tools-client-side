@@ -10,9 +10,6 @@ import {
     FaComment,
 } from "react-icons/fa";
 
-
-
-
 import { motion } from "framer-motion";
 import axios from "axios";
 import { FiThumbsUp, FiThumbsDown } from "react-icons/fi";
@@ -20,22 +17,11 @@ import { MdSend } from "react-icons/md";
 import { toast, Bounce } from "react-toastify";
 import { IoIosCloseCircle } from "react-icons/io";
 
-
-
-
-
 import { AuthContext } from "../provider/authProvider";
 
-
-
-
-// import MentionTextarea from "../Mention/MentionTextarea";
-// import sendMentionNotifications from "../Notification/Notification";
 import useAuth from "../provider/useAuth";
 import { Mention, MentionsInput } from "react-mentions";
-
-
-
+import { useNavigate } from "react-router-dom";
 
 const Task = ({ loggedInUserId }) => {
     const { user } = useAuth();
@@ -53,17 +39,11 @@ const Task = ({ loggedInUserId }) => {
     const [search, setSearch] = useState("");
     const [userRole, setUserRole] = useState("");
 
-
-
-
     useEffect(() => {
         axios.get("https://teammanagementtools.vercel.app/tasks").then((response) => {
             setTasks(response.data);
         });
     }, []);
-
-
-
 
     //    fetching user role
     useEffect(() => {
@@ -78,27 +58,15 @@ const Task = ({ loggedInUserId }) => {
         }
     }, [user?.email]);
 
-
-
-
     const toggleForm = () => setShowForm(!showForm);
-
-
-
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setTaskData((prev) => ({ ...prev, [name]: value }));
     };
 
-
-
-
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-
-
 
         try {
             if (taskData.id) {
@@ -133,15 +101,9 @@ const Task = ({ loggedInUserId }) => {
                 setShowForm(false);
             }
 
-
-
-
             // Refresh task list
             const response = await axios.get("https://teammanagementtools.vercel.app/tasks");
             setTasks(response.data);
-
-
-
 
             // Reset form
             setTaskData({
@@ -168,9 +130,6 @@ const Task = ({ loggedInUserId }) => {
         }
     };
 
-
-
-
     const handleDelete = async (taskId) => {
         try {
             await axios.delete(`https://teammanagementtools.vercel.app/tasks/${taskId}`);
@@ -185,9 +144,6 @@ const Task = ({ loggedInUserId }) => {
         setTaskData({ ...task, id: task._id });
         setShowForm(true);
     };
-
-
-
 
     const filterTasks = () => {
         return tasks.filter((task) => {
@@ -205,18 +161,12 @@ const Task = ({ loggedInUserId }) => {
                 (filter === "In Progress" && task.status === "In Progress") ||
                 (filter === "To-Do" && task.status === "To-Do");
 
-
-
-
             const matchesSearch =
                 search === "" ||
                 task.title.toLowerCase().includes(search.toLowerCase());
             return matchesFilter && matchesSearch;
         });
     };
-
-
-
 
     return (
         <div className="max-w-3xl mx-auto p-6 bg-white shadow-xl rounded-lg my-20">
@@ -225,7 +175,10 @@ const Task = ({ loggedInUserId }) => {
                 <button
                     onClick={toggleForm}
                     disabled={
-                        !(userRole?.userRole === "admin" || userRole?.userRole === "group leader")
+                        !(
+                            userRole?.userRole === "admin" ||
+                            userRole?.userRole === "group leader"
+                        )
                     }
                     className={`px-5 py-2 rounded-lg flex items-center shadow-lg
       ${userRole?.userRole === "admin" || userRole?.userRole === "group leader"
@@ -237,9 +190,6 @@ const Task = ({ loggedInUserId }) => {
                     <FaPlus className="mr-2" /> Add Task
                 </button>
             </div>
-
-
-
 
             <div className="flex gap-4 mb-6">
                 <select
@@ -328,9 +278,6 @@ const Task = ({ loggedInUserId }) => {
                                 className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-400 transition-all"
                             />
 
-
-
-
                             <button
                                 type="submit"
                                 className="bg-green-500 text-white px-5 py-2 rounded-md w-full hover:bg-green-600 transition"
@@ -345,9 +292,6 @@ const Task = ({ loggedInUserId }) => {
     );
 };
 
-
-
-
 const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
     const statusColors = {
         "To-Do": "bg-gray-400",
@@ -358,17 +302,11 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
     const [loading, setLoading] = useState(false);
     const [activeReaction, setActiveReaction] = useState(null);
     const { user } = useContext(AuthContext);
-    const [comment, setComment] = useState([]);
-
-
-
+    const navigate = useNavigate();
 
     const loggedInUserIds = user?.uid;
     // checking if a particular task is assigned or not. If not then assign {Imtiaz} starts here
     const [assigned, setAssigned] = useState(false);
-
-
-
 
     useEffect(() => {
         const checkIfAssigned = async () => {
@@ -382,16 +320,10 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
             }
         };
 
-
-
-
         if (user?.email) {
             checkIfAssigned();
         }
     }, [task._id, user?.email]);
-
-
-
 
     const handleAssignTask = async () => {
         if (!assigned) {
@@ -402,18 +334,12 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
                 email: user?.email, // Log email
             });
 
-
-
-
             try {
                 const { data } = await axios.post("https://teammanagementtools.vercel.app/assign-task", {
                     task,
                     userId: loggedInUserIds,
                     email: user?.email,
                 });
-
-
-
 
                 toast.success(data.message, {
                     position: "top-right",
@@ -443,15 +369,6 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
             }
         }
     };
-    // Checking and assigning code ends here
-
-
-
-
-    const [commentInput, setCommentInput] = useState("");
-
-
-
 
     useEffect(() => {
         const fetchReaction = async () => {
@@ -467,9 +384,6 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
             fetchReaction();
         }
     }, [task._id]);
-
-
-
 
     const handleReaction = async (reactType) => {
         setLoading(true);
@@ -488,9 +402,6 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
             }
         });
 
-
-
-
         setActiveReaction((prev) => (prev === reactType ? null : reactType));
         try {
             const { data } = await axios.post("https://teammanagementtools.vercel.app/reactions", {
@@ -508,96 +419,10 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
         }
     };
 
-
-
-
-    const handleModal = (id) => {
-        document.getElementById(`modal_${id}`).showModal();
-    };
-
-
-
-
-    const handleCommentSubmit = async (event) => {
-        event.preventDefault();
-        const userName = user?.displayName;
-        const time = new Date().toISOString();
-        const commentInfo = { userName, comment: commentInput, time };
-
-
-
-
-        try {
-            const { data } = await axios.post(
-                `https://teammanagementtools.vercel.app/comments/${task._id}`,
-                { commentInfo }
-            );
-            if (data.insertedId) {
-                setCommentInput("");
-                // toast.success("Comment added");
-                toast.success("Comment added", {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: false,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "light",
-                    transition: Bounce,
-                });
-                setComment((prevComments) => [...prevComments, commentInfo]);
-                // await sendMentionNotifications(commentInput, task._id, userName);
-            } else {
-                // toast.error("Something went wrong!");
-                toast.error("Somethig wrong", {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: false,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "light",
-                    transition: Bounce,
-                });
-            }
-        } catch (err) {
-            console.log(err);
-            // toast.error("Failed to submit comment.");
-            toast.error("Failed to submit comment", {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: false,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "light",
-                transition: Bounce,
-            });
-        }
-    };
-    useEffect(() => {
-        const fetchComments = async () => {
-            if (task._id) {
-                try {
-                    const { data } = await axios.get(
-                        `https://teammanagementtools.vercel.app/comment/${task._id}`
-                    );
-                    setComment(data);
-                } catch (error) {
-                    console.error("Error fetching comments:", error);
-                }
-            }
-        };
-        fetchComments();
-    }, [task._id]);
-
     const [userInfo, setUserInfo] = useState([]);
 
     useEffect(() => {
-        fetch("http://localhost:5000/user")
+        fetch("https://teammanagementtools.vercel.app/user")
             .then((res) => res.json())
             .then((data) => {
                 const formattedUsers = data.map((user) => ({
@@ -610,11 +435,6 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
             })
             .catch((err) => console.error("Failed to fetch users:", err));
     }, []);
-
-
-    // if (loading) return <span className="loading loading-ring loading-xl"></span>;
-
-
 
     return (
         <motion.div
@@ -637,9 +457,6 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
                 Due: {new Date(task.dueDate).toLocaleString()}
             </p>
 
-
-
-
             {task.fileUrl && (
                 <a
                     href={task.fileUrl}
@@ -650,54 +467,47 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
                     <FaLink className="mr-1" /> View File
                 </a>
             )}
-            <div>
-                Done Count:{task.doneCount}
-            </div>
-            <div>
-                In Progress Count:{task.inProgressCount}
-            </div>
-
-
-
+            <div>Done Count:{task.doneCount}</div>
+            <div>In Progress Count:{task.inProgressCount}</div>
 
             {task.userId === loggedInUserId && (
-                <div className="mt-4 flex space-x-3">
-                    <button
-                        onClick={() => onEdit(task)}
-                        className="bg-yellow-500 text-white px-4 py-2 rounded shadow-md hover:bg-yellow-600 transition"
-                    >
-                        <FaEdit />
-                    </button>
-                    <button
-                        onClick={() => onDelete(task._id)}
-                        className="bg-red-500 text-white px-4 py-2 rounded shadow-md hover:bg-red-600 transition"
-                    >
-                        <FaTrash />
-                    </button>
-                    <button
-                        onClick={() => handleModal(`${task._id}`)}
-                        className="bg-green-500 text-white px-4 py-2 rounded shadow-md hover:bg-green-600 transition cursor-pointer"
-                    >
-                        <FaComment />
-                    </button>
-
-
-                    {task.userId === loggedInUserId && (
+                <div className="mt-4 flex justify-between items-center">
+                    <div className="flex space-x-3">
                         <button
-                            button
-                            onClick={handleAssignTask}
-                            disabled={assigned}
-                            className={`bg-green-500 text-white px-4 py-2 rounded shadow-md ${assigned
-                                ? "opacity-50 cursor-not-allowed"
-                                : "hover:bg-green-600"
-                                } transition`}
+                            onClick={() => onEdit(task)}
+                            className="bg-yellow-500 text-white px-4 py-2 rounded shadow-md hover:bg-yellow-600 transition"
                         >
-                            {assigned ? "Assigned" : "Assign Me"}
+                            <FaEdit />
                         </button>
-                    )}
+                        <button
+                            onClick={() => onDelete(task._id)}
+                            className="bg-red-500 text-white px-4 py-2 rounded shadow-md hover:bg-red-600 transition"
+                        >
+                            <FaTrash />
+                        </button>
 
+                        {/* comment redirect button */}
+                        <button
+                            onClick={() => navigate(`/comment/${task._id}`)}
+                            className="bg-green-500 text-white px-4 py-2 rounded shadow-md hover:bg-green-600 transition cursor-pointer"
+                        >
+                            <FaComment />
+                        </button>
 
-
+                        {task.userId === loggedInUserId && (
+                            <button
+                                button
+                                onClick={handleAssignTask}
+                                disabled={assigned}
+                                className={`bg-green-500 text-white px-4 py-2 rounded shadow-md ${assigned
+                                        ? "opacity-50 cursor-not-allowed"
+                                        : "hover:bg-green-600"
+                                    } transition`}
+                            >
+                                {assigned ? "Assigned" : "Assign Me"}
+                            </button>
+                        )}
+                    </div>
 
                     <div className="mt-2">
                         <div className="flex justify-center space-x-2 text-2xl">
@@ -718,131 +528,10 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
                             </p>
                         </div>
                     </div>
-                    <div>
-                        <dialog id={`modal_${task._id}`} className="modal modal-middle">
-                            <div className="modal-box relative h-[80vh]">
-                                <h3 className="font-bold text-lg">
-                                    Add a Comment to{" "}
-                                    <span className="text-red-500">{task.title}</span>
-                                </h3>
-                                {/* commemt-form */}
-                                <form onSubmit={handleCommentSubmit} className="space-y-4 mt-2">
-                                    <div className="relative">
-                                        <MentionsInput
-                                            value={commentInput}
-                                            onChange={(e) => setCommentInput(e.target.value)}
-                                            placeholder="Write a comment... use @ to mention"
-                                            className="w-full border border-gray-300 rounded-md p-3 min-h-[80px] text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                            style={{
-                                                mention: {
-                                                    backgroundColor: "#3B82F6",
-                                                    color: "#ffffff",
-                                                    padding: "2px 6px",
-                                                    borderRadius: "6px",
-                                                    fontWeight: 500,
-                                                },
-                                            }}
-                                        >
-                                            <Mention
-                                                trigger="@"
-                                                data={userInfo}
-                                                displayTransform={(display) => `@${display}`}
-                                                markup="@__display__"
-
-                                                renderSuggestion={(
-                                                    suggestion,
-                                                    search,
-                                                    highlightedDisplay,
-                                                    index,
-                                                    focused
-                                                ) => (
-                                                    <div
-                                                        className={`flex items-center gap-3 px-3 py-2 ${focused ? "bg-blue-100" : "bg-white"
-                                                            } cursor-pointer`}
-                                                    >
-                                                        <img
-                                                            src={suggestion.photo}
-                                                            alt={suggestion.display}
-                                                            className="w-[50px] h-[50px] rounded-full object-cover"
-                                                        />
-                                                        <div>
-                                                            <p className="font-medium text-gray-800 ">
-                                                                {highlightedDisplay}
-                                                            </p>
-                                                            <p className="text-xs text-gray-500">
-                                                                {suggestion.Email}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            />
-                                        </MentionsInput>
-                                        <button type="submit">
-                                            <MdSend className="absolute top-3 right-3 cursor-pointer" />
-                                        </button>
-                                    </div>
-                                </form>
-                                {/*  */}
-
-
-
-
-                                <div className="">
-                                    <h4 className="text-lg font-semibold text-gray-900"></h4>
-                                    <ul className="space-y-2 mt-2">
-                                        {comment.length === 0 ? (
-                                            <p className="font-normal text-center text-xs capitalize">
-                                                No comments yet
-                                            </p>
-                                        ) : (
-                                            comment.map((commentData, index) => (
-                                                <div key={index} className="text-sm text-gray-900">
-                                                    <div>
-                                                        <h2 className="font-bold text-lg flex items-center gap-1">
-                                                            {commentData.userName}
-                                                            <div className="text-xs font-normal">
-                                                                (
-                                                                <span>
-                                                                    {new Date(
-                                                                        commentData.time
-                                                                    ).toLocaleDateString()}
-                                                                </span>
-                                                                <span>
-                                                                    {new Date(
-                                                                        commentData.time
-                                                                    ).toLocaleTimeString()}
-                                                                </span>
-                                                                )
-                                                            </div>
-                                                        </h2>
-                                                        <p className="bg-amber-600">{commentData.comment}</p>
-                                                    </div>
-                                                </div>
-                                            ))
-                                        )}
-                                    </ul>
-                                </div>
-
-
-
-
-                                <div className="modal-action">
-                                    <form method="dialog">
-                                        <button className="absolute top-7 right-8 font-bold text-xl text-black">
-                                            <IoIosCloseCircle />
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </dialog>
-                    </div>
                 </div>
             )}
         </motion.div>
     );
 };
-
-
-
 
 export default Task;
