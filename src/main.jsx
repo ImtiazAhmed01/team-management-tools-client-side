@@ -2,30 +2,25 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Login from "./Component/Login/Login";
+import App from "./App";
+import Register from "./Component/Register/Register";
 
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import Login from './Component/Login/Login'
-import App from './App'
-import Register from './Component/Register/Register'
-
-
-import { ToastContainer } from 'react-toastify'
-import AuthProvider from './Component/provider/authProvider'
-import Home from './Component/pages/Home/Home'
-import Task from './Component/Task/Task'
+import { ToastContainer } from "react-toastify";
+import AuthProvider from "./Component/provider/authProvider";
+import Home from "./Component/pages/Home/Home";
+import Task from "./Component/Task/Task";
 import MyTask from "./Component/Task/MyTask";
-
 
 import Image from "./Component/Imagesfile/Image";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Profile from "./Component/profile/Profile";
 import Comment from "./Component/comment/Comment";
 import About from "./Component/AboutUs/AboutUs";
-
+import { ChatProvider } from "./Component/chat/ChatContext";
 
 const router = createBrowserRouter([
-
-
   {
     path: "/",
     element: <App></App>,
@@ -43,64 +38,54 @@ const router = createBrowserRouter([
         element: <Register></Register>,
       },
       {
-
-
         path: "/Tasks",
         element: <Task></Task>,
       },
       {
         path: "/user",
-        element: <Profile></Profile>
+        element: <Profile></Profile>,
       },
       {
         path: "/mytask",
-        element: <MyTask></MyTask>
+        element: <MyTask></MyTask>,
       },
       {
         path: "/image",
-        element: <Image></Image>
+        element: <Image></Image>,
       },
       {
         path: "/comment/:id",
-        element: <Comment></Comment>
-      }, {
+        element: <Comment></Comment>,
+      },
+      {
         path: "/aboutus",
-        element: <About></About>
-      }
+        element: <About></About>,
+      },
     ],
-
-
   },
 ]);
 const queryClient = new QueryClient();
 createRoot(document.getElementById("root")).render(
-
-
-
-
   <StrictMode>
-
-
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <RouterProvider router={router} />
-        <ToastContainer
-          position="top-center"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-        // rtl={false}
-        // pauseOnFocusLoss
-        // draggable
-        // pauseOnHover
-        // theme="light"
-        // transition="bounce"
-        />
+        <ChatProvider>
+          <RouterProvider router={router} />
+          <ToastContainer
+            position="top-center"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            // rtl={false}
+            // pauseOnFocusLoss
+            // draggable
+            // pauseOnHover
+            // theme="light"
+            // transition="bounce"
+          />
+        </ChatProvider>
       </AuthProvider>
     </QueryClientProvider>
   </StrictMode>
 );
-
-
-
