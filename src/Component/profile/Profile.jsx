@@ -610,8 +610,7 @@ const Profile = () => {
           });
         }
 
-
-        return; // Don't try to update role directly
+        return;
       }
 
 
@@ -779,7 +778,7 @@ const Profile = () => {
         throw new Error("Decline failed on server");
       }
     } catch (error) {
-      toast.error("Decline failed on server", {
+      toast.error("Approval failed", {
         position: "top-right",
         autoClose: 5000,
         theme: "light",
@@ -788,38 +787,33 @@ const Profile = () => {
     }
   };
 
-
-
-
-  const [image, setImage] = useState(user?.photoURL);
+  const [image, setImage] = useState(user?.photoURL || userData?.userImage);
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     const formData = new FormData();
     formData.append("image", file);
-    const { data } = await axios.post(
-      `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_ImgBB_Key}`,
-      formData
-    );
-    if (data.success) {
-      const image_url = data.display_url;
-      toast.success("Image uploaded successfully", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-        transition: Bounce,
-      });
-      await axios.post(`https://teammanagementtools.vercel.app/user/${user?.email}`, {
-        image: image_url,
-      });
-      setImage(image_url);
+
+    try {
+      const { data } = await axios.post(
+        `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_ImgBB_Key}`,
+        formData
+      );
+
+      if (data.success) {
+        const image_url = data.data.display_url;
+        toast.success("Image uploaded successfully");
+
+        await axios.patch(`http://localhost:5000/user/${user?.email}`, {
+          image: image_url,
+        });
+
+        setImage(image_url);
+      }
+    } catch (error) {
+      console.error("Error uploading or updating image:", error);
+      toast.error("Something went wrong while updating the image.");
     }
   };
-
 
   return (
     <div className="md:w-8/10 mx-auto pb-10 bg-amber-50 md:my-10 md:rounded-xl flex flex-col gap-8 shadow-xl">
