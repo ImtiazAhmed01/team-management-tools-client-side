@@ -113,7 +113,7 @@ const Profile = () => {
           });
         }
 
-        return; // Don't try to update role directly
+        return;
       }
 
       const response = await fetch(
@@ -208,7 +208,7 @@ const Profile = () => {
     }
   };
 
-  const [image, setImage] = useState(user?.photoURL);
+  const [image, setImage] = useState(user?.photoURL || userData?.userImage);
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     const formData = new FormData();

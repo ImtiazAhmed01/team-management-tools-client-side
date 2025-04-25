@@ -7,8 +7,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 
 const socket = io('http://localhost:5000');
-const image_Hosting_key = import.meta.env.VITE_IMAGE_UPLOAD;
-const image_Hosting_API = `https://api.imgbb.com/1/upload?key=${image_Hosting_key}`;
+// const image_Hosting_key = import.meta.env.VITE_IMAGE_UPLOAD;
+// const image_Hosting_API = `https://api.imgbb.com/1/upload?key=${image_Hosting_key}`;
+const image_Hosting_API = `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_ImgBB_Key}`;
 
 
 const fetchImages = async () => {

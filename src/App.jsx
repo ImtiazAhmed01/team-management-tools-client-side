@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "./App.css";
 import Navbar from "./Component/Navbar/Navbar";
 import Footer from "./Component/Footer/Footer";
+import ChatBox from "./Component/chat/ChatBox";
 import { Outlet } from "react-router-dom";
 // import Eid from "./Component/Eid-Greetings/Eid";
 
@@ -19,8 +20,11 @@ function App() {
           <Footer />
         </>
       )} */}
-      <Navbar></Navbar>
-      <Outlet />
+      <Navbar />
+      <div className="relative">
+        <Outlet />
+        <ChatBox />
+      </div>
       <Footer />
     </>
   );
