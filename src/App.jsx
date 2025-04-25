@@ -4,28 +4,25 @@ import Navbar from "./Component/Navbar/Navbar";
 import Footer from "./Component/Footer/Footer";
 import ChatBox from "./Component/chat/ChatBox";
 import { Outlet } from "react-router-dom";
-// import Eid from "./Component/Eid-Greetings/Eid";
+import Eid from "./Component/Eid-Greetings/Eid";
 
 function App() {
   const [showIntro, setShowIntro] = useState(true);
 
   return (
     <>
-      {/* {showIntro ? (
+      {showIntro ? (
         <Eid setShowIntro={setShowIntro} />
       ) : (
         <>
           <Navbar />
-          <Outlet />
+          <div className="relative">
+            <Outlet />
+            <ChatBox />
+          </div>
           <Footer />
         </>
-      )} */}
-      <Navbar />
-      <div className="relative">
-        <Outlet />
-        <ChatBox />
-      </div>
-      <Footer />
+      )}
     </>
   );
 }

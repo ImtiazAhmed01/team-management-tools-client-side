@@ -7,6 +7,11 @@ import Login from "./Component/Login/Login";
 import App from "./App";
 import Register from "./Component/Register/Register";
 
+import { ToastContainer } from 'react-toastify'
+import AuthProvider from './Component/provider/authProvider'
+import Home from './Component/pages/Home/Home'
+import Task from './Component/Task/Task'
+import Eid from './Component/Eid-Greetings/Eid'
 import { ToastContainer } from "react-toastify";
 import AuthProvider from "./Component/provider/authProvider";
 import Home from "./Component/pages/Home/Home";
@@ -18,6 +23,7 @@ import Image from "./Component/Imagesfile/Image";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Profile from "./Component/profile/Profile";
 import Comment from "./Component/comment/Comment";
+import About from "./Component/AboutUs/AboutUs";
 import { ChatProvider } from "./Component/chat/ChatContext";
 
 const router = createBrowserRouter([

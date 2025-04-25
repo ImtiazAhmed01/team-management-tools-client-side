@@ -33,7 +33,7 @@ const Navbar = () => {
 
         <div className="hidden lg:flex items-center space-x-6 font-semibold">
           <NavLink className="hover:text-[#4978ff]" to="/">Home</NavLink>
-          <NavLink className="hover:text-[#4978ff]" to="/about">About</NavLink>
+          <NavLink className="hover:text-[#4978ff]" to="/aboutus">About</NavLink>
 
 
           {user && <NavLink className="hover:text-[#4978ff]" to="/tasks">Tasks</NavLink>}
