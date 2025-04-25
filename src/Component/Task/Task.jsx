@@ -500,8 +500,8 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
                                 onClick={handleAssignTask}
                                 disabled={assigned}
                                 className={`bg-green-500 text-white px-4 py-2 rounded shadow-md ${assigned
-                                        ? "opacity-50 cursor-not-allowed"
-                                        : "hover:bg-green-600"
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : "hover:bg-green-600"
                                     } transition`}
                             >
                                 {assigned ? "Assigned" : "Assign Me"}
