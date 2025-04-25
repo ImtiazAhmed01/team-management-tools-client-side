@@ -22,7 +22,7 @@ const Comment = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/task/${id}`)
+      .get(`https://teammanagementtools.vercel.app/task/${id}`)
       .then((res) => setTask(res.data));
   }, [id]);
 
@@ -34,7 +34,7 @@ const Comment = () => {
 
     try {
       const { data } = await axios.post(
-        `http://localhost:5000/comments/${id}`,
+        `https://teammanagementtools.vercel.app/comments/${id}`,
         { commentInfo }
       );
       if (data.insertedId) {
@@ -56,7 +56,7 @@ const Comment = () => {
       if (id) {
         try {
           const { data } = await axios.get(
-            `http://localhost:5000/comment/${id}`
+            `https://teammanagementtools.vercel.app/comment/${id}`
           );
           setComment(data);
         } catch (error) {
@@ -70,7 +70,7 @@ const Comment = () => {
   //   fetch reactions
   useEffect(() => {
     const fetchReaction = async () => {
-      const { data } = await axios.get(`http://localhost:5000/reaction/${id}`);
+      const { data } = await axios.get(`https://teammanagementtools.vercel.app/reaction/${id}`);
       setReaction(data);
     };
     if (id) {
@@ -82,7 +82,7 @@ const Comment = () => {
   const [userInfo, setUserInfo] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/user")
+    fetch("https://teammanagementtools.vercel.app/user")
       .then((res) => res.json())
       .then((data) => {
         const formattedUsers = data.map((user) => ({
@@ -102,9 +102,8 @@ const Comment = () => {
         <div className="flex justify-between items-center">
           <h2 className="font-bold md:text-xl text-lg">{task.title}</h2>
           <span
-            className={`text-sm font-bold px-3 py-1 rounded-full md:block hidden ${
-              statusColors[task.status]
-            } text-white`}
+            className={`text-sm font-bold px-3 py-1 rounded-full md:block hidden ${statusColors[task.status]
+              } text-white`}
           >
             {task.status}
           </span>
@@ -115,9 +114,8 @@ const Comment = () => {
             Due-Date: {new Date(task.dueDate).toLocaleDateString()}
           </p>
           <span
-            className={`text-sm font-bold px-3 py-1 rounded-full md:hidden ${
-              statusColors[task.status]
-            } text-white`}
+            className={`text-sm font-bold px-3 py-1 rounded-full md:hidden ${statusColors[task.status]
+              } text-white`}
           >
             {task.status}
           </span>
@@ -169,9 +167,8 @@ const Comment = () => {
                 focused
               ) => (
                 <div
-                  className={`flex items-center gap-3 px-3 py-2 ${
-                    focused ? "bg-blue-100" : "bg-white"
-                  } cursor-pointer`}
+                  className={`flex items-center gap-3 px-3 py-2 ${focused ? "bg-blue-100" : "bg-white"
+                    } cursor-pointer`}
                 >
                   <img
                     src={suggestion.photo}
