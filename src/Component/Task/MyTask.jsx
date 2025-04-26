@@ -574,10 +574,233 @@
 
 // export default MyTask;
 
+// import React, { useEffect, useState, useContext } from 'react';
+// import axios from 'axios';
+// import { motion } from 'framer-motion';
+// import { FaLink, FaSearch } from 'react-icons/fa';
+// import { FiThumbsUp, FiThumbsDown } from 'react-icons/fi';
+// import { AuthContext } from '../provider/authProvider';
+
+// const MyTask = () => {
+//     const { user } = useContext(AuthContext);
+//     const [tasks, setTasks] = useState([]);
+//     const [reaction, setReaction] = useState({ likeCount: 0, disLikeCount: 0 });
+//     const [activeReaction, setActiveReaction] = useState(null);
+//     const [updatingTaskId, setUpdatingTaskId] = useState(null);
+//     const [filter, setFilter] = useState("All");
+//     const [search, setSearch] = useState("");
+
+//     const loggedInUserId = user?.uid;
+
+//     const filterTasks = () => {
+//         return tasks.filter((task) => {
+//             const matchesFilter =
+//                 filter === "All" ||
+//                 (filter === "My Tasks" && task.userId === loggedInUserId) ||
+//                 (filter === "Tasks with Attachments" && task.fileUrl) ||
+//                 (filter === "Due Today" &&
+//                     new Date(task.dueDate).toDateString() === new Date().toDateString()) ||
+//                 (filter === "Due This Week" &&
+//                     new Date(task.dueDate) <= new Date(new Date().setDate(new Date().getDate() + 7))) ||
+//                 (filter === "Completed Tasks" && task.status === "Completed") ||
+//                 (filter === "In Progress" && task.status === "In Progress") ||
+//                 (filter === "To-Do" && task.status === "To-Do");
+
+//             const matchesSearch =
+//                 search === "" || task.title.toLowerCase().includes(search.toLowerCase());
+
+//             return matchesFilter && matchesSearch;
+//         });
+//     };
+
+//     const statusColors = {
+//         "To-Do": "bg-gray-500",
+//         "In Progress": "bg-yellow-500",
+//         "Completed": "bg-green-500",
+//     };
+
+//     useEffect(() => {
+//         const fetchAssignedTasks = async () => {
+//             try {
+//                 const { data } = await axios.get(`https://teammanagementtools.vercel.app/userassignedtasks/${user?.email}`);
+//                 const taskObjects = data.map(entry => ({
+//                     ...entry.task,
+//                     userTaskId: entry._id
+//                 }));
+//                 setTasks(taskObjects);
+//             } catch (error) {
+//                 console.error("Error fetching assigned tasks", error);
+//             }
+//         };
+
+//         if (user?.email) {
+//             fetchAssignedTasks();
+//         }
+//     }, [user?.email]);
+
+//     const handleReaction = (type) => {
+//         setActiveReaction(type);
+//         setReaction(prev => ({
+//             ...prev,
+//             likeCount: type === "like" ? prev.likeCount + 1 : prev.likeCount,
+//             disLikeCount: type === "dislike" ? prev.disLikeCount + 1 : prev.disLikeCount,
+//         }));
+//     };
+
+//     const handleStatusChange = async (taskId, newStatus) => {
+//         try {
+//             setUpdatingTaskId(taskId);
+//             const taskToUpdate = tasks.find((task) => task._id === taskId);
+//             if (!taskToUpdate) return;
+
+//             let inProgressDelta = 0;
+//             let doneDelta = 0;
+
+//             if (newStatus === "In Progress" && taskToUpdate.status !== "In Progress") inProgressDelta = 1;
+//             else if (newStatus !== "In Progress" && taskToUpdate.status === "In Progress") inProgressDelta = -1;
+
+//             if (newStatus === "Completed" && taskToUpdate.status !== "Completed") doneDelta = 1;
+//             else if (newStatus !== "Completed" && taskToUpdate.status === "Completed") doneDelta = -1;
+
+//             const updateFields = { status: newStatus };
+//             const countOnlyFields = { inProgressCount: inProgressDelta, doneCount: doneDelta };
+
+//             const updatedTasks = tasks.map(task =>
+//                 task._id === taskId
+//                     ? {
+//                         ...task,
+//                         status: newStatus,
+//                         inProgressCount: (task.inProgressCount || 0) + inProgressDelta,
+//                         doneCount: (task.doneCount || 0) + doneDelta,
+//                     }
+//                     : task
+//             );
+//             setTasks(updatedTasks);
+
+//             await axios.put(`https://teammanagementtools.vercel.app/mytasks/${taskToUpdate.userTaskId}`, updateFields);
+//             await axios.put(`https://teammanagementtools.vercel.app/task/${taskId}`, countOnlyFields);
+//         } catch (error) {
+//             console.error("Error updating task status:", error);
+//         } finally {
+//             setUpdatingTaskId(null);
+//         }
+//     };
+
+//     const filteredTasks = filterTasks();
+
+//     return (
+//         <div className="space-y-8 p-6 md:p-10 bg-gradient-to-tr from-blue-50 to-white min-h-screen">
+//             <h1 className='text-4xl font-bold text-center text-gray-800'>📝 My Task Dashboard</h1>
+
+//             <div className="flex flex-col md:flex-row gap-4 items-center">
+//                 <select
+//                     value={filter}
+//                     onChange={(e) => setFilter(e.target.value)}
+//                     className="w-full md:w-1/3 p-3 shadow-md rounded-md focus:ring-2 focus:ring-blue-400 transition-all bg-white"
+//                 >
+//                     <option value="All">All Tasks</option>
+//                     <option value="My Tasks">My Tasks</option>
+//                     <option value="Tasks with Attachments">Tasks with Attachments</option>
+//                     <option value="Due Today">Due Today</option>
+//                     <option value="Due This Week">Due This Week</option>
+//                     <option value="In Progress">In Progress</option>
+//                     <option value="To-Do">To-Do</option>
+//                     <option value="Completed Tasks">Completed Tasks</option>
+//                 </select>
+
+//                 <div className="relative w-full md:w-2/3">
+//                     <input
+//                         type="text"
+//                         placeholder="🔍 Search tasks..."
+//                         value={search}
+//                         onChange={(e) => setSearch(e.target.value)}
+//                         className="w-full shadow-md p-3 pl-12 rounded-md focus:ring-2 focus:ring-blue-400 transition-all bg-white"
+//                     />
+//                     <FaSearch className="absolute left-4 top-4 text-gray-400" />
+//                 </div>
+//             </div>
+
+//             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+//                 {filteredTasks.length > 0 ? (
+//                     filteredTasks.map((task) => (
+//                         <motion.div
+//                             key={task._id}
+//                             initial={{ opacity: 0, y: 20 }}
+//                             animate={{ opacity: 1, y: 0 }}
+//                             whileHover={{ scale: 1.02 }}
+//                             className="p-6 backdrop-blur-md bg-white/70 rounded-2xl shadow-lg border border-gray-200 transition-all"
+//                         >
+//                             <div className="flex justify-between items-center mb-2">
+//                                 <h4 className="text-xl font-semibold text-gray-800">{task.title}</h4>
+//                                 <span className={`text-xs px-3 py-1 rounded-full ${statusColors[task.status]} text-white font-bold`}>
+//                                     {task.status}
+//                                 </span>
+//                             </div>
+
+//                             <p className="text-gray-700">{task.description}</p>
+//                             <p className="text-sm text-gray-500 mt-2">
+//                                 ⏰ Due: {new Date(task.dueDate).toLocaleString()}
+//                             </p>
+
+//                             {task.fileUrl && (
+//                                 <a href={task.fileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 mt-2 inline-block">
+//                                     <FaLink className="inline-block mr-1" /> View Attachment
+//                                 </a>
+//                             )}
+
+//                             <div className="mt-3 text-sm">
+//                                 <p>🛠 In Progress: <strong>{task.inProgressCount}</strong></p>
+//                                 <p>✅ Done: <strong>{task.doneCount}</strong></p>
+//                             </div>
+
+//                             <div className="mt-4 flex items-center gap-4 text-xl">
+//                                 <div title="Like Task">
+//                                     <FiThumbsUp
+//                                         onClick={() => handleReaction("like")}
+//                                         className={`cursor-pointer hover:text-green-500 transition ${activeReaction === "like" && "text-green-600"}`}
+//                                     />
+//                                 </div>
+//                                 <div title="Dislike Task">
+//                                     <FiThumbsDown
+//                                         onClick={() => handleReaction("dislike")}
+//                                         className={`cursor-pointer hover:text-red-500 transition ${activeReaction === "dislike" && "text-red-600"}`}
+//                                     />
+//                                 </div>
+//                             </div>
+//                             <p className="text-xs mt-1 text-gray-400">
+//                                 👍 {reaction.likeCount} | 👎 {reaction.disLikeCount}
+//                             </p>
+
+//                             <div className="mt-4">
+//                                 {updatingTaskId === task._id ? (
+//                                     <div className="text-blue-500 text-sm animate-pulse">Updating status...</div>
+//                                 ) : (
+//                                     <select
+//                                         value={task.status}
+//                                         onChange={(e) => handleStatusChange(task._id, e.target.value)}
+//                                         className="w-full p-2 mt-1 border rounded-md focus:ring-2 focus:ring-blue-300 transition"
+//                                     >
+//                                         <option value="To-Do">To-Do</option>
+//                                         <option value="In Progress">In Progress</option>
+//                                         <option value="Completed">Completed</option>
+//                                     </select>
+//                                 )}
+//                             </div>
+//                         </motion.div>
+//                     ))
+//                 ) : (
+//                     <p className="col-span-full text-center text-gray-500">No tasks found.</p>
+//                 )}
+//             </div>
+//         </div>
+//     );
+// };
+
+// export default MyTask;
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-import { FaLink, FaSearch } from 'react-icons/fa';
+import { FaLink, FaSearch, FaThumbtack } from 'react-icons/fa';
 import { FiThumbsUp, FiThumbsDown } from 'react-icons/fi';
 import { AuthContext } from '../provider/authProvider';
 
@@ -589,11 +812,12 @@ const MyTask = () => {
     const [updatingTaskId, setUpdatingTaskId] = useState(null);
     const [filter, setFilter] = useState("All");
     const [search, setSearch] = useState("");
+    const [pinnedTasks, setPinnedTasks] = useState({});
 
     const loggedInUserId = user?.uid;
 
     const filterTasks = () => {
-        return tasks.filter((task) => {
+        const filtered = tasks.filter((task) => {
             const matchesFilter =
                 filter === "All" ||
                 (filter === "My Tasks" && task.userId === loggedInUserId) ||
@@ -610,6 +834,13 @@ const MyTask = () => {
                 search === "" || task.title.toLowerCase().includes(search.toLowerCase());
 
             return matchesFilter && matchesSearch;
+        });
+
+        // Sort pinned tasks to the top
+        return filtered.sort((a, b) => {
+            const aPinned = pinnedTasks[a._id] ? 1 : 0;
+            const bPinned = pinnedTasks[b._id] ? 1 : 0;
+            return bPinned - aPinned;
         });
     };
 
@@ -686,6 +917,13 @@ const MyTask = () => {
         }
     };
 
+    const togglePinTask = (taskId) => {
+        setPinnedTasks(prev => ({
+            ...prev,
+            [taskId]: !prev[taskId],
+        }));
+    };
+
     const filteredTasks = filterTasks();
 
     return (
@@ -732,9 +970,17 @@ const MyTask = () => {
                         >
                             <div className="flex justify-between items-center mb-2">
                                 <h4 className="text-xl font-semibold text-gray-800">{task.title}</h4>
-                                <span className={`text-xs px-3 py-1 rounded-full ${statusColors[task.status]} text-white font-bold`}>
-                                    {task.status}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                    <span className={`text-xs px-3 py-1 rounded-full ${statusColors[task.status]} text-white font-bold`}>
+                                        {task.status}
+                                    </span>
+                                    <FaThumbtack
+                                        onClick={() => togglePinTask(task._id)}
+                                        className={`cursor-pointer transition text-gray-500 hover:text-yellow-500 ${pinnedTasks[task._id] ? "text-yellow-600 rotate-45" : ""
+                                            }`}
+                                        title={pinnedTasks[task._id] ? "Unpin Task" : "Pin Task"}
+                                    />
+                                </div>
                             </div>
 
                             <p className="text-gray-700">{task.description}</p>
