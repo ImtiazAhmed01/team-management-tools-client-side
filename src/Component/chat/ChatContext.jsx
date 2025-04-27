@@ -71,7 +71,7 @@ export const ChatProvider = ({ children }) => {
       socket.emit("joinRoom", roomId);
 
       axios
-        .get(`http://localhost:5000/api/messages/${roomId}`)
+        .get(`https://teammanagementtools.vercel.app/api/messages/${roomId}`)
         .then((res) => {
           setMessages(res.data);
         })

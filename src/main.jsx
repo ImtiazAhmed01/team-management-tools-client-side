@@ -20,6 +20,7 @@ import Comment from "./Component/comment/Comment";
 import About from "./Component/AboutUs/AboutUs";
 import { ChatProvider } from "./Component/chat/ChatContext";
 
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -77,12 +78,14 @@ createRoot(document.getElementById("root")).render(
             hideProgressBar={false}
             newestOnTop={false}
             closeOnClick
-            // rtl={false}
-            // pauseOnFocusLoss
-            // draggable
-            // pauseOnHover
-            // theme="light"
-            // transition="bounce"
+
+          // rtl={false}
+          // pauseOnFocusLoss
+          // draggable
+          // pauseOnHover
+          // theme="light"
+          // transition="bounce"
+
           />
         </ChatProvider>
       </AuthProvider>

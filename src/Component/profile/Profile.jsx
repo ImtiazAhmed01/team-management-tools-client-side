@@ -803,7 +803,7 @@ const Profile = () => {
         const image_url = data.data.display_url;
         toast.success("Image uploaded successfully");
 
-        await axios.patch(`http://localhost:5000/user/${user?.email}`, {
+        await axios.patch(`https://teammanagementtools.vercel.app/user/${user?.email}`, {
           image: image_url,
         });
 

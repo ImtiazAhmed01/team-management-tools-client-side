@@ -104,8 +104,8 @@ const Image = () => {
                     onClick={handleUpload}
                     disabled={uploadMutation.isLoading}
                     className={`mt-2 px-4 py-2 rounded cursor-pointer ${uploadMutation.isLoading
-                            ? 'bg-gray-400'
-                            : 'bg-green-600 text-white hover:bg-green-700'
+                        ? 'bg-gray-400'
+                        : 'bg-green-600 text-white hover:bg-green-700'
                         }`}
                 >
                     {uploadMutation.isLoading ? 'Uploading...' : 'Upload'}
