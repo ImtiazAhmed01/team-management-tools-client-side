@@ -22,7 +22,7 @@
 
 //   useEffect(() => {
 //     if (user?.email) {
-//       fetch(`https://teammanagementtools.vercel.app/profileInfo/${user.email}`)
+//       fetch(`http://localhost:5000/profileInfo/${user.email}`)
 //         .then((res) => res.json())
 //         .then((data) => {
 //           const userData = data?.[0] || {};
@@ -45,7 +45,7 @@
 //   useEffect(() => {
 //     if (user?.email) {
 //       axios
-//         .get(`https://teammanagementtools.vercel.app/profileInfo/${user?.email}`)
+//         .get(`http://localhost:5000/profileInfo/${user?.email}`)
 //         .then((res) => {
 //           const userData = res.data?.[0];
 //           setRole(userData?.role);
@@ -57,7 +57,7 @@
 
 //   useEffect(() => {
 //     if (role === "admin") {
-//       fetch("https://teammanagementtools.vercel.app/leaderRequests")
+//       fetch("http://localhost:5000/leaderRequests")
 //         .then((res) => res.json())
 //         .then((data) => setRequests(data))
 //         .catch((err) => console.error("Error fetching leader requests:", err));
@@ -86,7 +86,7 @@
 //         userData.role !== "group leader" &&
 //         userData.role !== "admin"
 //       ) {
-//         const response = await fetch("https://teammanagementtools.vercel.app/requestLeader", {
+//         const response = await fetch("http://localhost:5000/requestLeader", {
 //           method: "POST",
 //           headers: { "Content-Type": "application/json" },
 //           body: JSON.stringify({ name: user.displayName, email: user.email }),
@@ -117,7 +117,7 @@
 //       }
 
 //       const response = await fetch(
-//         `https://teammanagementtools.vercel.app/profile/${user?.email}`,
+//         `http://localhost:5000/profile/${user?.email}`,
 //         {
 //           method: "POST",
 //           headers: { "Content-Type": "application/json" },
@@ -129,7 +129,7 @@
 
 //       if (response.ok && data.message === "profile updated successfully!") {
 //         const updatedRes = await fetch(
-//           `https://teammanagementtools.vercel.app/profileInfo/${user.email}`
+//           `http://localhost:5000/profileInfo/${user.email}`
 //         );
 //         const updatedProfile = await updatedRes.json();
 //         const updatedUserData = updatedProfile?.[0] || {};
@@ -175,7 +175,7 @@
 
 //   const handleApproveLeader = async (email) => {
 //     try {
-//       const res = await fetch(`https://teammanagementtools.vercel.app/approveLeader/${email}`, {
+//       const res = await fetch(`http://localhost:5000/approveLeader/${email}`, {
 //         method: "PATCH",
 //       });
 //       const data = await res.json();
@@ -224,7 +224,7 @@
 //         const image_url = data.data.display_url;
 //         toast.success("Image uploaded successfully");
 
-//         await axios.patch(`https://teammanagementtools.vercel.app/user/${user?.email}`, {
+//         await axios.patch(`http://localhost:5000/user/${user?.email}`, {
 //           image: image_url,
 //         });
 
@@ -512,7 +512,7 @@ const Profile = () => {
 
   useEffect(() => {
     if (user?.email) {
-      fetch(`https://teammanagementtools.vercel.app/profileInfo/${user.email}`)
+      fetch(`http://localhost:5000/profileInfo/${user.email}`)
         .then((res) => res.json())
         .then((data) => {
           const userData = data?.[0] || {};
@@ -536,7 +536,7 @@ const Profile = () => {
   useEffect(() => {
     if (user?.email) {
       axios
-        .get(`https://teammanagementtools.vercel.app/profileInfo/${user?.email}`)
+        .get(`http://localhost:5000/profileInfo/${user?.email}`)
         .then((res) => {
           const userData = res.data?.[0];
           setuserRole(userData?.userRole);
@@ -548,7 +548,7 @@ const Profile = () => {
 
   useEffect(() => {
     if (userRole === "admin") {
-      fetch("https://teammanagementtools.vercel.app/leaderRequests")
+      fetch("http://localhost:5000/leaderRequests")
         .then((res) => res.json())
         .then((data) => setRequests(data))
         .catch((err) => console.error("Error fetching leader requests:", err));
@@ -581,7 +581,7 @@ const Profile = () => {
         userData.userRole !== "group leader" &&
         userData.userRole !== "admin"
       ) {
-        const response = await fetch("https://teammanagementtools.vercel.app/requestLeader", {
+        const response = await fetch("http://localhost:5000/requestLeader", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name: user.displayName, email: user.email }),
@@ -615,7 +615,7 @@ const Profile = () => {
 
 
       const response = await fetch(
-        `https://teammanagementtools.vercel.app/profile/${user?.email}`,
+        `http://localhost:5000/profile/${user?.email}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -629,7 +629,7 @@ const Profile = () => {
 
       if (response.ok && data.message === "profile updated successfully!") {
         const updatedRes = await fetch(
-          `https://teammanagementtools.vercel.app/profileInfo/${user.email}`
+          `http://localhost:5000/profileInfo/${user.email}`
         );
         const updatedProfile = await updatedRes.json();
         const updatedUserData = updatedProfile?.[0] || {};
@@ -679,7 +679,7 @@ const Profile = () => {
   // req for group leader to db
   const handleRequestGroupLeader = async () => {
     try {
-      const res = await fetch("https://teammanagementtools.vercel.app/groupLeaderRequest", {
+      const res = await fetch("http://localhost:5000/groupLeaderRequest", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -732,7 +732,7 @@ const Profile = () => {
     );
 
     try {
-      const res = await fetch(`https://teammanagementtools.vercel.app/approveLeader/${email}`, {
+      const res = await fetch(`http://localhost:5000/approveLeader/${email}`, {
         method: "PATCH",
       });
       const data = await res.json();
@@ -769,7 +769,7 @@ const Profile = () => {
     );
 
     try {
-      const res = await fetch(`https://teammanagementtools.vercel.app/declineLeader/${email}`, {
+      const res = await fetch(`http://localhost:5000/declineLeader/${email}`, {
         method: "PATCH",
       });
       const data = await res.json();
@@ -803,7 +803,7 @@ const Profile = () => {
         const image_url = data.data.display_url;
         toast.success("Image uploaded successfully");
 
-        await axios.patch(`https://teammanagementtools.vercel.app/user/${user?.email}`, {
+        await axios.patch(`http://localhost:5000/user/${user?.email}`, {
           image: image_url,
         });
 
