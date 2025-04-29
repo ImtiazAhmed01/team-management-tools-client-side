@@ -52,7 +52,7 @@
 //     useEffect(() => {
 //         const fetchAssignedTasks = async () => {
 //             try {
-//                 const { data } = await axios.get(`https://teammanagementtools.vercel.app/userassignedtasks/${user?.email}`);
+//                 const { data } = await axios.get(`http://localhost:5000/userassignedtasks/${user?.email}`);
 
 //                 // Each task object includes the outer userTask _id
 //                 const taskObjects = data.map(entry => ({
@@ -130,11 +130,11 @@
 //             setTasks(updatedTasks);
 
 //             // ✅ Use outer _id for user task collection (updating status)
-//             const userTaskRes = await axios.put(`https://teammanagementtools.vercel.app/mytasks/${taskToUpdate.userTaskId}`, updateFields);
+//             const userTaskRes = await axios.put(`http://localhost:5000/mytasks/${taskToUpdate.userTaskId}`, updateFields);
 //             console.log("User task update response:", userTaskRes.data);
 
 //             // 🧠 Use inner _id for task collection (update counts only)
-//             const taskRes = await axios.put(`https://teammanagementtools.vercel.app/task/${taskId}`, countOnlyFields);
+//             const taskRes = await axios.put(`http://localhost:5000/task/${taskId}`, countOnlyFields);
 //             console.log("Main task count update response:", taskRes.data);
 
 //         } catch (error) {
@@ -385,7 +385,7 @@
 //     useEffect(() => {
 //         const fetchAssignedTasks = async () => {
 //             try {
-//                 const { data } = await axios.get(`https://teammanagementtools.vercel.app/userassignedtasks/${user?.email}`);
+//                 const { data } = await axios.get(`http://localhost:5000/userassignedtasks/${user?.email}`);
 //                 const taskObjects = data.map(entry => ({
 //                     ...entry.task,
 //                     userTaskId: entry._id
@@ -454,8 +454,8 @@
 //             );
 //             setTasks(updatedTasks);
 
-//             await axios.put(`https://teammanagementtools.vercel.app/mytasks/${taskToUpdate.userTaskId}`, updateFields);
-//             await axios.put(`https://teammanagementtools.vercel.app/task/${taskId}`, countOnlyFields);
+//             await axios.put(`http://localhost:5000/mytasks/${taskToUpdate.userTaskId}`, updateFields);
+//             await axios.put(`http://localhost:5000/task/${taskId}`, countOnlyFields);
 
 //         } catch (error) {
 //             console.error("Error updating task status:", error);
@@ -622,7 +622,7 @@
 //     useEffect(() => {
 //         const fetchAssignedTasks = async () => {
 //             try {
-//                 const { data } = await axios.get(`https://teammanagementtools.vercel.app/userassignedtasks/${user?.email}`);
+//                 const { data } = await axios.get(`http://localhost:5000/userassignedtasks/${user?.email}`);
 //                 const taskObjects = data.map(entry => ({
 //                     ...entry.task,
 //                     userTaskId: entry._id
@@ -677,8 +677,8 @@
 //             );
 //             setTasks(updatedTasks);
 
-//             await axios.put(`https://teammanagementtools.vercel.app/mytasks/${taskToUpdate.userTaskId}`, updateFields);
-//             await axios.put(`https://teammanagementtools.vercel.app/task/${taskId}`, countOnlyFields);
+//             await axios.put(`http://localhost:5000/mytasks/${taskToUpdate.userTaskId}`, updateFields);
+//             await axios.put(`http://localhost:5000/task/${taskId}`, countOnlyFields);
 //         } catch (error) {
 //             console.error("Error updating task status:", error);
 //         } finally {
@@ -850,14 +850,41 @@ const MyTask = () => {
         "Completed": "bg-green-500",
     };
 
+    // useEffect(() => {
+    //     const fetchAssignedTasks = async () => {
+    //         try {
+    //             const { data } = await axios.get(`http://localhost:5000/userassignedtasks/${user?.email}`);
+    //             const taskObjects = data.map(entry => ({
+    //                 ...entry.task,
+    //                 userTaskId: entry._id
+    //             }));
+    //             setTasks(taskObjects);
+    //         } catch (error) {
+    //             console.error("Error fetching assigned tasks", error);
+    //         }
+    //     };
+
+    //     if (user?.email) {
+    //         fetchAssignedTasks();
+    //     }
+    // }, [user?.email]);
+
     useEffect(() => {
         const fetchAssignedTasks = async () => {
             try {
-                const { data } = await axios.get(`https://teammanagementtools.vercel.app/userassignedtasks/${user?.email}`);
-                const taskObjects = data.map(entry => ({
-                    ...entry.task,
-                    userTaskId: entry._id
-                }));
+                const { data } = await axios.get(`http://localhost:5000/userassignedtasks/${user?.email}`);
+                const taskObjects = data.map(entry => {
+                    if (entry.pinned) {
+                        setPinnedTasks(prev => ({
+                            ...prev,
+                            [entry.task._id]: true
+                        }));
+                    }
+                    return {
+                        ...entry.task,
+                        userTaskId: entry._id
+                    };
+                });
                 setTasks(taskObjects);
             } catch (error) {
                 console.error("Error fetching assigned tasks", error);
@@ -908,8 +935,8 @@ const MyTask = () => {
             );
             setTasks(updatedTasks);
 
-            await axios.put(`https://teammanagementtools.vercel.app/mytasks/${taskToUpdate.userTaskId}`, updateFields);
-            await axios.put(`https://teammanagementtools.vercel.app/task/${taskId}`, countOnlyFields);
+            await axios.put(`http://localhost:5000/mytasks/${taskToUpdate.userTaskId}`, updateFields);
+            await axios.put(`http://localhost:5000/task/${taskId}`, countOnlyFields);
         } catch (error) {
             console.error("Error updating task status:", error);
         } finally {
@@ -917,18 +944,31 @@ const MyTask = () => {
         }
     };
 
-    const togglePinTask = (taskId) => {
+    const togglePinTask = async (taskId) => {
+        const newPinnedState = !pinnedTasks[taskId];
+
         setPinnedTasks(prev => ({
             ...prev,
-            [taskId]: !prev[taskId],
+            [taskId]: newPinnedState,
         }));
+
+        try {
+            await axios.post("http://localhost:5000/pin-task", {
+                taskId,
+                email: user?.email,
+                pinned: newPinnedState
+            });
+        } catch (error) {
+            console.error("Failed to update pin state:", error);
+        }
     };
+
 
     const filteredTasks = filterTasks();
 
     return (
         <div className="space-y-8 p-6 md:p-10 bg-gradient-to-tr from-blue-50 to-white min-h-screen">
-            <h1 className='text-4xl font-bold text-center text-gray-800'>📝 My Task Dashboard</h1>
+            <h1 className='text-4xl font-bold text-center text-gray-800'>📝 Welcome to your personal workplace</h1>
 
             <div className="flex flex-col md:flex-row gap-4 items-center">
                 <select

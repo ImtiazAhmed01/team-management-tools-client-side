@@ -40,7 +40,7 @@ const Task = ({ loggedInUserId }) => {
     const [userRole, setUserRole] = useState("");
 
     useEffect(() => {
-        axios.get("https://teammanagementtools.vercel.app/tasks").then((response) => {
+        axios.get("http://localhost:5000/tasks").then((response) => {
             setTasks(response.data);
         });
     }, []);
@@ -49,7 +49,7 @@ const Task = ({ loggedInUserId }) => {
     useEffect(() => {
         if (user?.email) {
             axios
-                .get(`https://teammanagementtools.vercel.app/profileInfo/${user?.email}`)
+                .get(`http://localhost:5000/profileInfo/${user?.email}`)
                 .then((res) => {
                     const userData = res.data?.[0];
                     setUserRole(userData);
@@ -71,7 +71,7 @@ const Task = ({ loggedInUserId }) => {
         try {
             if (taskData.id) {
                 // UPDATE TASK
-                await axios.put(`https://teammanagementtools.vercel.app/tasks/${taskData.id}`, taskData);
+                await axios.put(`http://localhost:5000/tasks/${taskData.id}`, taskData);
                 toast.success("Task updated successfully!", {
                     position: "top-right",
                     autoClose: 5000,
@@ -86,7 +86,7 @@ const Task = ({ loggedInUserId }) => {
                 setShowForm(false);
             } else {
                 // CREATE TASK
-                await axios.post("https://teammanagementtools.vercel.app/tasks", taskData);
+                await axios.post("http://localhost:5000/tasks", taskData);
                 toast.success("Task created successfully!", {
                     position: "top-right",
                     autoClose: 5000,
@@ -102,7 +102,7 @@ const Task = ({ loggedInUserId }) => {
             }
 
             // Refresh task list
-            const response = await axios.get("https://teammanagementtools.vercel.app/tasks");
+            const response = await axios.get("http://localhost:5000/tasks");
             setTasks(response.data);
 
             // Reset form
@@ -132,8 +132,8 @@ const Task = ({ loggedInUserId }) => {
 
     const handleDelete = async (taskId) => {
         try {
-            await axios.delete(`https://teammanagementtools.vercel.app/tasks/${taskId}`);
-            const response = await axios.get("https://teammanagementtools.vercel.app/tasks");
+            await axios.delete(`http://localhost:5000/tasks/${taskId}`);
+            const response = await axios.get("http://localhost:5000/tasks");
             setTasks(response.data);
         } catch (error) {
             console.error("Error deleting task:", error);
@@ -312,7 +312,7 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
         const checkIfAssigned = async () => {
             try {
                 const { data } = await axios.get(
-                    `https://teammanagementtools.vercel.app/is-assigned/${task._id}/${user?.email}`
+                    `http://localhost:5000/is-assigned/${task._id}/${user?.email}`
                 );
                 setAssigned(data.assigned);
             } catch (error) {
@@ -335,7 +335,7 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
             });
 
             try {
-                const { data } = await axios.post("https://teammanagementtools.vercel.app/assign-task", {
+                const { data } = await axios.post("http://localhost:5000/assign-task", {
                     task,
                     userId: loggedInUserIds,
                     email: user?.email,
@@ -373,7 +373,7 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
     useEffect(() => {
         const fetchReaction = async () => {
             const { data } = await axios.get(
-                `https://teammanagementtools.vercel.app/reaction/${task._id}`
+                `http://localhost:5000/reaction/${task._id}`
             );
             setReaction({
                 likeCount: data.likeCount || 0,
@@ -404,7 +404,7 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
 
         setActiveReaction((prev) => (prev === reactType ? null : reactType));
         try {
-            const { data } = await axios.post("https://teammanagementtools.vercel.app/reactions", {
+            const { data } = await axios.post("http://localhost:5000/reactions", {
                 cardId: task._id,
                 reactions: reactType,
             });
@@ -422,7 +422,7 @@ const TaskCard = ({ task, loggedInUserId, onDelete, onEdit }) => {
     const [userInfo, setUserInfo] = useState([]);
 
     useEffect(() => {
-        fetch("https://teammanagementtools.vercel.app/user")
+        fetch("http://localhost:5000/user")
             .then((res) => res.json())
             .then((data) => {
                 const formattedUsers = data.map((user) => ({
