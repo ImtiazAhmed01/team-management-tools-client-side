@@ -52,7 +52,7 @@
 //     useEffect(() => {
 //         const fetchAssignedTasks = async () => {
 //             try {
-//                 const { data } = await axios.get(`http://localhost:5000/userassignedtasks/${user?.email}`);
+//                 const { data } = await axios.get(`https://team-management-tools-server-side.onrender.com/userassignedtasks/${user?.email}`);
 
 //                 // Each task object includes the outer userTask _id
 //                 const taskObjects = data.map(entry => ({
@@ -130,11 +130,11 @@
 //             setTasks(updatedTasks);
 
 //             // ✅ Use outer _id for user task collection (updating status)
-//             const userTaskRes = await axios.put(`http://localhost:5000/mytasks/${taskToUpdate.userTaskId}`, updateFields);
+//             const userTaskRes = await axios.put(`https://team-management-tools-server-side.onrender.com/mytasks/${taskToUpdate.userTaskId}`, updateFields);
 //             console.log("User task update response:", userTaskRes.data);
 
 //             // 🧠 Use inner _id for task collection (update counts only)
-//             const taskRes = await axios.put(`http://localhost:5000/task/${taskId}`, countOnlyFields);
+//             const taskRes = await axios.put(`https://team-management-tools-server-side.onrender.com/task/${taskId}`, countOnlyFields);
 //             console.log("Main task count update response:", taskRes.data);
 
 //         } catch (error) {
@@ -385,7 +385,7 @@
 //     useEffect(() => {
 //         const fetchAssignedTasks = async () => {
 //             try {
-//                 const { data } = await axios.get(`http://localhost:5000/userassignedtasks/${user?.email}`);
+//                 const { data } = await axios.get(`https://team-management-tools-server-side.onrender.com/userassignedtasks/${user?.email}`);
 //                 const taskObjects = data.map(entry => ({
 //                     ...entry.task,
 //                     userTaskId: entry._id
@@ -454,8 +454,8 @@
 //             );
 //             setTasks(updatedTasks);
 
-//             await axios.put(`http://localhost:5000/mytasks/${taskToUpdate.userTaskId}`, updateFields);
-//             await axios.put(`http://localhost:5000/task/${taskId}`, countOnlyFields);
+//             await axios.put(`https://team-management-tools-server-side.onrender.com/mytasks/${taskToUpdate.userTaskId}`, updateFields);
+//             await axios.put(`https://team-management-tools-server-side.onrender.com/task/${taskId}`, countOnlyFields);
 
 //         } catch (error) {
 //             console.error("Error updating task status:", error);
@@ -622,7 +622,7 @@
 //     useEffect(() => {
 //         const fetchAssignedTasks = async () => {
 //             try {
-//                 const { data } = await axios.get(`http://localhost:5000/userassignedtasks/${user?.email}`);
+//                 const { data } = await axios.get(`https://team-management-tools-server-side.onrender.com/userassignedtasks/${user?.email}`);
 //                 const taskObjects = data.map(entry => ({
 //                     ...entry.task,
 //                     userTaskId: entry._id
@@ -677,8 +677,8 @@
 //             );
 //             setTasks(updatedTasks);
 
-//             await axios.put(`http://localhost:5000/mytasks/${taskToUpdate.userTaskId}`, updateFields);
-//             await axios.put(`http://localhost:5000/task/${taskId}`, countOnlyFields);
+//             await axios.put(`https://team-management-tools-server-side.onrender.com/mytasks/${taskToUpdate.userTaskId}`, updateFields);
+//             await axios.put(`https://team-management-tools-server-side.onrender.com/task/${taskId}`, countOnlyFields);
 //         } catch (error) {
 //             console.error("Error updating task status:", error);
 //         } finally {
@@ -853,7 +853,7 @@ const MyTask = () => {
     // useEffect(() => {
     //     const fetchAssignedTasks = async () => {
     //         try {
-    //             const { data } = await axios.get(`http://localhost:5000/userassignedtasks/${user?.email}`);
+    //             const { data } = await axios.get(`https://team-management-tools-server-side.onrender.com/userassignedtasks/${user?.email}`);
     //             const taskObjects = data.map(entry => ({
     //                 ...entry.task,
     //                 userTaskId: entry._id
@@ -872,7 +872,7 @@ const MyTask = () => {
     useEffect(() => {
         const fetchAssignedTasks = async () => {
             try {
-                const { data } = await axios.get(`http://localhost:5000/userassignedtasks/${user?.email}`);
+                const { data } = await axios.get(`https://team-management-tools-server-side.onrender.com/userassignedtasks/${user?.email}`);
                 const taskObjects = data.map(entry => {
                     if (entry.pinned) {
                         setPinnedTasks(prev => ({
@@ -935,8 +935,8 @@ const MyTask = () => {
             );
             setTasks(updatedTasks);
 
-            await axios.put(`http://localhost:5000/mytasks/${taskToUpdate.userTaskId}`, updateFields);
-            await axios.put(`http://localhost:5000/task/${taskId}`, countOnlyFields);
+            await axios.put(`https://team-management-tools-server-side.onrender.com/mytasks/${taskToUpdate.userTaskId}`, updateFields);
+            await axios.put(`https://team-management-tools-server-side.onrender.com/task/${taskId}`, countOnlyFields);
         } catch (error) {
             console.error("Error updating task status:", error);
         } finally {
@@ -953,7 +953,7 @@ const MyTask = () => {
         }));
 
         try {
-            await axios.post("http://localhost:5000/pin-task", {
+            await axios.post("https://team-management-tools-server-side.onrender.com/pin-task", {
                 taskId,
                 email: user?.email,
                 pinned: newPinnedState

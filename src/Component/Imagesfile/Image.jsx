@@ -14,7 +14,7 @@ const image_Hosting_API = `https://api.imgbb.com/1/upload?key=${import.meta.env.
 
 
 const fetchImages = async () => {
-    const res = await axios.get('http://localhost:5000/tasks');
+    const res = await axios.get('https://team-management-tools-server-side.onrender.com/tasks');
     return res.data.reverse();
 };
 
@@ -44,7 +44,7 @@ const Image = () => {
                 userId: user.displayName,
             };
 
-            await axios.post('http://localhost:5000/upload-image', task);
+            await axios.post('https://team-management-tools-server-side.onrender.com/upload-image', task);
             return imageUrl;
         },
         onSuccess: (imageUrl) => {
