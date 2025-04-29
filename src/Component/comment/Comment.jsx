@@ -142,7 +142,7 @@ const Comment = () => {
           <MentionsInput
             value={commentInput}
             onChange={(e) => setCommentInput(e.target.value)}
-            placeholder="Write a comment... use @ to mention"
+            placeholder="Write a comment... use @mention at the last of comment"
             className="w-full border rounded-md p-3 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-400"
             style={{
               mention: {
