@@ -22,7 +22,7 @@ const Comment = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/task/${id}`)
+      .get(`https://team-management-tools-server-side.onrender.com/task/${id}`)
       .then((res) => setTask(res.data));
   }, [id]);
 
@@ -34,7 +34,7 @@ const Comment = () => {
 
     try {
       const { data } = await axios.post(
-        `http://localhost:5000/comments/${id}`,
+        `https://team-management-tools-server-side.onrender.com/comments/${id}`,
         { commentInfo }
       );
       if (data.insertedId) {
@@ -56,7 +56,7 @@ const Comment = () => {
       if (id) {
         try {
           const { data } = await axios.get(
-            `http://localhost:5000/comment/${id}`
+            `https://team-management-tools-server-side.onrender.com/comment/${id}`
           );
           setComment(data);
         } catch (error) {
@@ -70,7 +70,7 @@ const Comment = () => {
   //   fetch reactions
   useEffect(() => {
     const fetchReaction = async () => {
-      const { data } = await axios.get(`http://localhost:5000/reaction/${id}`);
+      const { data } = await axios.get(`https://team-management-tools-server-side.onrender.com/reaction/${id}`);
       setReaction(data);
     };
     if (id) {
@@ -82,7 +82,7 @@ const Comment = () => {
   const [userInfo, setUserInfo] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/user")
+    fetch("https://team-management-tools-server-side.onrender.com/user")
       .then((res) => res.json())
       .then((data) => {
         const formattedUsers = data.map((user) => ({

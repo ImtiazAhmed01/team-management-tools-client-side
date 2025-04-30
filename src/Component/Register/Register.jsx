@@ -120,7 +120,7 @@ const Register = () => {
         transition: Bounce,
       });
 
-      const response = await fetch("http://localhost:5000/user", {
+      const response = await fetch("https://team-management-tools-server-side.onrender.com/user", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -187,7 +187,7 @@ const Register = () => {
         registryType: "google",
       };
 
-      await fetch("http://localhost:5000/user", {
+      await fetch("https://team-management-tools-server-side.onrender.com/user", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -238,7 +238,7 @@ const Register = () => {
         registryType: "github",
       };
 
-      await fetch("http://localhost:5000/user", {
+      await fetch("https://team-management-tools-server-side.onrender.com/user", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
