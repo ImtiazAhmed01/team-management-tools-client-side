@@ -22,7 +22,7 @@ const MyTask = () => {
     useEffect(() => {
         const fetchAssignedTasks = async () => {
             try {
-                const { data } = await axios.get(`https://teammanagementtools.vercel.app/userassignedtasks/${user?.email}`);
+                const { data } = await axios.get(`http://localhost:5000/userassignedtasks/${user?.email}`);
 
                 // Each task object includes the outer userTask _id
                 const taskObjects = data.map(entry => ({
@@ -100,11 +100,11 @@ const MyTask = () => {
             setTasks(updatedTasks);
 
             // ✅ Use outer _id for user task collection (updating status)
-            const userTaskRes = await axios.put(`https://teammanagementtools.vercel.app/mytasks/${taskToUpdate.userTaskId}`, updateFields);
+            const userTaskRes = await axios.put(`http://localhost:5000/mytasks/${taskToUpdate.userTaskId}`, updateFields);
             console.log("User task update response:", userTaskRes.data);
 
             // 🧠 Use inner _id for task collection (update counts only)
-            const taskRes = await axios.put(`https://teammanagementtools.vercel.app/task/${taskId}`, countOnlyFields);
+            const taskRes = await axios.put(`http://localhost:5000/task/${taskId}`, countOnlyFields);
             console.log("Main task count update response:", taskRes.data);
 
         } catch (error) {

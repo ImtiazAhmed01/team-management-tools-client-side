@@ -19,6 +19,8 @@ import Profile from "./Component/profile/Profile";
 import Comment from "./Component/comment/Comment";
 import About from "./Component/AboutUs/AboutUs";
 import { ChatProvider } from "./Component/chat/ChatContext";
+import { ThemeProvider } from "./Component/ThemeProvider/ThemeProvider";
+
 
 const router = createBrowserRouter([
   {
@@ -67,25 +69,23 @@ const router = createBrowserRouter([
 const queryClient = new QueryClient();
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <ChatProvider>
-          <RouterProvider router={router} />
-          <ToastContainer
-            position="top-center"
-            autoClose={5000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            // rtl={false}
-            // pauseOnFocusLoss
-            // draggable
-            // pauseOnHover
-            // theme="light"
-            // transition="bounce"
-          />
-        </ChatProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <div className="bg-white dark:bg-[#000000]">
+            <ChatProvider>
+              <RouterProvider router={router} />
+              <ToastContainer
+                position="top-center"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+              />
+            </ChatProvider>
+          </div>
+        </AuthProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   </StrictMode>
 );

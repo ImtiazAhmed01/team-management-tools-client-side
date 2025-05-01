@@ -22,7 +22,7 @@ const Comment = () => {
 
   useEffect(() => {
     axios
-      .get(`https://teammanagementtools.vercel.app/task/${id}`)
+      .get(`http://localhost:5000/task/${id}`)
       .then((res) => setTask(res.data));
   }, [id]);
 
@@ -34,7 +34,7 @@ const Comment = () => {
 
     try {
       const { data } = await axios.post(
-        `https://teammanagementtools.vercel.app/comments/${id}`,
+        `http://localhost:5000/comments/${id}`,
         { commentInfo }
       );
       if (data.insertedId) {
@@ -56,7 +56,7 @@ const Comment = () => {
       if (id) {
         try {
           const { data } = await axios.get(
-            `https://teammanagementtools.vercel.app/comment/${id}`
+            `http://localhost:5000/comment/${id}`
           );
           setComment(data);
         } catch (error) {
@@ -70,7 +70,7 @@ const Comment = () => {
   //   fetch reactions
   useEffect(() => {
     const fetchReaction = async () => {
-      const { data } = await axios.get(`https://teammanagementtools.vercel.app/reaction/${id}`);
+      const { data } = await axios.get(`http://localhost:5000/reaction/${id}`);
       setReaction(data);
     };
     if (id) {
@@ -82,7 +82,7 @@ const Comment = () => {
   const [userInfo, setUserInfo] = useState([]);
 
   useEffect(() => {
-    fetch("https://teammanagementtools.vercel.app/user")
+    fetch("http://localhost:5000/user")
       .then((res) => res.json())
       .then((data) => {
         const formattedUsers = data.map((user) => ({

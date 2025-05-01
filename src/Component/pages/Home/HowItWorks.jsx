@@ -3,13 +3,13 @@ import React from "react";
 const HowItWorks = () => {
   return (
     <div className="lg:w-8/12 md:w-11/12 w-10/12 mx-auto mt-10">
-      <h1 className="font-bold text-center md:text-4xl text-3xl my-12">How It Works</h1>
+      <h1 className="font-bold text-center md:text-4xl text-3xl my-12 dark:text-white">How It Works</h1>
       <div className="space-y-10 md:space-y-0 text-center md:text-left">
         {/* div 1 */}
         <div className="flex md:flex-row flex-col lg:justify-between justify-center lg:gap-0 gap-8 items-center">
           <div className="lg:px-12 order-1 lg:w-full md:w-1/2 md:space-y-0 space-y-2">
-            <h4 className="font-bold text-2xl">Create Tasks & Assign Work</h4>
-            <p>
+            <h4 className="font-bold text-2xl dark:text-white">Create Tasks & Assign Work</h4>
+            <p className="dark:text-gray-300">
               Easily create tasks, set priorities, and assign them to team
               members. Keep everything organized with due dates, labels, and
               descriptions so everyone knows what to do and when.
@@ -33,8 +33,8 @@ const HowItWorks = () => {
             />
           </div>
           <div className="lg:px-12 lg:order-2 order-1 lg:w-full md:w-1/2 md:space-y-0 space-y-2">
-            <h4 className="font-bold text-2xl">Collaborate via Chat</h4>
-            <p>
+            <h4 className="font-bold text-2xl dark:text-white">Collaborate via Chat</h4>
+            <p className="dark:text-gray-300">
               Communicate instantly with real-time chat. Share updates, ask
               questions, and make quick decisions without switching between
               multiple apps.
@@ -44,8 +44,8 @@ const HowItWorks = () => {
         {/* div 3 */}
         <div className="flex md:flex-row flex-col lg:justify-between justify-center items-center">
           <div className="lg:px-12 order-1 md:px-8 md:space-y-0 space-y-2">
-            <h4 className="font-bold text-2xl">Track Progress & Deadlines</h4>
-            <p>
+            <h4 className="font-bold text-2xl dark:text-white">Track Progress & Deadlines</h4>
+            <p className="dark:text-gray-300">
               Monitor task status, deadlines, and overall project progress in
               one place. Visual indicators and progress bars help teams stay on
               track and meet goals efficiently.
@@ -69,8 +69,8 @@ const HowItWorks = () => {
             />
           </div>
           <div className="lg:px-12 lg:order-2 order-1 lg:w-full md:w-1/2 md:space-y-0 space-y-2">
-            <h4 className="font-bold text-2xl">Stay Notified & Productive</h4>
-            <p>
+            <h4 className="font-bold text-2xl dark:text-white">Stay Notified & Productive</h4>
+            <p className="dark:text-gray-300">
               Get real-time notifications for task updates, mentions, and
               deadlines. Stay informed without unnecessary distractions,
               ensuring smooth collaboration and increased productivity. Would
