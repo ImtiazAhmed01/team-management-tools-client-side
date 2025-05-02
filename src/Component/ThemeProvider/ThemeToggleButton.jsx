@@ -9,10 +9,10 @@ export const ThemeToggleButton = () => {
   return (
     <button
       onClick={toggleTheme}
-      className="fixed bottom-3 right-3 z-50 p-2 bg-primary text-primary-content rounded-full shadow-lg hover:bg-primary-focus transition-colors"
+      className="fixed bottom-1.5 right-12 z-50 p-1.5 bg-blue-500 text-primary-content rounded-full shadow-lg hover:bg-primary-focus transition-colors"
       aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
     >
-      {theme === "light" ? <CiLight size={20} /> : <FaMoon size={20} />}
+      {theme === "light" ? <CiLight size={18} /> : <FaMoon size={18} />}
     </button>
   );
 };

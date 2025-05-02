@@ -17,7 +17,7 @@ function App() {
       ) : (
         <>
           <Navbar />
-          <div className="relative">
+          <div className="relative pt-16">
             <Outlet />
             <ChatBox />
             <ThemeToggleButton />

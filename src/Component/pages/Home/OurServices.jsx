@@ -12,7 +12,7 @@ const OurServices = () => {
       </h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mt-8">
         {/* card 1 */}
-        <div className="bg-blue-50 dark:bg-gray-700 rounded-md py-8 px-4 text-center space-y-2 transition-colors duration-300">
+        <div className="bg-blue-50 dark:bg-gray-900 rounded-md py-8 px-4 text-center space-y-2 transition-colors duration-300">
           <img src={plannig} className="w-24 mx-auto" alt="Task Management" />
           <h4 className="font-bold text-xl text-gray-900 dark:text-white">Task Management</h4>
           <p className="text-sm text-gray-700 dark:text-gray-200">
@@ -23,7 +23,7 @@ const OurServices = () => {
           </p>
         </div>
         {/* card 2 */}
-        <div className="bg-blue-50 dark:bg-gray-700 rounded-md py-8 px-4 text-center space-y-2 transition-colors duration-300">
+        <div className="bg-blue-50 dark:bg-gray-900 rounded-md py-8 px-4 text-center space-y-2 transition-colors duration-300">
           <img src={chat} className="w-24 mx-auto" alt="Real-Time Chat" />
           <h4 className="font-bold text-xl text-gray-900 dark:text-white">Real-Time Chat</h4>
           <p className="text-sm text-gray-700 dark:text-gray-200">
@@ -33,7 +33,7 @@ const OurServices = () => {
           </p>
         </div>
         {/* card 3 */}
-        <div className="bg-blue-50 dark:bg-gray-700 rounded-md py-8 px-4 text-center space-y-2 transition-colors duration-300">
+        <div className="bg-blue-50 dark:bg-gray-900 rounded-md py-8 px-4 text-center space-y-2 transition-colors duration-300">
           <img src={img} className="w-24 mx-auto" alt="Image Sharing" />
           <h4 className="font-bold text-xl text-gray-900 dark:text-white">Image Sharing</h4>
           <p className="text-sm text-gray-700 dark:text-gray-200">
@@ -44,7 +44,7 @@ const OurServices = () => {
           </p>
         </div>
         {/* card 4 */}
-        <div className="bg-blue-50 dark:bg-gray-700 rounded-md py-8 px-4 text-center space-y-2 transition-colors duration-300">
+        <div className="bg-blue-50 dark:bg-gray-900 rounded-md py-8 px-4 text-center space-y-2 transition-colors duration-300">
           <img src={role} className="w-24 mx-auto" alt="Role-Based Access" />
           <h4 className="font-bold text-xl text-gray-900 dark:text-white">Role-Based Access</h4>
           <p className="text-sm text-gray-700 dark:text-gray-200">

@@ -22,6 +22,7 @@ import { ChatProvider } from "./Component/chat/ChatContext";
 import { ThemeProvider } from "./Component/ThemeProvider/ThemeProvider";
 
 
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -72,7 +73,7 @@ createRoot(document.getElementById("root")).render(
     <ThemeProvider>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <div className="bg-white dark:bg-[#000000]">
+          <div className="bg-white dark:bg-gradient-to-b dark:from-[#000000] dark:to-gray-800">
             <ChatProvider>
               <RouterProvider router={router} />
               <ToastContainer

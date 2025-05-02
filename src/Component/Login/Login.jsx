@@ -155,7 +155,7 @@ const Login = () => {
 
     return (
         <motion.div
-            className="flex items-center justify-center min-h-screen bg-gradient-to-r from-gray-200 to-blue-300 px-4"
+            className="flex items-center justify-center min-h-screen bg-gradient-to-r from-gray-200 to-blue-300 px-4 md:pt-0 pt-20"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6 }}
