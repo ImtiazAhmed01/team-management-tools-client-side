@@ -5,6 +5,7 @@ import Footer from "./Component/Footer/Footer";
 import ChatBox from "./Component/chat/ChatBox";
 import { Outlet } from "react-router-dom";
 import Eid from "./Component/Eid-Greetings/Eid";
+import {ThemeToggleButton} from "./Component/ThemeProvider/ThemeToggleButton";
 
 function App() {
   const [showIntro, setShowIntro] = useState(true);
@@ -16,9 +17,10 @@ function App() {
       ) : (
         <>
           <Navbar />
-          <div className="relative">
+          <div className="relative pt-16">
             <Outlet />
             <ChatBox />
+            <ThemeToggleButton />
           </div>
           <Footer />
         </>

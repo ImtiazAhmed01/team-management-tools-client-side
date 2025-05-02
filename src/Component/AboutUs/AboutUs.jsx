@@ -31,7 +31,7 @@ const founders = [
 
 const About = () => {
     return (
-        <div className="px-4 md:px-16 py-10 text-gray-900 bg-white">
+        <div className="px-4 md:px-16 py-10 text-gray-900 dark:text-white">
             <div className="flex flex-col md:flex-row justify-center items-center">
                 <div className="mb-12">
                     <span className="text-sm font-bold text-[#006dc7] uppercase rounded-full px-5 py-2 bg-blue-300">About</span>
@@ -66,7 +66,7 @@ const About = () => {
                     {founders.map((founder, index) => (
                         <div
                             key={index}
-                            className="rounded-xl p-6 w-56  text-center shadow-md hover:shadow-lg transition bg-white"
+                            className="rounded-xl p-6 w-56  text-center shadow-md hover:shadow-lg transition bg-white dark:bg-gray-800"
                         >
                             <img
                                 src={founder.img}
@@ -74,11 +74,11 @@ const About = () => {
                                 className="w-24 h-24 mx-auto rounded-full object-cover mb-3"
                             />
                             <h3 className="font-bold text-xl">{founder.name}</h3>
-                            <p className="text-gray-500 mb-3">{founder.role}</p>
-                            <div className="flex justify-center gap-4 text-xl text-blue-600">
+                            <p className="text-gray-500 dark:text-gray-200 mb-3">{founder.role}</p>
+                            <div className="flex justify-center gap-4 text-xl text-blue-600 dark:text-blue-500">
                                 <FaFacebook />
-                                <FaInstagram className="text-pink-600" />
-                                <FaLinkedin className="text-blue-800" />
+                                <FaInstagram className="text-pink-600 dark:text-pink-500" />
+                                <FaLinkedin className="text-blue-800 dark:text-blue-500" />
                             </div>
                         </div>
                     ))}

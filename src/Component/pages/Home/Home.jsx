@@ -7,7 +7,7 @@ import FAQ from "./FAQ";
 
 const Home = () => {
   return (
-    <div className="dark:bg-gray-900">
+    <div className="dark:from-[#000000] dark:to-gray-800 pb-8">
       <Hero />
       <OurServices />
       <HowItWorks/>

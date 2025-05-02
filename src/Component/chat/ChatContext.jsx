@@ -71,7 +71,7 @@
 //       socket.emit("joinRoom", roomId);
 
 //       axios
-//         .get(`https://team-management-tools-server-side.onrender.com/api/messages/${roomId}`)
+//         .get(`http://localhost:5000/api/messages/${roomId}`)
 //         .then((res) => {
 //           setMessages(res.data);
 //         })
@@ -210,7 +210,7 @@ export const ChatProvider = ({ children }) => {
 
 
       axios
-        .get(`https://team-management-tools-server-side.onrender.com/api/messages/${roomId}`)
+        .get(`http://localhost:5000/api/messages/${roomId}`)
         .then((res) => {
           setMessages(res.data);
         })

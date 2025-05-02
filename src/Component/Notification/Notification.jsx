@@ -10,7 +10,7 @@ const extractMentions = (text) => {
 };
 const sendMentionNotifications = async (comment, taskId, senderName) => {
     try {
-        const { data: users } = await axios.get("https://team-management-tools-server-side.onrender.com/user");
+        const { data: users } = await axios.get("http://localhost:5000/user");
         const mentions = extractMentions(comment);
         if (mentions.length === 0) return;
         const mentionedUsers = users.filter((user) => mentions.includes(user.fullName));
@@ -21,7 +21,7 @@ const sendMentionNotifications = async (comment, taskId, senderName) => {
                 subject: `You were mentioned in a task comment`,
                 message: `${senderName} mentioned you in a comment on task "${taskId}":\n\n"${comment}"\n\nCheck it out at: [Your App URL]/tasks/${taskId}`,
             };
-            return axios.post("https://team-management-tools-server-side.onrender.com/send-email", notificationData);
+            return axios.post("http://localhost:5000/send-email", notificationData);
         });
         await Promise.all(notificationPromises);
         console.log("Notifications sent successfully to:", mentionedUsers.map(u => u.email));
