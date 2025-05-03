@@ -188,6 +188,6 @@ CollabNest aims to provide a real-time collaboration platform with seamless comm
 
 ---
 
-Live link[(https://team-management-tool.firebaseapp.com/)]
+live URL.
 
-
+- Click here to watch [live site]([https://team-management-tool.firebaseapp.com/])
