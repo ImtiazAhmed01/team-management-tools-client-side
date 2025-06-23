@@ -2,7 +2,7 @@
 
 # CollabNest
 
-**CollabNest** is a highly efficient and interactive workspace designed to help teams collaborate seamlessly in real time. Built with a modern tech stack, CollabNest brings together task management, chat, file sharing, and more—enabling teams to stay connected and productive.
+**CollabNest** is a highly efficient and interactive workspace designed to help teams collaborate seamlessly in real time. Built with a modern tech stack, CollabNest brings together task management, chat, file sharing, and more enabling teams to stay connected and productive.
 
 ---
 
